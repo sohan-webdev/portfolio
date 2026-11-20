@@ -1101,6 +1101,15 @@ header nav.dsk a.cta{display:none}
 .sm-r mark{background:rgba(var(--vr),.35);color:#fff;border-radius:3px}
 .sm-empty{padding:30px;text-align:center;color:var(--fg3)}
 @media(max-width:1100px){.srch .t,.srch kbd{display:none}.srch{width:40px;padding:0;justify-content:center}header nav.dsk a{padding:8px 7px;font-size:13px}}
+.drw{padding:8px 24px 32px}.drw.open{display:flex;flex-direction:column}
+.drw nav{gap:0}
+.drw nav a{display:flex;align-items:center;justify-content:space-between;font-family:var(--display);font-size:1.12rem;font-weight:500;padding:15px 4px;color:var(--fg);border:0;border-bottom:1px solid var(--line);border-radius:0;background:none}
+.drw nav a:hover,.drw nav a:active{background:none;border-color:var(--line);color:#fff}
+.drw nav a svg{color:var(--fg3)}.drw nav a.ds{color:var(--fg2)}
+.dfoot{margin-top:auto;padding-top:28px;display:grid;gap:18px;justify-items:center}
+.dbtn{width:100%;display:flex;justify-content:center;align-items:center;gap:10px;font-family:var(--mono);font-size:14px;font-weight:600;padding:14px 24px;border-radius:12px;background:linear-gradient(135deg,var(--v),var(--v2));color:#fff;box-shadow:0 10px 30px -10px rgba(var(--vr),.7),inset 0 1px 0 rgba(255,255,255,.2)}
+.dsoc{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.dsoc a{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;border:1px solid var(--line2);color:var(--fg2)}
 @keyframes blink{50%{opacity:0}}
 .logo{display:flex;align-items:center;gap:2px}.logo .cur{display:inline-block;width:8px;height:16px;background:var(--v2);margin-left:4px;animation:blink 1s steps(1) infinite}
 .hbg{width:42px;height:42px;padding:11px;border-radius:10px}
@@ -1118,6 +1127,8 @@ header nav.dsk a.cta{display:none}
     nr.innerHTML='<button class="srch" id="srchBtn" type="button" aria-label="Search">'+SVG+'<span class="t">Search</span><kbd>Ctrl K</kbd></button><a class="cta2" href="/#contact">hire_me() <span class="ar">&rarr;</span></a>';
     if(hb)hw.insertBefore(nr,hb);else hw.appendChild(nr);
   }
+  var IC=${JSON.stringify(Object.fromEntries(['fiverr','upwork','linkedin','github','whatsapp','facebook','instagram','x','youtube','arrow','external','search'].map(k=>[k,ICONS[k]||''])))};
+  function ico(k,z){return '<svg width="'+z+'" height="'+z+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(IC[k]||'')+'</svg>'}
   var IDX=[],hits=[],sel=0;
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
   function add(g,t,sub,txt,url){IDX.push({g:g,t:String(t||''),sub:String(sub||''),hay:(t+' '+(sub||'')+' '+(txt||'')).toLowerCase(),url:url})}
@@ -1158,10 +1169,19 @@ header nav.dsk a.cta{display:none}
     var rv=h.reviews?'':'<a href="/reviews/">Reviews</a>';
     var bl=h.blog?'':'<a href="/blog/">Blog</a>';
     document.querySelectorAll('nav.dsk').forEach(function(n){n.innerHTML=links+rv+bl});
-    document.querySelectorAll('.drw nav').forEach(function(n){
-      n.innerHTML=links+rv+bl+'<a class="cta" href="/#contact">hire_me()</a>';
-      n.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){var d=document.getElementById('drw');if(d)d.classList.remove('open');if(hb)hb.classList.remove('open')})});
-    });
+    var drw=document.getElementById('drw');
+    if(drw){
+      var LB={about:'About',services:'Services',experience:'Experience',skills:'Skills',projects:'Projects',faq:'FAQ',contact:'Contact'};
+      var items='<a href="#" class="ds" id="dSearch">Search'+ico('search',16)+'</a>';
+      o.concat(['contact']).forEach(function(id){if(LB[id]&&!h[id])items+='<a href="/#'+id+'">'+LB[id]+ico('arrow',16)+'</a>'});
+      if(!h.reviews)items+='<a href="/reviews/">All reviews'+ico('external',15)+'</a>';
+      if(!h.blog)items+='<a href="/blog/">Blog'+ico('external',15)+'</a>';
+      var k=c.contact||{},soc='';['fiverr','upwork','linkedin','github','whatsapp','facebook','instagram','x','youtube'].forEach(function(i){if(k[i])soc+='<a href="'+esc(k[i])+'" target="_blank" rel="noopener" aria-label="'+i+'">'+ico(i,17)+'</a>'});
+      drw.innerHTML='<nav>'+items+'</nav><div class="dfoot"><a class="dbtn" href="/#contact">Hire me '+ico('arrow',16)+'</a><div class="dsoc">'+soc+'</div></div>';
+      var shut=function(){drw.classList.remove('open');if(hb)hb.classList.remove('open')};
+      drw.querySelectorAll('a').forEach(function(a){a.addEventListener('click',shut)});
+      document.getElementById('dSearch').addEventListener('click',function(e){e.preventDefault();shut();open()});
+    }
     build(c,h,o);
   }).catch(function(){});
 })();
