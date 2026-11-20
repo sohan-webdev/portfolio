@@ -1,8 +1,8 @@
 (function(){
 'use strict';
 var CONFIG={
-  GEMINI_API_KEY:'YOUR_GEMINI_API_KEY',
-  WEB3FORMS_KEY:'YOUR_WEB3FORMS_KEY',
+  GEMINI_API_KEY:'AQ.Ab8RN6Je0mkux99dmHI1FX9A4wrlplWhF3gh3TyMhWyBCgM8Dg',
+  WEB3FORMS_KEY:'4a36a48e-1581-4fb8-86f9-245c2769a4d6',
   OWNER_EMAIL:'mdsohanhossain337@gmail.com',
   COLOR:'#2897FF',
   TITLE:"Chat with Sohan's AI",
