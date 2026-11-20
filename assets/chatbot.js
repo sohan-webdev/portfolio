@@ -40,7 +40,7 @@
 
     // 🎨 Colors
     PRIMARY:     '#16122A',  // panel background
-    ACCENT:      '#2897FF',  // buttons and highlights
+    ACCENT:      '#8B5CF6',  // buttons and highlights
   };
   /* ═══════════════════════════════════════════════════════════ */
 
@@ -213,11 +213,11 @@
       /* floating button */
       '#_lc-btn{position:fixed;bottom:24px;right:24px;width:58px;height:58px;border-radius:50%;border:2.5px solid ' + A + ';',
       'background:' + P + ';cursor:pointer;display:flex;align-items:center;justify-content:center;',
-      'box-shadow:0 4px 20px rgba(40,151,255,.3);z-index:2147483646;',
+      'box-shadow:0 4px 20px rgba(139,92,246,.3);z-index:2147483646;',
       'transition:transform .2s,box-shadow .2s;animation:_lc-pulse 3.5s ease infinite}',
-      '#_lc-btn:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(40,151,255,.5)}',
-      '@keyframes _lc-pulse{0%,100%{box-shadow:0 4px 20px rgba(40,151,255,.3),0 0 0 0 rgba(40,151,255,.35)}',
-      '60%{box-shadow:0 4px 20px rgba(40,151,255,.3),0 0 0 10px rgba(40,151,255,0)}}',
+      '#_lc-btn:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(139,92,246,.5)}',
+      '@keyframes _lc-pulse{0%,100%{box-shadow:0 4px 20px rgba(139,92,246,.3),0 0 0 0 rgba(139,92,246,.35)}',
+      '60%{box-shadow:0 4px 20px rgba(139,92,246,.3),0 0 0 10px rgba(139,92,246,0)}}',
       '#_lc-btn svg{width:26px;height:26px;fill:' + A + '}',
       '#_lc-btn .ic-open{display:block}#_lc-btn .ic-close{display:none;fill:#fff!important}',
       '#_lc-btn.on .ic-open{display:none}#_lc-btn.on .ic-close{display:block}',
@@ -227,17 +227,17 @@
       'display:none;align-items:center;justify-content:center;border:2px solid ' + P + '}',
       /* panel */
       '#_lc-panel{position:fixed;bottom:94px;right:24px;width:375px;max-height:580px;',
-      'background:' + P + ';border:1px solid rgba(40,151,255,.18);border-radius:22px;overflow:hidden;',
+      'background:' + P + ';border:1px solid rgba(139,92,246,.18);border-radius:22px;overflow:hidden;',
       'display:flex;flex-direction:column;z-index:2147483645;',
-      'box-shadow:0 24px 64px rgba(0,0,0,.7),0 0 0 1px rgba(40,151,255,.08);',
+      'box-shadow:0 24px 64px rgba(0,0,0,.7),0 0 0 1px rgba(139,92,246,.08);',
       'transform:translateY(16px) scale(.96);opacity:0;pointer-events:none;',
       'transition:transform .28s cubic-bezier(.34,1.56,.64,1),opacity .2s}',
       '#_lc-panel.on{transform:none;opacity:1;pointer-events:all}',
       '@media(max-width:420px){#_lc-panel{width:calc(100vw - 20px);right:10px;bottom:82px}}',
       /* header */
       '#_lc-hd{padding:15px 18px;background:linear-gradient(135deg,' + P + ' 0%,rgba(26,22,50,1) 100%);',
-      'display:flex;align-items:center;gap:11px;flex-shrink:0;border-bottom:1px solid rgba(40,151,255,.12)}',
-      '#_lc-hd .av{width:40px;height:40px;background:' + A + ';border-radius:50%;display:flex;',
+      'display:flex;align-items:center;gap:11px;flex-shrink:0;border-bottom:1px solid rgba(139,92,246,.12)}',
+      '#_lc-hd .av{width:40px;height:40px;background:' + A + ';border-radius:50%;overflow:hidden;display:flex;',
       'align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:14px;flex-shrink:0}',
       '#_lc-hd .inf{flex:1;overflow:hidden}',
       '#_lc-hd .inf b{color:#fff;font-size:14px;font-weight:600;display:block}',
@@ -259,16 +259,16 @@
       '._lc-title{color:#fff;font-size:14.5px;font-weight:600;line-height:1.5}',
       '._lc-sub{color:rgba(255,255,255,.5);font-size:12.5px;line-height:1.55;margin-top:3px}',
       /* inputs */
-      '._lc-inp{width:100%;padding:11px 14px;background:rgba(255,255,255,.06);',
-      'border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:13.5px;',
+      '._lc-inp{width:100%;padding:13px 16px;background:rgba(255,255,255,.06);',
+      'border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:14px;',
       'outline:none;transition:border-color .2s;font-family:inherit}',
       '._lc-inp:focus{border-color:' + A + '}._lc-inp::placeholder{color:rgba(255,255,255,.28)}',
-      '._lc-textarea{width:100%;padding:11px 14px;background:rgba(255,255,255,.06);',
-      'border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:13.5px;',
+      '._lc-textarea{width:100%;padding:13px 16px;background:rgba(255,255,255,.06);',
+      'border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:14px;',
       'outline:none;transition:border-color .2s;font-family:inherit;resize:vertical;min-height:110px;line-height:1.6}',
       '._lc-textarea:focus{border-color:' + A + '}._lc-textarea::placeholder{color:rgba(255,255,255,.28)}',
       /* buttons */
-      '._lc-btn{padding:12px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;',
+      '._lc-btn{padding:14px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;',
       'transition:opacity .2s,transform .1s;font-family:inherit;width:100%;border:none}',
       '._lc-btn:active{transform:scale(.98)}._lc-btn:hover{opacity:.88}',
       '._lc-btn-p{background:' + A + ';color:#fff}',
@@ -277,34 +277,34 @@
       '._lc-modes{display:flex;flex-direction:column;gap:9px;padding:4px 0}',
       '._lc-card{padding:14px 16px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);',
       'border-radius:14px;cursor:pointer;display:flex;align-items:center;gap:13px;transition:all .2s}',
-      '._lc-card:hover{background:rgba(40,151,255,.1);border-color:rgba(40,151,255,.35)}',
-      '._lc-card .ico{width:42px;height:42px;border-radius:50%;background:rgba(40,151,255,.12);',
+      '._lc-card:hover{background:rgba(139,92,246,.1);border-color:rgba(139,92,246,.35)}',
+      '._lc-card .ico{width:42px;height:42px;border-radius:50%;background:rgba(139,92,246,.12);',
       'display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}',
-      '._lc-card b{color:#fff;font-size:13.5px;display:block;margin-bottom:3px}',
+      '._lc-card b{color:#fff;font-size:14px;display:block;margin-bottom:3px}',
       '._lc-card span{color:rgba(255,255,255,.45);font-size:12px}',
       /* suggestions */
       '._lc-sugg{display:flex;flex-direction:column;gap:9px}',
       '._lc-slbl{color:rgba(255,255,255,.35);font-size:11px;text-transform:uppercase;letter-spacing:.5px}',
       '._lc-chips{display:flex;flex-wrap:wrap;gap:7px}',
-      '._lc-chip{padding:7px 13px;background:rgba(40,151,255,.1);border:1px solid rgba(40,151,255,.22);',
+      '._lc-chip{padding:7px 13px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.22);',
       'border-radius:20px;color:rgba(255,255,255,.75);font-size:12.5px;cursor:pointer;',
       'transition:all .15s;white-space:nowrap;font-family:inherit}',
-      '._lc-chip:hover{background:rgba(40,151,255,.22);color:#fff;border-color:rgba(40,151,255,.5)}',
+      '._lc-chip:hover{background:rgba(139,92,246,.22);color:#fff;border-color:rgba(139,92,246,.5)}',
       /* messages */
       '._lc-msg{display:flex;gap:8px;align-items:flex-end}._lc-msg.u{flex-direction:row-reverse}',
-      '._lc-msg .bbl{max-width:80%;padding:10px 14px;border-radius:18px;font-size:13.5px;line-height:1.6;word-break:break-word}',
+      '._lc-msg .bbl{max-width:80%;padding:10px 14px;border-radius:18px;font-size:14px;line-height:1.6;word-break:break-word}',
       '._lc-msg.b .bbl{background:rgba(255,255,255,.07);color:rgba(255,255,255,.88);border-bottom-left-radius:5px}',
       '._lc-msg.u .bbl{background:' + A + ';color:#fff;border-bottom-right-radius:5px}',
-      '._lc-msg .av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;',
+      '._lc-msg .av{width:28px;height:28px;border-radius:50%;overflow:hidden;display:flex;align-items:center;',
       'justify-content:center;font-size:10px;color:#fff;font-weight:700;flex-shrink:0}',
-      '._lc-msg.b .av{background:rgba(40,151,255,.18);color:' + A + '}._lc-msg.u .av{background:rgba(255,255,255,.12)}',
+      '._lc-msg.b .av{background:rgba(139,92,246,.18);color:' + A + '}._lc-msg.u .av{background:rgba(255,255,255,.12)}',
       /* typing indicator */
       '.lc-tyd{display:flex;gap:5px;align-items:center;padding:3px 0}',
-      '.lc-tyd span{width:7px;height:7px;background:rgba(40,151,255,.5);border-radius:50%;animation:_lc-t 1.2s infinite}',
+      '.lc-tyd span{width:7px;height:7px;background:rgba(139,92,246,.5);border-radius:50%;animation:_lc-t 1.2s infinite}',
       '.lc-tyd span:nth-child(2){animation-delay:.2s}.lc-tyd span:nth-child(3){animation-delay:.4s}',
       '@keyframes _lc-t{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}',
       /* escalation card */
-      '._lc-esc{background:rgba(40,151,255,.07);border:1px solid rgba(40,151,255,.18);',
+      '._lc-esc{background:rgba(139,92,246,.07);border:1px solid rgba(139,92,246,.18);',
       'border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;max-width:85%}',
       '._lc-esc p{color:rgba(255,255,255,.65);font-size:13px;line-height:1.55}',
       '._lc-esc-row{display:flex;gap:8px}',
@@ -327,7 +327,7 @@
       'transition:opacity .2s;padding:0}',
       '#_lc-send:hover{opacity:.85}#_lc-send svg{width:16px;height:16px;fill:#fff}',
       /* brand footer */
-      '#_lc-brand{text-align:center;font-size:10px;color:rgba(255,255,255,.18);padding:4px 0 8px}',
+      '#_lc-brand{text-align:center;font-size:11px;color:rgba(139,92,246,.55);padding:5px 0 9px;letter-spacing:.3px}',
       /* image attach */
       '._lc-attach{padding:9px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);',
       'border-radius:10px;color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;',
@@ -364,7 +364,7 @@
       '</button>' +
       '<div id="_lc-panel" role="dialog" aria-label="Live Chat">' +
         '<div id="_lc-hd">' +
-          '<div class="av">SH</div>' +
+          '<div class="av" id="_lc-av">' + (localStorage.getItem("_lc_avatar") ? '<img src="'+localStorage.getItem("_lc_avatar")+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover">' : 'SH') + '</div>' +
           '<div class="inf">' +
             '<b>Live Chat</b>' +
             '<small><span class="dot"></span>Online &middot; AI &amp; Direct Support</small>' +
@@ -378,7 +378,7 @@
           '<textarea id="_lc-in" rows="1" placeholder="Type a message…"></textarea>' +
           '<button id="_lc-send"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>' +
         '</div>' +
-        '<div id="_lc-brand">Powered by Google Gemini AI</div>' +
+        '<div id="_lc-brand">Powered by ' + ((siteData && siteData.name_first) ? esc(siteData.name_first) + ' ' + esc(siteData.name_last || '') : 'Sohan Hossain') + '</div>' +
       '</div>';
     document.body.appendChild(wrap);
   }
@@ -393,7 +393,7 @@
     $f().style.display = 'none';
     $b().innerHTML =
       '<div style="display:flex;flex-direction:column;gap:12px">' +
-        '<p class="_lc-title">👋 Hello! Nice to meet you.</p>' +
+        '<p class="_lc-title"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#8B5CF6" stroke-width="2" style="vertical-align:middle;margin-right:5px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Hello! Nice to meet you.</p>' +
         '<p class="_lc-sub">Share your name and email so Sohan can follow up if needed.</p>' +
         '<input id="_lc-nm" class="_lc-inp" type="text" placeholder="Your name" autocomplete="name" />' +
         '<input id="_lc-em" class="_lc-inp" type="email" placeholder="Your email address" autocomplete="email" />' +
@@ -414,15 +414,15 @@
   function showModeSelector() {
     $b().innerHTML =
       '<div style="display:flex;flex-direction:column;gap:12px">' +
-        '<p class="_lc-title">Hi ' + esc(visitor.name.split(' ')[0]) + '! 👋</p>' +
+        '<p class="_lc-title">Hi ' + esc(visitor.name.split(' ')[0]) + '!</p>' +
         '<p class="_lc-sub">How can I help you today?</p>' +
         '<div class="_lc-modes">' +
           '<div class="_lc-card" id="_lc-pick-ai">' +
-            '<div class="ico">🤖</div>' +
+            '<div class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="9" cy="16" r="1" fill="currentColor"/><circle cx="15" cy="16" r="1" fill="currentColor"/><path d="M12 2v3"/></svg></div>' +
             '<div><b>Chat with AI Agent</b><span>Instant answers about Sohan\'s work</span></div>' +
           '</div>' +
           '<div class="_lc-card" id="_lc-pick-contact">' +
-            '<div class="ico">✉️</div>' +
+            '<div class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>' +
             '<div><b>Send a Direct Message</b><span>Message Sohan personally</span></div>' +
           '</div>' +
         '</div>' +
@@ -474,7 +474,7 @@
         '<input id="_lc-ct-em" class="_lc-inp" type="email" placeholder="Your email" value="' + esc(visitor.email) + '" />' +
         '<textarea id="_lc-ct-msg" class="_lc-textarea" placeholder="Write your message…"></textarea>' +
         '<input type="file" id="_lc-file" accept="image/*" style="display:none">' +
-        '<button class="_lc-attach" id="_lc-att">📎 Attach an image (optional)</button>' +
+        '<button class="_lc-attach" id="_lc-att"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:5px"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>Attach Image (optional)</button>' +
         '<div id="_lc-prev-wrap"></div>' +
         '<button class="_lc-btn _lc-btn-p" id="_lc-ct-send">Send Message →</button>' +
         '<button class="_lc-btn _lc-btn-s" id="_lc-ct-back">← Back</button>' +
@@ -537,10 +537,10 @@
     $f().style.display = 'none';
     $b().innerHTML =
       '<div class="_lc-ok">' +
-        '<div class="ck">✅</div>' +
+        '<div class="ck"><svg viewBox="0 0 24 24" width="48" height="48" fill="none"><circle cx="12" cy="12" r="11" stroke="#22c55e" stroke-width="1.5"/><polyline points="7,12.5 10.5,16 17,9" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
         '<h3>Message Sent!</h3>' +
         '<p>Thanks ' + esc(visitor.name.split(' ')[0]) + '! Sohan will reply to<br>' +
-        '<strong style="color:#2897FF">' + esc(visitor.email) + '</strong> shortly.</p>' +
+        '<strong style="color:#8B5CF6">' + esc(visitor.email) + '</strong> shortly.</p>' +
         '<button class="_lc-btn _lc-btn-s" style="width:auto;padding:9px 20px;font-size:13px" id="_lc-another">Send another →</button>' +
       '</div>';
     document.getElementById('_lc-another').onclick = showContactForm;
@@ -591,7 +591,7 @@
     var d = document.createElement('div');
     d.className = '_lc-msg b';
     var waLink = waNum
-      ? '<a href="https://wa.me/' + waNum.replace(/\D/g, '') + '?text=' + encodeURIComponent("Hi Sohan! I'd like to discuss a project.") + '" target="_blank" rel="noopener" class="_lc-wa">💬 WhatsApp</a>'
+      ? '<a href="https://wa.me/' + waNum.replace(/\D/g, '') + '?text=' + encodeURIComponent("Hi Sohan! I'd like to discuss a project.") + '" target="_blank" rel="noopener" class="_lc-wa"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:middle;margin-right:5px"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>WhatsApp</a>'
       : '';
     d.innerHTML =
       '<div class="av">SH</div>' +
@@ -615,7 +615,7 @@
     var d = document.createElement('div');
     d.className = '_lc-msg ' + type;
     d.innerHTML =
-      '<div class="av">' + esc(init || 'SH') + '</div>' +
+      '<div class="av">' + (init === 'SH' && localStorage.getItem("_lc_avatar") ? '<img src="'+localStorage.getItem("_lc_avatar")+'" style="width:100%;height:100%;object-fit:cover">' : esc(init || 'SH')) + '</div>' +
       '<div class="bbl">' + esc(text).replace(/\n/g, '<br>') + '</div>';
     body.appendChild(d);
     body.scrollTop = body.scrollHeight;
