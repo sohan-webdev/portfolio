@@ -1100,7 +1100,10 @@ header nav.dsk a.cta{display:none}
 .sm-r mark{background:rgba(var(--vr),.35);color:#fff;border-radius:3px}
 .sm-empty{padding:30px;text-align:center;color:var(--fg3)}
 @media(max-width:1100px){.srch .t,.srch kbd{display:none}.srch{width:40px;padding:0;justify-content:center}header nav.dsk a{padding:8px 7px;font-size:13px}}
-@media(max-width:720px){.nr .cta2{display:none}}
+@keyframes blink{50%{opacity:0}}
+.logo{display:flex;align-items:center;gap:2px}.logo .cur{display:inline-block;width:8px;height:16px;background:var(--v2);margin-left:4px;animation:blink 1s steps(1) infinite}
+.hbg{width:42px;height:42px;padding:11px;border-radius:10px}
+@media(max-width:760px){header nav.dsk{display:none}.hbg{display:flex}.srch{display:none}.nr{margin-left:auto}.nr .cta2{font-size:12px;height:auto;padding:8px 12px}.nr .cta2 .ar{display:none}header .w{gap:8px}.logo{font-size:14px;min-width:0}}
 </style>
 <div class="sm" id="sm"><div class="sm-box"><div class="sm-in"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="smIn" type="search" placeholder="Search services, projects, articles..." autocomplete="off"><button id="smX" type="button">Esc</button></div><div class="sm-res" id="smRes"></div></div></div>
 <script>
@@ -1108,9 +1111,10 @@ header nav.dsk a.cta{display:none}
   var SEC=['about','services','experience','skills','projects'];
   var SVG='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
   var hw=document.querySelector('header .w'),hb=document.getElementById('hbg');
+  var lg=document.querySelector('header .logo');if(lg&&!lg.querySelector('.cur')){var cu=document.createElement('span');cu.className='cur';lg.appendChild(cu)}
   if(hw&&!document.querySelector('.nr')){
     var nr=document.createElement('div');nr.className='nr';
-    nr.innerHTML='<button class="srch" id="srchBtn" type="button" aria-label="Search">'+SVG+'<span class="t">Search</span><kbd>Ctrl K</kbd></button><a class="cta2" href="/#contact">hire_me() &rarr;</a>';
+    nr.innerHTML='<button class="srch" id="srchBtn" type="button" aria-label="Search">'+SVG+'<span class="t">Search</span><kbd>Ctrl K</kbd></button><a class="cta2" href="/#contact">hire_me() <span class="ar">&rarr;</span></a>';
     if(hb)hw.insertBefore(nr,hb);else hw.appendChild(nr);
   }
   var IDX=[],hits=[],sel=0;
