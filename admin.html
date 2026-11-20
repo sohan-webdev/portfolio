@@ -737,7 +737,55 @@ footer{border-top:1px solid var(--line);padding:28px 0 calc(28px + env(safe-area
 footer .w{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:var(--fg3)}
 .fs{display:flex;gap:8px;flex-wrap:wrap}.fs a{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;border:1px solid var(--line2);color:var(--fg2)}.fs a:hover{color:#fff;background:var(--v);border-color:var(--v)}
 @media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:620px){footer .w{flex-direction:column;align-items:center;text-align:center}body{font-size:16px}.grid{grid-template-columns:1fr}.art{padding-top:36px}.ctab{padding:24px}header nav a:not(.cta){display:none}.prose h2{font-size:1.5rem}}`;
+@media(max-width:620px){footer .w{flex-direction:column;align-items:center;text-align:center}body{font-size:16px}.grid{grid-template-columns:1fr}.art{padding-top:36px}.ctab{padding:24px}header nav a{padding:6px 7px;font-size:12px}header nav a.hm{display:none}.logo{font-size:13px}.prose h2{font-size:1.5rem}}`;
+const REV_CSS=`.vids{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-bottom:20px}
+.vid{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;cursor:pointer;color:inherit;font:inherit;padding:0;text-align:left;display:flex;flex-direction:column;transition:transform .4s cubic-bezier(.22,1,.36,1),border-color .3s}
+.vid:hover{transform:translateY(-5px);border-color:var(--line2)}
+.vp{position:relative;aspect-ratio:16/9;background:radial-gradient(circle at 30% 30%,rgba(var(--vr),.35),#0b1622);overflow:hidden}
+.vp img,.vp video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.vp::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(7,9,15,.7),transparent 55%)}
+.pl{position:absolute;z-index:2;left:50%;top:50%;width:66px;height:66px;margin:-33px 0 0 -33px;border-radius:50%;display:grid;place-items:center;color:#fff;background:rgba(var(--vr),.85);box-shadow:0 0 0 10px rgba(var(--vr),.2)}
+.vb{padding:18px 20px;display:flex;align-items:center;gap:12px;justify-content:space-between}
+.vb b,.who b{display:block;font-weight:600}.vb small,.who small{font-family:var(--mono);font-size:11px;color:var(--fg3)}
+.stars{display:flex;gap:3px;color:#fbbf24}.stars .off{color:#262c3a}
+.revs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.rev{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px;display:flex;flex-direction:column;gap:16px}
+.rev p{flex:1;line-height:1.7}
+.who{display:flex;align-items:center;gap:12px;padding-top:16px;border-top:1px solid var(--line)}
+.av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#3b2a6b,#14324a) center/cover;display:grid;place-items:center;font-weight:600;color:var(--v2);flex-shrink:0}
+.src{margin-left:auto;font-family:var(--mono);font-size:10px;text-transform:uppercase;color:var(--fg2);border:1px solid var(--line2);border-radius:999px;padding:3px 9px}
+.emp{border:1px dashed var(--line2);border-radius:20px;padding:50px 20px;text-align:center;color:var(--fg2);display:grid;gap:16px;justify-items:center}
+.vm{position:fixed;inset:0;z-index:50;background:rgba(3,5,10,.92);display:none;place-items:center;padding:16px}.vm.open{display:grid}
+.vmb{width:min(100%,960px);aspect-ratio:16/9;max-height:80vh;background:#000;border-radius:16px;overflow:hidden}.vmb.tall{width:auto;height:min(80vh,800px);aspect-ratio:9/16}
+.vmb iframe,.vmb video{width:100%;height:100%;border:0;display:block}
+.vx{position:absolute;top:16px;right:16px;width:44px;height:44px;border-radius:12px;border:1px solid var(--line2);background:rgba(255,255,255,.06);color:#fff;display:grid;place-items:center;cursor:pointer}
+@media(max-width:900px){.revs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.vids,.revs{grid-template-columns:1fr}.rev,.hero{text-align:center}.rev{align-items:center}.who{justify-content:center;flex-wrap:wrap;width:100%}.src{margin-left:0}.stars{justify-content:center}.hero p{margin-left:auto;margin-right:auto}}`;
+function videoSrc(u){u=String(u||'').trim();let m;
+  if(m=u.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{6,})/))return{type:'yt',tall:/shorts\//.test(u),src:'https://www.youtube-nocookie.com/embed/'+m[1]+'?autoplay=1&rel=0',thumb:'https://i.ytimg.com/vi/'+m[1]+'/hqdefault.jpg'};
+  if(m=u.match(/vimeo\.com\/(?:video\/)?(\d+)/))return{type:'if',src:'https://player.vimeo.com/video/'+m[1]+'?autoplay=1'};
+  if(m=u.match(/loom\.com\/(?:share|embed)\/(\w+)/))return{type:'if',src:'https://www.loom.com/embed/'+m[1]+'?autoplay=1'};
+  if(m=u.match(/drive\.google\.com\/file\/d\/([\w-]+)/))return{type:'if',src:'https://drive.google.com/file/d/'+m[1]+'/preview'};
+  return u?{type:'mp4',src:u}:null}
+function reviewsHTML(c,site){
+  const nm=c.name_first+' '+c.name_last,all=(c.reviews||[]);
+  const vids=all.filter(r=>r.video&&videoSrc(r.video)),txt=all.filter(r=>r.text&&!r.video);
+  const st=n=>`<div class="stars">${[1,2,3,4,5].map(k=>`<span class="${k<=n?'':'off'}">${icon('star',14)}</span>`).join('')}</div>`;
+  const ini=n=>String(n||'?').split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const title='Client reviews · '+nm,desc='What clients say about working with '+nm+': video and written reviews.';
+  const head=[`<title>${esc(title)}</title>`,`<meta name="description" content="${esc(desc)}">`,`<link rel="canonical" href="${esc(site)}/reviews/">`,`<meta property="og:title" content="${esc(title)}">`,`<meta property="og:description" content="${esc(desc)}">`,`<meta property="og:url" content="${esc(site)}/reviews/">`].join('\n');
+  const body=`<div class="hero"><div class="eb">// client_reviews</div><h1>What clients say</h1><p>${esc(desc)}</p></div><section class="sec">
+${vids.length?`<div class="vids">${vids.map((r,i)=>{const v=videoSrc(r.video);return `<button class="vid" type="button" data-v="${i}"><div class="vp">${r.poster?`<img src="${esc(r.poster)}" alt="" loading="lazy">`:v.thumb?`<img src="${esc(v.thumb)}" alt="" loading="lazy" onerror="this.remove()">`:v.type==='mp4'?`<video src="${esc(v.src)}#t=1" preload="metadata" muted playsinline></video>`:''}<span class="pl">${icon('play',24)}</span></div><div class="vb"><span><b>${esc(r.name)}</b><small>${esc(r.role||'')}</small></span>${st(+r.rating||5)}</div></button>`}).join('')}</div>`:''}
+${txt.length?`<div class="revs">${txt.map(r=>`<figure class="rev">${st(+r.rating||5)}<p>${esc(r.text)}</p><figcaption class="who"><span class="av" ${r.avatar?`style="background-image:url('${esc(r.avatar)}')"`:''}>${r.avatar?'':esc(ini(r.name))}</span><span><b>${esc(r.name)}</b><small>${esc(r.role||'')}</small></span>${r.source?`<span class="src">${esc(r.source)}</span>`:''}</figcaption></figure>`).join('')}</div>`:''}
+${!vids.length&&!txt.length?`<div class="emp">${icon('star',28)}<div>Reviews are coming soon.</div>${c.contact?.fiverr?`<a class="btn" href="${esc(c.contact.fiverr)}" target="_blank" rel="noopener">See my Fiverr reviews ${icon('external',15)}</a>`:''}</div>`:''}
+<div class="ctab"><h3>Want results like these?</h3><p>Tell me about your project and I'll reply with a plan.</p><a class="btn" href="/#contact">Get in touch ${icon('arrow',16)}</a></div></section>
+<div class="vm" id="vm"><button class="vx" id="vx" aria-label="Close">${icon('close',20)}</button><div class="vmb" id="vmb"></div></div>
+<script>(function(){var V=${JSON.stringify(vids.map(r=>videoSrc(r.video))).replace(/</g,'\\u003c')};var vm=document.getElementById('vm'),b=document.getElementById('vmb');
+function close(){vm.classList.remove('open');b.innerHTML=''}
+document.querySelectorAll('[data-v]').forEach(function(el){el.onclick=function(){var v=V[+el.dataset.v];b.className='vmb'+(v.tall?' tall':'');b.innerHTML=v.type==='mp4'?'<video controls autoplay playsinline></video>':'<iframe allow="autoplay; fullscreen" allowfullscreen></iframe>';b.firstChild.src=v.src;vm.classList.add('open')}});
+document.getElementById('vx').onclick=close;vm.onclick=function(e){if(e.target===vm)close()};addEventListener('keydown',function(e){if(e.key==='Escape')close()})})();<\/script>`;
+  return shell(c,head+'\n<style>'+REV_CSS+'</style>',body);
+}
 const FONTS='<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap">';
 const shell=(c,head,body)=>`<!DOCTYPE html>
 <html lang="en">
@@ -752,7 +800,7 @@ ${trackingHead(c)}
 </head>
 <body>
 <div class="glow"></div>
-<header><div class="w"><a class="logo" href="/"><i>&lt;</i>${esc(c.handle||c.name_first)}<i>/&gt;</i></a><nav><a href="/">home</a><a href="/blog/">blog</a><a class="cta" href="/#contact">hire_me()</a></nav></div></header>
+<header><div class="w"><a class="logo" href="/"><i>&lt;</i>${esc(c.handle||c.name_first)}<i>/&gt;</i></a><nav><a class="hm" href="/">home</a>${(c.design?.hide||{}).reviews?'':'<a href="/reviews/">reviews</a>'}${(c.design?.hide||{}).blog?'':'<a href="/blog/">blog</a>'}<a class="cta" href="/#contact">hire_me()</a></nav></div></header>
 <main>${body}</main>
 <footer><div class="w"><span>© ${new Date().getFullYear()} ${esc(c.name_first+' '+c.name_last)}</span><div class="fs">${[['fiverr','Fiverr'],['upwork','Upwork'],['linkedin','LinkedIn'],['github','GitHub'],['whatsapp','WhatsApp'],['facebook','Facebook'],['instagram','Instagram'],['x','X'],['youtube','YouTube']].filter(([k])=>c.contact?.[k]).map(([k,n])=>`<a href="${esc(c.contact[k])}" target="_blank" rel="noopener" aria-label="${n}">${icon(k,16)}</a>`).join('')}</div><a href="/">Back to portfolio</a></div></footer>
 </body>
@@ -783,10 +831,10 @@ function blogIndexHTML(c,posts,site){
   const nm=c.name_first+' '+c.name_last,title='Blog · '+nm,desc='Articles on Shopify development, AI automation and Python bots by '+nm+'.';
   const head=[`<title>${esc(title)}</title>`,`<meta name="description" content="${esc(desc)}">`,`<link rel="canonical" href="${esc(site)}/blog/">`,`<meta property="og:type" content="website">`,`<meta property="og:title" content="${esc(title)}">`,`<meta property="og:description" content="${esc(desc)}">`,`<meta property="og:url" content="${esc(site)}/blog/">`,`<link rel="alternate" type="application/rss+xml" title="Blog" href="${esc(site)}/blog/feed.xml">`,
     jsonld({'@context':'https://schema.org','@type':'Blog',name:title,url:site+'/blog/',author:{'@type':'Person',name:nm}})].join('\n');
-  return shell(c,head,`<div class="hero"><div class="eb">// blog</div><h1>Articles &amp; notes</h1><p>${esc(desc)}</p></div><section class="sec"><div class="grid">${posts.map(card).join('')}</div></section>`);
+  return shell(c,head,`<div class="hero"><div class="eb">// blog</div><h1>Articles &amp; notes</h1><p>${esc(desc)}</p></div><section class="sec">${posts.length?`<div class="grid">${posts.map(card).join('')}</div>`:`<div style="border:1px dashed var(--line2);border-radius:20px;padding:50px 20px;text-align:center;color:var(--fg2)">Articles are coming soon.</div>`}</section>`);
 }
 const xmlEsc=s=>String(s??'').replace(/[<>&'"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','"':'&quot;'}[c]));
-function sitemap(site,posts){const t=today();return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${xmlEsc(site)}/</loc><lastmod>${t}</lastmod></url>\n${posts.length?`  <url><loc>${xmlEsc(site)}/blog/</loc><lastmod>${t}</lastmod></url>\n`:''}${posts.map(p=>`  <url><loc>${xmlEsc(site)}/blog/${xmlEsc(p.slug)}/</loc><lastmod>${xmlEsc(p.updated||p.date)}</lastmod></url>\n`).join('')}</urlset>\n`}
+function sitemap(site,posts){const t=today();return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${xmlEsc(site)}/</loc><lastmod>${t}</lastmod></url>\n  <url><loc>${xmlEsc(site)}/blog/</loc><lastmod>${t}</lastmod></url>\n  <url><loc>${xmlEsc(site)}/reviews/</loc><lastmod>${t}</lastmod></url>\n${posts.map(p=>`  <url><loc>${xmlEsc(site)}/blog/${xmlEsc(p.slug)}/</loc><lastmod>${xmlEsc(p.updated||p.date)}</lastmod></url>\n`).join('')}</urlset>\n`}
 function rss(c,site,posts){const nm=c.name_first+' '+c.name_last;return `<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"><channel><title>${xmlEsc('Blog · '+nm)}</title><link>${xmlEsc(site)}/blog/</link><description>${xmlEsc('Articles by '+nm)}</description>\n${posts.map(p=>`<item><title>${xmlEsc(p.title)}</title><link>${xmlEsc(site)}/blog/${xmlEsc(p.slug)}/</link><guid>${xmlEsc(site)}/blog/${xmlEsc(p.slug)}/</guid><pubDate>${new Date(p.date+'T00:00:00Z').toUTCString()}</pubDate><description>${xmlEsc(p.excerpt||'')}</description></item>`).join('\n')}\n</channel></rss>\n`}
 
 /* ===================== GitHub publish ===================== */
@@ -842,7 +890,8 @@ async function publish(){
     files['content.json']=JSON.stringify(out,null,2);
     files['sitemap.xml']=sitemap(site,posts);
     files['robots.txt']=`User-agent: *\nAllow: /\nDisallow: /admin.html\n\nSitemap: ${site}/sitemap.xml\n`;
-    if(posts.length){files['blog/index.html']=blogIndexHTML(out,posts,site);files['blog/feed.xml']=rss(out,site,posts);posts.forEach(p=>files['blog/'+p.slug+'/index.html']=postHTML(out,p,site,posts))}
+    if(!out.design?.hide?.blog){files['blog/index.html']=blogIndexHTML(out,posts,site);files['blog/feed.xml']=rss(out,site,posts);posts.forEach(p=>files['blog/'+p.slug+'/index.html']=postHTML(out,p,site,posts))}
+    if(!out.design?.hide?.reviews)files['reviews/index.html']=reviewsHTML(out,site);
     const gf=(out.seo.gsc_file||'').trim().split('/').pop();if(/^google[a-z0-9]+\.html$/i.test(gf))files[gf]='google-site-verification: '+gf;
     let warn='';
     try{const idx=await gh('/contents/index.html?ref='+encodeURIComponent(br));const html=b64dec(idx.content);
@@ -852,7 +901,7 @@ async function publish(){
     for(const [path,content] of Object.entries(files))entries.push({path,mode:'100644',type:'blob',content});
     const refd=files['content.json'];
     for(const p of existing){
-      if(p.startsWith('blog/')&&!(p in files))entries.push({path:p,mode:'100644',type:'blob',sha:null});
+      if((p.startsWith('blog/')||p.startsWith('reviews/'))&&!(p in files))entries.push({path:p,mode:'100644',type:'blob',sha:null});
       if(p.startsWith('assets/up/')&&!refd.includes('/'+p))entries.push({path:p,mode:'100644',type:'blob',sha:null});
     }
 

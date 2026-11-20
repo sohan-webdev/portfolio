@@ -52,7 +52,7 @@ header.scrolled{background:rgba(7,9,15,.78);backdrop-filter:blur(18px) saturate(
 .logo{font-family:var(--mono);font-weight:700;font-size:15px;display:flex;align-items:center;gap:2px}
 .logo .br{color:var(--violet2)}.logo .nm{color:var(--fg)}.logo .cur{width:8px;height:16px;background:var(--violet2);margin-left:4px;animation:blink 1s steps(1) infinite}
 .links{display:flex;gap:4px;list-style:none}
-.links a{font-family:var(--mono);font-size:13px;color:var(--fg2);padding:8px 14px;border-radius:8px;transition:color .2s,background .2s}
+.links a{font-family:var(--mono);font-size:13px;color:var(--fg2);padding:8px 11px;white-space:nowrap;border-radius:8px;transition:color .2s,background .2s}
 .links a:hover,.links a.active{color:var(--fg);background:rgba(255,255,255,.05)}
 .links a .n{color:var(--violet2);margin-right:4px}
 .hire{font-family:var(--mono);font-size:13px;font-weight:600;padding:9px 18px;border-radius:10px;border:1px solid rgba(var(--vr),.45);background:rgba(var(--vr),.12);color:var(--violet2);display:inline-flex;align-items:center;gap:8px;transition:.25s var(--ease)}
@@ -354,6 +354,7 @@ footer{border-top:1px solid var(--line);padding:70px 0 0;background:linear-gradi
 @keyframes bob{50%{transform:translateY(-10px)}}
 @keyframes scroll{to{transform:translateX(-50%)}}
 
+@media (max-width:1180px){.float.f2{right:-10px}.float.f1{left:-16px}.srch .t,.srch kbd{display:none}.srch{padding:0;width:40px;justify-content:center}.links a{padding:8px 8px}}
 @media (max-width:980px){
   .hero-grid{grid-template-columns:1fr;gap:56px}
   .photo-wrap{order:-1;width:min(78%,320px)}
@@ -363,7 +364,8 @@ footer{border-top:1px solid var(--line);padding:70px 0 0;background:linear-gradi
   .fgrid{grid-template-columns:1fr 1fr;gap:36px}.fbrand{grid-column:1/-1}
   .srch .t,.srch kbd{display:none}.srch{padding:0;width:40px;justify-content:center}
   .faq-wrap{grid-template-columns:1fr;gap:36px}.faq-wrap .head{position:static}
-  .links a{padding:8px 10px}
+  .links a{padding:8px 7px;font-size:12px}.links a .n{display:none}
+  .nr{gap:8px}.hire{padding:9px 12px}
 }
 @media (max-width:760px){
   .links,.srch{display:none}
@@ -543,6 +545,7 @@ footer{border-top:1px solid var(--line);padding:70px 0 0;background:linear-gradi
       <div class="head reveal"><div class="eyebrow" data-eb="client_reviews">client_reviews</div><h2>What clients say</h2><p class="sub">Feedback from store owners and agencies I've worked with.</p></div>
       <div class="vids" id="vidGrid"></div>
       <div class="reviews" id="revGrid"></div>
+      <div class="more"><a href="/reviews/" class="btn ghost">All reviews <span data-i="arrow" data-s="16"></span></a></div>
     </div>
   </section>
 
@@ -683,11 +686,12 @@ function render(c){
   const vis=[...document.querySelectorAll('main section[id]')].filter(x=>!x.hidden);
   window.__vis=vis.map(x=>x.id);
   vis.forEach((x,i)=>{const e=x.querySelector('[data-eb]');if(e)e.textContent=String(i+1).padStart(2,'0')+'. '+e.dataset.eb});
-  const NAV=['about','services','experience','projects','blog'];
+  const NAV=[['about','#about'],['services','#services'],['experience','#experience'],['projects','#projects'],['reviews','/reviews/'],['blog','/blog/']].filter(([id,h])=>h[0]==='/'?!HIDE[id]:vis.some(x=>x.id===id));
   const LBL={about:'About',services:'Services',experience:'Experience',skills:'Skills',projects:'Projects',reviews:'Reviews',faq:'FAQ',blog:'Blog',contact:'Contact'};
   const num=id=>String(vis.findIndex(x=>x.id===id)+1).padStart(2,'0');
-  $('#navLinks').innerHTML=NAV.filter(id=>vis.some(x=>x.id===id)).map(id=>`<li><a href="#${id}"><span class="n">${num(id)}.</span>${id}</a></li>`).join('');
-  $('#drawerLinks').innerHTML=vis.map(x=>`<a href="#${x.id}">${LBL[x.id]||x.id}<span data-i="arrow" data-s="16"></span></a>`).join('')+`<a href="#" class="ds" id="dSearch">Search<span data-i="search" data-s="16"></span></a>`;
+  $('#navLinks').innerHTML=NAV.map(([id,h],i)=>`<li><a href="${h}"><span class="n">${String(i+1).padStart(2,'0')}.</span>${id}</a></li>`).join('');
+  const pages=[['reviews','All reviews','/reviews/'],['blog','Blog','/blog/']].filter(([id])=>!HIDE[id]);
+  $('#drawerLinks').innerHTML=vis.filter(x=>x.id!=='reviews'&&x.id!=='blog').map(x=>`<a href="#${x.id}">${LBL[x.id]||x.id}<span data-i="arrow" data-s="16"></span></a>`).join('')+pages.map(([id,n,h])=>`<a href="${h}">${n}<span data-i="external" data-s="15"></span></a>`).join('')+`<a href="#" class="ds" id="dSearch">Search<span data-i="search" data-s="16"></span></a>`;
   document.querySelectorAll('#drawerLinks a,#dHire').forEach(a=>a.onclick=()=>window.__shut&&window.__shut());
   $('#dSearch').onclick=e=>{e.preventDefault();window.__shut();openSearch()};
   window.__LBL=LBL;
@@ -704,7 +708,7 @@ function render(c){
   $('#year').textContent='© '+new Date().getFullYear()+' '+[c.name_first,c.name_last].join(' ')+'. All rights reserved.';
   $('#fTag').textContent=c.footer_text||c.tagline||'';
   $('#fAv').hidden=!c.available;
-  $('#fNav').innerHTML=vis.map(x=>`<a href="#${x.id}">${LBL[x.id]||x.id}</a>`).join('')+((c.blog||[]).some(b=>!b.draft)?'<a href="/blog/">All articles</a>':'');
+  $('#fNav').innerHTML=vis.filter(x=>x.id!=='reviews'&&x.id!=='blog').map(x=>`<a href="#${x.id}">${LBL[x.id]||x.id}</a>`).join('')+pages.map(([id,n,h])=>`<a href="${h}">${n}</a>`).join('');
   $('#fSvc').innerHTML=sv.map(x=>`<a href="#services">${esc(x.title)}</a>`).join('');$('#fSvc').parentNode.hidden=!sv.length||!!HIDE.services;
   $('#fCon').innerHTML=(k.email?`<a href="mailto:${esc(k.email)}"><span data-i="mail" data-s="15"></span>${esc(k.email)}</a>`:'')+(k.whatsapp?`<a href="${esc(k.whatsapp)}" target="_blank" rel="noopener"><span data-i="whatsapp" data-s="15"></span>WhatsApp</a>`:'')+(c.location?`<span><span data-i="pin" data-s="15"></span>${esc(c.location)}</span>`:'');
   const tr=(c.badges||[]).filter(b=>b.title);
@@ -796,13 +800,15 @@ function buildIndex(){
   if(vis.includes('projects'))(c.projects||[]).forEach((x,i)=>add('Projects',x.icon||'cart',x.name,x.tag,x.desc+' '+(x.tech||[]).join(' '),{sel:'#projectsGrid .proj',i}));
   if(vis.includes('skills'))(c.skills||[]).forEach((x,i)=>add('Skills',x.icon||'code',x.name,x.desc,'',{sel:'#skillsGrid .skill',i}));
   if(vis.includes('experience'))(c.experience||[]).forEach((x,i)=>add('Experience','briefcase',x.role+' · '+x.company,x.period,(x.points||[]).join(' '),{sel:'#timeline .job-card',i}));
+  add('Pages','star','All reviews','Client video and text reviews','reviews testimonials feedback clients video',{url:'/reviews/'});
+  add('Pages','book','Blog','All articles','blog articles posts',{url:'/blog/'});
   (c.blog||[]).filter(b=>!b.draft&&b.title&&b.slug).forEach(b=>add('Articles','book',b.title,b.excerpt,(b.tags||[]).join(' ')+' '+String(b.body||'').slice(0,3000),{url:'/blog/'+encodeURIComponent(b.slug)+'/'}));
   if(vis.includes('faq'))(c.faq||[]).forEach((x,i)=>add('FAQ','help',x.q,x.a,'',{faq:i}));
 }
 const hl=(t,qs)=>{let h=esc(t);qs.forEach(q=>{if(q.length<2)return;h=h.replace(new RegExp('('+esc(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'),'<mark>$1</mark>')});return h};
 function runSearch(){
   const q=$('#smIn').value.trim().toLowerCase(),qs=q.split(/\s+/).filter(Boolean),box=$('#smRes');
-  if(!qs.length){hits=IDX.filter(x=>x.g==='Sections'||x.g==='Articles').slice(0,10)}
+  if(!qs.length){hits=IDX.filter(x=>x.g==='Sections'||x.g==='Pages'||x.g==='Articles').slice(0,12)}
   else{hits=IDX.map(x=>{if(!qs.every(w=>x.hay.includes(w)))return null;let sc=0;const tl=x.t.toLowerCase();qs.forEach(w=>{if(tl.includes(w))sc+=5;if(tl.startsWith(w))sc+=3});return{...x,sc}}).filter(Boolean).sort((a,b)=>b.sc-a.sc).slice(0,24)}
   if(qs.length){hits.forEach(x=>{if(x.g==='Sections')x.sc-=2});hits.sort((a,b)=>b.sc-a.sc);const best={};hits.forEach(x=>{best[x.g]=Math.max(best[x.g]??-99,x.sc)});hits.sort((a,b)=>(best[b.g]-best[a.g])||(b.sc-a.sc))}
   sel=0;
