@@ -5,19 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#07090f">
 <!--SEO:START-->
-<title>Sohan Web Dev | Shopify &amp; Web Developer</title>
-<meta name="description" content="I&#39;m Sohan, a Shopify and Web Developer specializing in Shopify 2.0, Liquid, Horizon, Figma to Shopify, custom development, API integrations, and AI automation.">
-<link rel="canonical" href="https://sohan-webdev.netlify.app/">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://sohan-webdev.netlify.app/">
-<meta property="og:title" content="Sohan Web Dev | Shopify &amp; Web Developer">
-<meta property="og:description" content="I&#39;m Sohan, a Shopify and Web Developer specializing in Shopify 2.0, Liquid, Horizon, Figma to Shopify, custom development, API integrations, and AI automation.">
-<meta property="og:image" content="https://sohan-webdev.netlify.app/assets/up/66db328fa0f9e9cb.jpg">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Sohan Web Dev | Shopify &amp; Web Developer">
-<meta name="twitter:description" content="I&#39;m Sohan, a Shopify and Web Developer specializing in Shopify 2.0, Liquid, Horizon, Figma to Shopify, custom development, API integrations, and AI automation.">
-<meta name="twitter:image" content="https://sohan-webdev.netlify.app/assets/up/66db328fa0f9e9cb.jpg">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"Md Sohan Hossain","url":"https://sohan-webdev.netlify.app/","image":"https://sohan-webdev.netlify.app/assets/up/66db328fa0f9e9cb.jpg","jobTitle":"Shopify Liquid Developer","description":"I'm Sohan, a Shopify and Web Developer specializing in Shopify 2.0, Liquid, Horizon, Figma to Shopify, custom development, API integrations, and AI automation.","address":{"@type":"PostalAddress","addressLocality":"Dhaka, Bangladesh"},"sameAs":["https://www.fiverr.com/sohan337","https://github.com/sohan-webdev","https://www.linkedin.com/in/sohan337/"]}</script>
+<title>Md Sohan Hossain · Shopify &amp; AI Automation Developer</title>
+<meta name="description" content="Shopify developer and AI automation engineer. Custom Liquid sections, Python bots, workflow automation and API integrations.">
+<meta property="og:title" content="Md Sohan Hossain · Shopify &amp; AI Automation Developer">
+<meta property="og:description" content="Shopify development, AI automation and Python bots.">
 <!--SEO:END-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -725,7 +716,7 @@ function render(c){
   const vis=[...document.querySelectorAll('main section[id]')].filter(x=>!x.hidden);
   window.__vis=vis.map(x=>x.id);
   vis.forEach((x,i)=>{const e=x.querySelector('[data-eb]');if(e)e.textContent=String(i+1).padStart(2,'0')+'. '+e.dataset.eb});
-  const NAV=[['about','#about'],['services','#services'],['experience','#experience'],['projects','#projects'],['reviews','/reviews/'],['blog','/blog/']].filter(([id,h])=>h[0]==='/'?!HIDE[id]:vis.some(x=>x.id===id));
+  const NAV=[['about','#about'],['services','#services'],['experience','#experience'],['skills','#skills'],['projects','#projects'],['reviews','/reviews/'],['blog','/blog/']].filter(([id,h])=>h[0]==='/'?!HIDE[id]:vis.some(x=>x.id===id));
   const LBL={about:'About',services:'Services',experience:'Experience',skills:'Skills',projects:'Projects',reviews:'Reviews',faq:'FAQ',blog:'Blog',contact:'Contact'};
   const num=id=>String(vis.findIndex(x=>x.id===id)+1).padStart(2,'0');
   $('#navLinks').innerHTML=NAV.map(([id,h],i)=>`<li><a href="${h}">${id[0].toUpperCase()+id.slice(1)}</a></li>`).join('');
