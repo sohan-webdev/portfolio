@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Portfolio Admin</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#07090f;--card:#0f141e;--in:#0a0e16;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.15);--fg:#e8ecf3;--fg2:#9aa4b5;--fg3:#5a6475;--v:#8b5cf6;--v2:#b18cff;--g:#4ade80;--r:#f87171;--mono:'JetBrains Mono',monospace;--sans:'Inter',system-ui,sans-serif;color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.5;padding:0 max(16px,env(safe-area-inset-left)) 120px}
+button{font:inherit;cursor:pointer}
+.top{position:sticky;top:0;z-index:10;background:rgba(7,9,15,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);margin:0 calc(-1*max(16px,env(safe-area-inset-left)));padding:14px max(16px,env(safe-area-inset-left))}
+.top-in{max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font-family:var(--mono);font-weight:600}.brand b{color:var(--v2)}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.b{display:inline-flex;align-items:center;gap:8px;border-radius:10px;padding:9px 14px;font-family:var(--mono);font-size:12px;font-weight:600;border:1px solid var(--line2);background:transparent;color:var(--fg)}
+.b:hover{border-color:var(--v2)}
+.b.pri{background:var(--v);border-color:var(--v);color:#fff}.b.pri:hover{background:#7c3aed}
+.b.sm{padding:6px 10px}.b.del{color:var(--r);border-color:rgba(248,113,113,.3)}
+.wrap{max-width:960px;margin:28px auto 0;display:grid;gap:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px}
+.card h2{font-family:var(--mono);font-size:13px;color:var(--v2);font-weight:600;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.grid .full{grid-column:1/-1}
+label{display:grid;gap:6px;font-size:12px;color:var(--fg2);font-family:var(--mono)}
+input,textarea,select{width:100%;background:var(--in);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;color:var(--fg);font:14px var(--sans);min-width:0}
+textarea{resize:vertical;min-height:84px}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--v2);box-shadow:0 0 0 3px rgba(139,92,246,.18)}
+.item{border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px;background:rgba(255,255,255,.015)}
+.item-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-family:var(--mono);font-size:12px;color:var(--fg3)}
+.photo-row{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.ph{width:110px;height:136px;border-radius:14px;background:var(--in) center/cover;border:1px solid var(--line2);flex-shrink:0}
+.hint{font-size:12px;color:var(--fg3);margin-top:6px}
+.check{display:flex;align-items:center;gap:10px;font-family:var(--sans);font-size:14px;color:var(--fg)}
+.check input{width:18px;height:18px;accent-color:var(--v)}
+.icons{display:flex;flex-wrap:wrap;gap:6px}
+.icons button{width:36px;height:36px;border-radius:9px;border:1px solid var(--line2);background:var(--in);color:var(--fg2);display:grid;place-items:center}
+.icons button.on{border-color:var(--v2);color:var(--v2);background:rgba(139,92,246,.12)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(80px);background:#111827;border:1px solid var(--line2);border-radius:12px;padding:12px 18px;font-family:var(--mono);font-size:13px;transition:transform .35s;z-index:50;max-width:calc(100% - 32px)}
+.toast.on{transform:translateX(-50%)}
+.gate{min-height:100vh;display:grid;place-items:center}
+.gate form{width:min(100%,360px);background:var(--card);border:1px solid var(--line2);border-radius:18px;padding:28px;display:grid;gap:14px}
+.gate h1{font-family:var(--mono);font-size:16px}
+.err{color:var(--r);font-size:12px;font-family:var(--mono);min-height:1em}
+.steps{color:var(--fg2);font-size:13px;display:grid;gap:6px;counter-reset:s}
+.steps div{padding-left:26px;position:relative}
+.steps div::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;width:18px;height:18px;border-radius:6px;background:rgba(139,92,246,.15);color:var(--v2);font:600 11px var(--mono);display:grid;place-items:center}
+.steps code{font-family:var(--mono);color:var(--fg);background:var(--in);padding:1px 6px;border-radius:5px}
+.stat-row{grid-template-columns:1fr 90px 2fr}
+@media(max-width:640px){.stat-row{grid-template-columns:1fr 1fr}.stat-row label:last-child{grid-column:1/-1}.grid{grid-template-columns:1fr}.acts .b span.t{display:none}}
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <form id="gateForm">
+    <h1>&lt;admin /&gt;</h1>
+    <label>Password<input type="password" id="pw" autocomplete="current-password" autofocus></label>
+    <div class="err" id="gateErr"></div>
+    <button class="b pri" type="submit">Unlock</button>
+    
+  </form>
+</div>
+
+<div id="app" hidden>
+  <div class="top"><div class="top-in">
+    <div class="brand">&lt;<b>portfolio</b>.admin /&gt; <span id="status" style="font-size:11px;color:var(--fg3);margin-left:8px"></span></div>
+    <div class="acts">
+      <button class="b" id="preview"><span data-i="eye" data-s="15"></span><span class="t">Preview</span></button>
+      <button class="b" id="discard"><span data-i="trash" data-s="15"></span><span class="t">Discard changes</span></button>
+      <button class="b" id="importBtn"><span data-i="upload" data-s="15"></span><span class="t">Import</span></button>
+      <button class="b pri" id="export"><span data-i="download" data-s="15"></span>Download content.json</button>
+    </div>
+  </div></div>
+
+  <div class="wrap" id="form"></div>
+  <input type="file" id="importFile" accept="application/json" hidden>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="icons.js"></script>
+<script>
+/* ===== Change your admin password here ===== */
+const ADMIN_PASSWORD = '@SoHan$551';
+/* =========================================== */
+
+const $=s=>document.querySelector(s);
+let C=null;
+const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._);t._=setTimeout(()=>t.classList.remove('on'),2400)};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const paint=r=>(r||document).querySelectorAll('[data-i]').forEach(e=>e.innerHTML=icon(e.dataset.i,+e.dataset.s||18));
+paint();
+
+$('#gateForm').onsubmit=e=>{e.preventDefault();if($('#pw').value===ADMIN_PASSWORD){try{sessionStorage.setItem('adm','1')}catch(e){}unlock()}else $('#gateErr').textContent='Wrong password'};
+
+async function unlock(){
+  $('#gate').hidden=true;$('#app').hidden=false;
+  let draft=null;try{draft=JSON.parse(localStorage.getItem('portfolio_draft'))}catch(e){}
+  if(draft){C=draft;toast('Loaded your unsaved draft');setTimeout(()=>{$('#status').textContent='draft saved · not live yet';$('#status').style.color='#fbbf24'})}
+  else{try{C=await (await fetch('content.json',{cache:'no-store'})).json()}catch(e){toast('Could not load content.json');return}}
+  build();
+}
+const save=()=>{try{localStorage.setItem('portfolio_draft',JSON.stringify(C));$('#status').textContent='draft saved · not live yet';$('#status').style.color='#fbbf24'}catch(e){toast('Browser storage full or blocked. Download content.json now.')}};
+
+/* field helpers bound to a path */
+const get=(o,p)=>p.split('.').reduce((a,k)=>a?.[k],o);
+const set=(o,p,v)=>{const ks=p.split('.');const last=ks.pop();ks.reduce((a,k)=>a[k],o)[last]=v};
+const inp=(lbl,p,o={})=>`<label class="${o.full?'full':''}">${lbl}<${o.area?'textarea':'input'} data-p="${p}" ${o.type?`type="${o.type}"`:''} ${o.area?'':`value="${esc(get(C,p))}"`}>${o.area?esc(get(C,p))+'</textarea>':''}</label>`;
+const list=(lbl,p)=>`<label class="full">${lbl} <span style="color:var(--fg3)">(one per line)</span><textarea data-list="${p}">${esc((get(C,p)||[]).join('\n'))}</textarea></label>`;
+const iconPick=p=>`<div class="full"><label>Icon</label><div class="icons" data-icon="${p}">${Object.keys(ICONS).filter(k=>!['arrow','external','copy','check','menu','close','plus','trash','download','eye','upload'].includes(k)).map(k=>`<button type="button" data-v="${k}" class="${get(C,p)===k?'on':''}" title="${k}" data-i="${k}" data-s="16"></button>`).join('')}</div></div>`;
+
+function build(){
+  const f=$('#form');
+  f.innerHTML=`
+  <div class="card"><h2>// profile</h2>
+    <div class="photo-row" style="margin-bottom:16px">
+      <div class="ph" id="ph"></div>
+      <div><button class="b" type="button" id="phBtn"><span data-i="upload" data-s="15"></span>Upload photo</button>
+      <button class="b sm del" type="button" id="phDel" style="margin-left:6px">Remove</button>
+      <p class="hint">Portrait works best (4:5). Auto-resized and compressed.</p></div>
+      <input type="file" id="phFile" accept="image/*" hidden>
+    </div>
+    <div class="grid">
+      ${inp('Prefix (e.g. MD)','name_prefix')}${inp('Handle (logo)','handle')}
+      ${inp('First name','name_first')}${inp('Last name','name_last')}
+      ${inp('Location','location')}${inp('Availability text','available_text')}
+      <label class="check full"><input type="checkbox" id="avail" ${C.available?'checked':''}> Available for new work (green badge)</label>
+      ${inp('Tagline','tagline',{area:1,full:1})}
+      ${list('Typing animation roles','roles')}
+    </div>
+  </div>
+
+  <div class="card"><h2>// stats</h2>${C.stats.map((s,i)=>`<div class="grid stat-row" style="margin-bottom:10px">${inp('Number',`stats.${i}.value`,{type:'number'})}${inp('Suffix',`stats.${i}.suffix`)}${inp('Label',`stats.${i}.label`)}</div>`).join('')}</div>
+
+  <div class="card"><h2>// about paragraphs</h2><div class="grid">${C.about.map((_,i)=>inp('Paragraph '+(i+1),`about.${i}`,{area:1,full:1})).join('')}</div>
+    <div style="margin-top:12px;display:flex;gap:8px"><button class="b sm" data-add="about"><span data-i="plus" data-s="14"></span>Add paragraph</button>${C.about.length>1?'<button class="b sm del" data-pop="about">Remove last</button>':''}</div></div>
+
+  ${section('experience','// experience',(j,i)=>`<div class="grid">${inp('Role',`experience.${i}.role`)}${inp('Company',`experience.${i}.company`)}${inp('Company URL',`experience.${i}.url`)}${inp('Period',`experience.${i}.period`)}<label class="check full"><input type="checkbox" data-bool="experience.${i}.current" ${j.current?'checked':''}> Current job</label>${list('Highlights',`experience.${i}.points`)}</div>`)}
+
+  ${section('skills','// skills',(s,i)=>`<div class="grid">${inp('Name',`skills.${i}.name`)}${inp('Level (0-100)',`skills.${i}.level`,{type:'number'})}${inp('Description',`skills.${i}.desc`,{area:1,full:1})}${iconPick(`skills.${i}.icon`)}</div>`)}
+
+  ${section('projects','// projects',(p,i)=>`<div class="grid">${inp('Name',`projects.${i}.name`)}${inp('Tag',`projects.${i}.tag`)}${inp('Store URL (empty = private)',`projects.${i}.url`)}<label>Accent color<input type="color" data-p="projects.${i}.color" value="${esc(p.color||'#8b5cf6')}" style="height:42px;padding:4px"></label>${inp('Description',`projects.${i}.desc`,{area:1,full:1})}${list('Tech chips',`projects.${i}.tech`)}${iconPick(`projects.${i}.icon`)}</div>`)}
+
+  <div class="card"><h2>// contact</h2><div class="grid">${inp('Email','contact.email')}${inp('Fiverr URL','contact.fiverr')}${inp('GitHub URL','contact.github')}${inp('LinkedIn URL','contact.linkedin')}${inp('WhatsApp link (https://wa.me/880...)','contact.whatsapp',{full:1})}</div></div>
+
+  <div class="card"><h2>// publish changes</h2><div class="steps">
+    <div>Click <b>Download content.json</b> at the top.</div>
+    <div>Replace the old <code>content.json</code> in your site folder with the new one.</div>
+    <div>Netlify: open your site, go to <b>Deploys</b>, drag the whole folder onto the drop area. Live in seconds.</div>
+    <div>Using GitHub? Commit the new <code>content.json</code> and Netlify redeploys automatically.</div>
+  </div></div>`;
+  paint(f);setPhoto();wire();
+}
+function section(key,title,tpl){
+  const blank={experience:{role:'',company:'',url:'',period:'',current:false,points:[]},skills:{icon:'code',name:'',desc:'',level:80},projects:{icon:'cart',tag:'',name:'',desc:'',tech:[],url:'',color:'#8b5cf6'}}[key];
+  return `<div class="card"><h2>${title}<button class="b sm" data-addo="${key}"><span data-i="plus" data-s="14"></span>Add</button></h2>${C[key].map((it,i)=>`<div class="item"><div class="item-h"><span>#${i+1} ${esc(it.name||it.role||'')}</span><span style="display:flex;gap:6px">${i>0?`<button class="b sm" data-up="${key}.${i}">Up</button>`:''}<button class="b sm del" data-del="${key}.${i}"><span data-i="trash" data-s="13"></span></button></span></div>${tpl(it,i)}</div>`).join('')}</div>`;
+  /* blank stored for add */
+}
+const blanks={experience:{role:'New role',company:'',url:'',period:'',current:false,points:[]},skills:{icon:'code',name:'New skill',desc:'',level:80},projects:{icon:'cart',tag:'',name:'New project',desc:'',tech:[],url:'',color:'#8b5cf6'}};
+
+function wire(){
+  const f=$('#form');
+  f.querySelectorAll('[data-p]').forEach(el=>el.oninput=()=>{set(C,el.dataset.p,el.type==='number'?(/level/.test(el.dataset.p)?Math.max(0,Math.min(100,+el.value)):+el.value):el.value);save()});
+  f.querySelectorAll('[data-list]').forEach(el=>el.oninput=()=>{set(C,el.dataset.list,el.value.split('\n').map(s=>s.trim()).filter(Boolean));save()});
+  f.querySelectorAll('[data-bool]').forEach(el=>el.onchange=()=>{set(C,el.dataset.bool,el.checked);save()});
+  $('#avail').onchange=e=>{C.available=e.target.checked;save()};
+  f.querySelectorAll('[data-icon]').forEach(w=>w.onclick=e=>{const b=e.target.closest('button');if(!b)return;set(C,w.dataset.icon,b.dataset.v);w.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));save()});
+  f.querySelectorAll('[data-addo]').forEach(b=>b.onclick=()=>{C[b.dataset.addo].push(structuredClone(blanks[b.dataset.addo]));save();build()});
+  f.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{const[k,i]=b.dataset.del.split('.');if(b.dataset.ok){C[k].splice(+i,1);save();build()}else{b.dataset.ok=1;b.innerHTML='Confirm?';setTimeout(()=>{delete b.dataset.ok;b.innerHTML=icon('trash',13)},2500)}});
+  f.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{const[k,i]=b.dataset.up.split('.');const a=C[k];[a[i-1],a[i]]=[a[i],a[i-1]];save();build()});
+  f.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{C[b.dataset.add].push('');save();build()});
+  f.querySelectorAll('[data-pop]').forEach(b=>b.onclick=()=>{C[b.dataset.pop].pop();save();build()});
+  $('#phBtn').onclick=()=>$('#phFile').click();
+  $('#phDel').onclick=()=>{C.photo='';save();setPhoto()};
+  $('#phFile').onchange=e=>{const file=e.target.files[0];if(!file)return;const img=new Image();img.onload=()=>{const max=900,s=Math.min(1,max/Math.max(img.width,img.height));const cv=document.createElement('canvas');cv.width=img.width*s;cv.height=img.height*s;cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);C.photo=cv.toDataURL('image/jpeg',.85);save();setPhoto();toast('Photo updated');URL.revokeObjectURL(img.src)};img.src=URL.createObjectURL(file)};
+}
+function setPhoto(){$('#ph').style.backgroundImage=C.photo?`url("${C.photo}")`:'none'}
+
+$('#preview').onclick=()=>{save();window.open('index.html#preview','_blank')};
+$('#export').onclick=()=>{const b=new Blob([JSON.stringify(C,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='content.json';a.click();toast('content.json downloaded. Replace it in your site folder and redeploy.');$('#status').textContent='exported · redeploy to go live';$('#status').style.color='#4ade80'};
+$('#discard').onclick=async e=>{const b=e.currentTarget;if(!b.dataset.ok){b.dataset.ok=1;b.querySelector('.t')?b.querySelector('.t').textContent='Click again to confirm':0;setTimeout(()=>{delete b.dataset.ok;b.querySelector('.t').textContent='Discard changes'},3000);return}
+  try{localStorage.removeItem('portfolio_draft')}catch(err){}C=await (await fetch('content.json',{cache:'no-store'})).json();build();$('#status').textContent='';toast('Back to the live version')};
+$('#importBtn').onclick=()=>$('#importFile').click();
+$('#importFile').onchange=async e=>{try{C=JSON.parse(await e.target.files[0].text());save();build();toast('Imported')}catch(err){toast('That file is not valid JSON')}};
+try{if(sessionStorage.getItem('adm')==='1')unlock()}catch(e){}
+</script>
+</body>
+</html>
