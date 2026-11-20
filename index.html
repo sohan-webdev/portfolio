@@ -52,7 +52,7 @@ header.scrolled{background:rgba(7,9,15,.78);backdrop-filter:blur(18px) saturate(
 .logo{font-family:var(--mono);font-weight:700;font-size:15px;display:flex;align-items:center;gap:2px}
 .logo .br{color:var(--violet2)}.logo .nm{color:var(--fg)}.logo .cur{width:8px;height:16px;background:var(--violet2);margin-left:4px;animation:blink 1s steps(1) infinite}
 .links{display:flex;gap:4px;list-style:none}
-.links a{font-family:var(--mono);font-size:13px;color:var(--fg2);padding:8px 11px;white-space:nowrap;border-radius:8px;transition:color .2s,background .2s}
+.links a{font-family:var(--sans);font-weight:500;font-size:14px;color:var(--fg2);padding:8px 11px;white-space:nowrap;border-radius:8px;transition:color .2s,background .2s}
 .links a:hover,.links a.active{color:var(--fg);background:rgba(255,255,255,.05)}
 .links a .n{color:var(--violet2);margin-right:4px}
 .hire{font-family:var(--mono);font-size:13px;font-weight:600;padding:9px 18px;border-radius:10px;border:1px solid rgba(var(--vr),.45);background:rgba(var(--vr),.12);color:var(--violet2);display:inline-flex;align-items:center;gap:8px;transition:.25s var(--ease)}
@@ -330,6 +330,27 @@ footer{border-top:1px solid var(--line);padding:70px 0 0;background:linear-gradi
 .totop:hover{color:var(--fg);border-color:rgba(var(--vr),.5)}
 .nomotion .reveal{opacity:1!important;transform:none!important}
 
+/* review summary + carousel */
+.rsum{display:flex;align-items:center;gap:28px;flex-wrap:wrap;padding:24px 28px;margin-bottom:22px;border:1px solid var(--line2);border-radius:20px;background:radial-gradient(500px circle at 0% 0%,rgba(var(--vr),.14),transparent 60%),var(--card)}
+.rsum .big{font-family:var(--display);font-size:3rem;font-weight:700;line-height:1;letter-spacing:-.03em}
+.rsum .mid{display:grid;gap:6px}
+.rsum .mid small{font-family:var(--mono);font-size:12px;color:var(--fg2)}
+.rsum .stars span svg{width:18px;height:18px}
+.rsum .bdg{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap}
+.rsum .bdg>span{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;color:var(--fg);border:1px solid rgba(251,191,36,.3);background:rgba(251,191,36,.07);border-radius:999px;padding:7px 14px}
+.rsum .bdg svg{color:var(--amber)}
+.rc{position:relative}
+.rc-track{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;padding:6px 2px 10px;-webkit-overflow-scrolling:touch}
+.rc-track::-webkit-scrollbar{display:none}
+.rc-track .rev{flex:0 0 calc((100% - 40px)/3);scroll-snap-align:start;min-width:0}
+.rc-nav{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:22px}
+.rc-b{width:44px;height:44px;border-radius:12px;border:1px solid var(--line2);background:rgba(255,255,255,.03);color:var(--fg);display:grid;place-items:center;cursor:pointer;transition:.2s}
+.rc-b:hover{border-color:rgba(var(--vr),.6);background:rgba(var(--vr),.12)}
+.rc-dots{display:flex;gap:8px}
+.rc-dots button{width:8px;height:8px;border-radius:999px;border:0;background:var(--line2);cursor:pointer;padding:0;transition:width .3s var(--ease),background .3s}
+.rc-dots button.on{width:26px;background:var(--violet2)}
+.rc.one .rc-nav{display:none}
+
 /* contact */
 .contact{position:relative;border:1px solid var(--line2);border-radius:28px;padding:72px 40px;text-align:center;overflow:hidden;background:radial-gradient(600px circle at 50% 0%,rgba(var(--vr),.18),transparent 60%),var(--bg2)}
 .contact h2{max-width:720px;margin:0 auto}
@@ -362,6 +383,7 @@ footer{border-top:1px solid var(--line);padding:70px 0 0;background:linear-gradi
   .about{grid-template-columns:1fr}
   .skills,.projects,.reviews,.posts{grid-template-columns:repeat(2,minmax(0,1fr))}
   .fgrid{grid-template-columns:1fr 1fr;gap:36px}.fbrand{grid-column:1/-1}
+  .rc-track .rev{flex-basis:calc((100% - 20px)/2)}
   .srch .t,.srch kbd{display:none}.srch{padding:0;width:40px;justify-content:center}
   .faq-wrap{grid-template-columns:1fr;gap:36px}.faq-wrap .head{position:static}
   .links a{padding:8px 7px;font-size:12px}.links a .n{display:none}
@@ -404,6 +426,8 @@ footer{border-top:1px solid var(--line);padding:70px 0 0;background:linear-gradi
   .post .pb{text-align:center;align-items:center}.post .pm2{justify-content:center}
   .rev{text-align:center;align-items:center}.stars{justify-content:center}.who{justify-content:center;width:100%;flex-wrap:wrap}.who .src{margin-left:0}
   .vids{grid-template-columns:1fr}
+  .rc-track .rev{flex-basis:88%}
+  .rsum{flex-direction:column;text-align:center;gap:14px;padding:22px}.rsum .bdg{margin:0 auto;justify-content:center}.rsum .stars{justify-content:center}
   .fgrid{grid-template-columns:1fr;text-align:center;gap:34px}
   .fbrand p{margin:0 auto}.fcol a,.fcol span{justify-content:center}.fsoc{justify-content:center}
   .fbot{justify-content:center;text-align:center;flex-direction:column}
@@ -543,8 +567,10 @@ footer{border-top:1px solid var(--line);padding:70px 0 0;background:linear-gradi
   <section id="reviews">
     <div class="wrap">
       <div class="head reveal"><div class="eyebrow" data-eb="client_reviews">client_reviews</div><h2>What clients say</h2><p class="sub">Feedback from store owners and agencies I've worked with.</p></div>
+      <div class="rsum reveal" id="revSum"></div>
       <div class="vids" id="vidGrid"></div>
-      <div class="reviews" id="revGrid"></div>
+      <div class="rc reveal" id="rc"><div class="rc-track" id="revGrid"></div>
+        <div class="rc-nav"><button class="rc-b" id="rcPrev" aria-label="Previous reviews"><span data-i="back" data-s="18"></span></button><div class="rc-dots" id="rcDots"></div><button class="rc-b" id="rcNext" aria-label="Next reviews"><span data-i="arrow" data-s="18"></span></button></div></div>
       <div class="more"><a href="/reviews/" class="btn ghost">All reviews <span data-i="arrow" data-s="16"></span></a></div>
     </div>
   </section>
@@ -670,14 +696,18 @@ function render(c){
   $('#vidGrid').hidden=!vids.length;
   document.querySelectorAll('[data-vid]').forEach(b=>b.onclick=()=>openVideo(videoSrc(vids[+b.dataset.vid].video)));
   const ini=n=>String(n||'?').split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();
-  $('#revGrid').innerHTML=rv.map(r=>`<figure class="rev reveal"><span class="q" data-i="quote" data-s="26"></span><div class="stars" aria-label="${+r.rating||5} out of 5">${[1,2,3,4,5].map(n=>`<span class="${n<=(+r.rating||5)?'':'off'}" data-i="star" data-s="15"></span>`).join('')}</div><p>${esc(r.text)}</p><figcaption class="who"><span class="av" ${r.avatar?`style="background-image:url('${esc(r.avatar)}')"`:''}>${r.avatar?'':esc(ini(r.name))}</span><span><b>${esc(r.name)}</b><small>${esc(r.role||'')}</small></span>${r.source?`<span class="src">${esc(r.source)}</span>`:''}</figcaption></figure>`).join('');
+  const allR=(c.reviews||[]).filter(r=>r.text||r.video);
+  if(allR.length){const avg=allR.reduce((a,r)=>a+(+r.rating||5),0)/allR.length;const srcs=[...new Set(allR.map(r=>r.source).filter(Boolean))];
+    $('#revSum').innerHTML=`<div class="big">${avg.toFixed(1)}</div><div class="mid">${starsH(Math.round(avg))}<small>from ${allR.length} client review${allR.length>1?'s':''}${srcs.length?' on '+srcs.map(esc).join(', '):''}</small></div><div class="bdg">${(c.badges||[]).filter(b=>/top rated/i.test(b.title)).map(b=>`<span><span data-i="${esc(b.icon||'award')}" data-s="15"></span>${esc(b.title)}</span>`).join('')}</div>`}
+  $('#revSum').hidden=!allR.length;
+  $('#revGrid').innerHTML=rv.map(r=>`<figure class="rev"><span class="q" data-i="quote" data-s="26"></span><div class="stars" aria-label="${+r.rating||5} out of 5">${[1,2,3,4,5].map(n=>`<span class="${n<=(+r.rating||5)?'':'off'}" data-i="star" data-s="15"></span>`).join('')}</div><p>${esc(r.text)}</p><figcaption class="who"><span class="av" ${r.avatar?`style="background-image:url('${esc(r.avatar)}')"`:''}>${r.avatar?'':esc(ini(r.name))}</span><span><b>${esc(r.name)}</b><small>${esc(r.role||'')}</small></span>${r.source?`<span class="src">${esc(r.source)}</span>`:''}</figcaption></figure>`).join('');
   // faq
   const fq=(c.faq||[]).filter(f=>f.q);
   $('#faqList').innerHTML=fq.map((f,i)=>`<details${i===0?' open':''}><summary>${esc(f.q)}<span class="pm" data-i="chevron" data-s="16"></span></summary><div class="ans">${esc(f.a).replace(/\n/g,'<br>')}</div></details>`).join('');
   // blog
   const fmt=d=>{const t=new Date(d+'T00:00:00');return isNaN(t)?'':t.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})};
   const posts=(c.blog||[]).filter(b=>!b.draft&&b.title&&b.slug).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-  $('#postGrid').innerHTML=posts.slice(0,3).map(b=>`<a class="post reveal" href="/blog/${encodeURIComponent(b.slug)}/"><div class="cv">${b.cover?`<img src="${esc(b.cover)}" alt="${esc(b.title)}" loading="lazy">`:'<span data-i="book" data-s="34"></span>'}</div><div class="pb"><div class="pm2"><span>${fmt(b.date)}</span><span>${Math.max(1,Math.round(String(b.body||'').split(/\s+/).length/220))} min read</span></div><h3>${esc(b.title)}</h3><p>${esc(b.excerpt||'')}</p><span class="rd">Read article <span data-i="arrow" data-s="14"></span></span></div></a>`).join('');
+  $('#postGrid').innerHTML=posts.slice(0,3).map(b=>`<a class="post reveal" href="/blog/${encodeURIComponent(b.slug)}/"><div class="cv">${b.cover?`<img src="${esc(b.cover)}" alt="${esc(b.title)}" loading="lazy">`:'<span data-i="book" data-s="34"></span>'}</div><div class="pb"><div class="pm2"><span>${fmt(b.date)}</span><span>${Math.max(1,Math.round(String(b.text||b.body||'').split(/\s+/).length/220))} min read</span></div><h3>${esc(b.title)}</h3><p>${esc(b.excerpt||'')}</p><span class="rd">Read article <span data-i="arrow" data-s="14"></span></span></div></a>`).join('');
   // hide empty sections
   $('#services').hidden=!sv.length;$('#reviews').hidden=!(rv.length||vids.length);$('#faq').hidden=!fq.length;$('#blog').hidden=!posts.length;
   $('#skills').hidden=!(c.skills||[]).length;
@@ -689,7 +719,7 @@ function render(c){
   const NAV=[['about','#about'],['services','#services'],['experience','#experience'],['projects','#projects'],['reviews','/reviews/'],['blog','/blog/']].filter(([id,h])=>h[0]==='/'?!HIDE[id]:vis.some(x=>x.id===id));
   const LBL={about:'About',services:'Services',experience:'Experience',skills:'Skills',projects:'Projects',reviews:'Reviews',faq:'FAQ',blog:'Blog',contact:'Contact'};
   const num=id=>String(vis.findIndex(x=>x.id===id)+1).padStart(2,'0');
-  $('#navLinks').innerHTML=NAV.map(([id,h],i)=>`<li><a href="${h}"><span class="n">${String(i+1).padStart(2,'0')}.</span>${id}</a></li>`).join('');
+  $('#navLinks').innerHTML=NAV.map(([id,h],i)=>`<li><a href="${h}">${id[0].toUpperCase()+id.slice(1)}</a></li>`).join('');
   const pages=[['reviews','All reviews','/reviews/'],['blog','Blog','/blog/']].filter(([id])=>!HIDE[id]);
   $('#drawerLinks').innerHTML=vis.filter(x=>x.id!=='reviews'&&x.id!=='blog').map(x=>`<a href="#${x.id}">${LBL[x.id]||x.id}<span data-i="arrow" data-s="16"></span></a>`).join('')+pages.map(([id,n,h])=>`<a href="${h}">${n}<span data-i="external" data-s="15"></span></a>`).join('')+`<a href="#" class="ds" id="dSearch">Search<span data-i="search" data-s="16"></span></a>`;
   document.querySelectorAll('#drawerLinks a,#dHire').forEach(a=>a.onclick=()=>window.__shut&&window.__shut());
@@ -715,7 +745,7 @@ function render(c){
   $('#trust').innerHTML=tr.map(b=>`<div class="tb"><span class="ic" data-i="${esc(b.icon||'award')}" data-s="18"></span><span><b>${esc(b.title)}</b>${b.sub?`<small>${esc(b.sub)}</small>`:''}</span></div>`).join('');$('#trust').hidden=!tr.length;
   window.__C=c;
 
-  buildCode(c);typewriter(c.roles||[]);paintIcons();observe();
+  buildCode(c);typewriter(c.roles||[]);paintIcons();observe();carousel(rv.length);
 }
 
 function buildCode(c){
@@ -783,6 +813,22 @@ $('#closeMenu').onclick=shut;
 
 $('#copyBtn').onclick=async()=>{const t=$('#mail').textContent;try{await navigator.clipboard.writeText(t);$('#copyTxt').textContent='Copied'}catch(e){const r=document.createRange();r.selectNodeContents($('#mail'));getSelection().removeAllRanges();getSelection().addRange(r);$('#copyTxt').textContent='Selected'}setTimeout(()=>$('#copyTxt').textContent='Copy',1800)};
 
+/* reviews carousel */
+function carousel(n){
+  const rc=$('#rc'),t=$('#revGrid'),dots=$('#rcDots');rc.hidden=!n;if(!n)return;
+  const per=()=>{const c=t.querySelector('.rev');return c?Math.max(1,Math.round(t.clientWidth/(c.offsetWidth+20))):1};
+  const pages=()=>Math.max(1,Math.ceil(n/per()));
+  const go=i=>{const c=t.querySelector('.rev');t.scrollTo({left:i*per()*(c.offsetWidth+20),behavior:'smooth'})};
+  const cur=()=>{const c=t.querySelector('.rev');return Math.min(pages()-1,Math.round(t.scrollLeft/((c.offsetWidth+20)*per())))};
+  const draw=()=>{const p=pages();rc.classList.toggle('one',p<2);dots.innerHTML=Array.from({length:p},(_,i)=>`<button aria-label="Page ${i+1}" class="${i===cur()?'on':''}"></button>`).join('');dots.querySelectorAll('button').forEach((b,i)=>b.onclick=()=>{go(i);hold()})};
+  draw();addEventListener('resize',draw);
+  t.addEventListener('scroll',()=>{dots.querySelectorAll('button').forEach((b,i)=>b.classList.toggle('on',i===cur()))},{passive:true});
+  $('#rcPrev').onclick=()=>{go((cur()-1+pages())%pages());hold()};$('#rcNext').onclick=()=>{go((cur()+1)%pages());hold()};
+  let paused=false,tm;const hold=()=>{paused=true;clearTimeout(tm);tm=setTimeout(()=>paused=false,8000)};
+  rc.addEventListener('pointerenter',()=>paused=true);rc.addEventListener('pointerleave',()=>paused=false);t.addEventListener('touchstart',hold,{passive:true});
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setInterval(()=>{if(!paused&&!document.hidden&&pages()>1&&rc.getBoundingClientRect().top<innerHeight)go((cur()+1)%pages())},5500);
+}
+
 /* video modal */
 function openVideo(v){if(!v)return;const b=$('#vmBox');b.classList.toggle('tall',!!v.tall);
   b.innerHTML=v.type==='mp4'?`<video src="${esc(v.src)}" controls autoplay playsinline></video>`:`<iframe src="${esc(v.src)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
@@ -802,7 +848,7 @@ function buildIndex(){
   if(vis.includes('experience'))(c.experience||[]).forEach((x,i)=>add('Experience','briefcase',x.role+' · '+x.company,x.period,(x.points||[]).join(' '),{sel:'#timeline .job-card',i}));
   add('Pages','star','All reviews','Client video and text reviews','reviews testimonials feedback clients video',{url:'/reviews/'});
   add('Pages','book','Blog','All articles','blog articles posts',{url:'/blog/'});
-  (c.blog||[]).filter(b=>!b.draft&&b.title&&b.slug).forEach(b=>add('Articles','book',b.title,b.excerpt,(b.tags||[]).join(' ')+' '+String(b.body||'').slice(0,3000),{url:'/blog/'+encodeURIComponent(b.slug)+'/'}));
+  (c.blog||[]).filter(b=>!b.draft&&b.title&&b.slug).forEach(b=>add('Articles','book',b.title,b.excerpt,(b.tags||[]).join(' ')+' '+String(b.text||b.body||'').slice(0,3000),{url:'/blog/'+encodeURIComponent(b.slug)+'/'}));
   if(vis.includes('faq'))(c.faq||[]).forEach((x,i)=>add('FAQ','help',x.q,x.a,'',{faq:i}));
 }
 const hl=(t,qs)=>{let h=esc(t);qs.forEach(q=>{if(q.length<2)return;h=h.replace(new RegExp('('+esc(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'),'<mark>$1</mark>')});return h};
