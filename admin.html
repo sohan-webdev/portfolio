@@ -1129,7 +1129,7 @@ header nav.dsk a.cta{display:none}
   function hl(t,qs){var r=esc(t);qs.forEach(function(q){if(q.length<2)return;var e=esc(q),lo=r.toLowerCase(),out='',i=0,j;while((j=lo.indexOf(e,i))>-1){out+=r.slice(i,j)+'<mark>'+r.slice(j,j+e.length)+'</mark>';i=j+e.length}r=out+r.slice(i)});return r}
   var sm=document.getElementById('sm'),inp=document.getElementById('smIn'),box=document.getElementById('smRes');
   function run(){
-    var q=inp.value.trim().toLowerCase(),qs=q.split(/\s+/).filter(Boolean);
+    var q=inp.value.trim().toLowerCase(),qs=q.split(' ').filter(Boolean);
     hits=qs.length?IDX.filter(function(x){return qs.every(function(w){return x.hay.indexOf(w)>-1})}).slice(0,24):IDX.filter(function(x){return x.g==='Sections'||x.g==='Pages'||x.g==='Articles'}).slice(0,12);
     sel=0;
     if(!hits.length){box.innerHTML='<div class="sm-empty">No results for "'+esc(q)+'"</div>';return}
