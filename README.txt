@@ -1,9 +1,10 @@
-SOHAN PORTFOLIO - SETUP
+SOHAN PORTFOLIO
+===============
+Dashboard: https://YOUR-SITE.netlify.app/admin.html
+Default password: sohan@admin  (change it in Dashboard > Settings, then Publish)
 
-1. Put your photo at assets/profile.jpg (portrait, 4:5) OR upload it from admin.html.
-2. Deploy free: go to app.netlify.com/drop and drag this whole folder. Done.
-   Free domain: yourname.netlify.app (change name in Site settings).
-3. Edit content: open yoursite.netlify.app/admin.html
-   Default password: sohan@admin  (change ADMIN_PASSWORD inside admin.html)
-   Edit -> Preview -> Download content.json -> replace file in folder -> drag folder to Netlify Deploys again.
-Note: open via Netlify (or a local server), not by double-clicking index.html.
+One-time setup:
+1. Upload ALL files in this folder to your GitHub repo (replace old ones).
+2. Dashboard > Settings > GitHub connection: repo + token, click Save & test.
+
+After that: edit anything in the Dashboard and click Publish. Live in about 1 minute.

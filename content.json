@@ -112,7 +112,8 @@
         "JavaScript"
       ],
       "url": "https://sweetcrumbhtx.com",
-      "color": "#a855f7"
+      "color": "#a855f7",
+      "image": ""
     },
     {
       "icon": "gem",
@@ -125,7 +126,8 @@
         "Markets"
       ],
       "url": "https://www.thecarousel.club/",
-      "color": "#58a6ff"
+      "color": "#58a6ff",
+      "image": ""
     },
     {
       "icon": "leaf",
@@ -138,7 +140,8 @@
         "Appstle"
       ],
       "url": "https://www.bibalosangeles.com/",
-      "color": "#ffeedb"
+      "color": "#ffeedb",
+      "image": ""
     },
     {
       "icon": "shirt",
@@ -151,7 +154,8 @@
         "GemPages"
       ],
       "url": "https://c-lemaire.co.jp/",
-      "color": "#f98c43"
+      "color": "#f98c43",
+      "image": ""
     },
     {
       "icon": "moon",
@@ -164,7 +168,8 @@
         "Liquid"
       ],
       "url": "https://www.slumberbite.com/",
-      "color": "#f472b6"
+      "color": "#f472b6",
+      "image": ""
     },
     {
       "icon": "chart",
@@ -177,7 +182,8 @@
         "Customer accounts"
       ],
       "url": "",
-      "color": "#22d3ee"
+      "color": "#22d3ee",
+      "image": ""
     }
   ],
   "contact": {
@@ -185,6 +191,148 @@
     "fiverr": "https://www.fiverr.com/sohan337",
     "github": "https://github.com/sohan-webdev",
     "linkedin": "https://www.linkedin.com/in/sohan337/",
-    "whatsapp": "https://wa.me/8801716575122"
+    "whatsapp": "https://wa.me/8801716575122",
+    "upwork": "",
+    "facebook": "",
+    "instagram": "",
+    "x": "",
+    "youtube": ""
+  },
+  "services_intro": "I'm a Web & Shopify Developer focused on building modern, responsive, and conversion-friendly digital experiences. I work with modern development tools and AI-assisted workflows to solve real-world business problems.",
+  "services": [
+    {
+      "icon": "bot",
+      "title": "AI & Automation",
+      "desc": "I use AI tools and automation techniques to improve development workflows and solve practical business problems.",
+      "items": [
+        "AI-assisted Development",
+        "Claude & ChatGPT Workflows",
+        "Python Automation",
+        "API Integration",
+        "Workflow Automation",
+        "Debugging & Problem Solving"
+      ]
+    },
+    {
+      "icon": "cpu",
+      "title": "Python Bot Development",
+      "desc": "I develop and test automation bots for monitoring, data collection, and specific workflow requirements.",
+      "items": [
+        "Python-based Bots",
+        "API-driven Automation",
+        "Crypto Market Monitoring",
+        "Data Tracking & Analysis",
+        "Bot Testing & Debugging"
+      ]
+    },
+    {
+      "icon": "cart",
+      "title": "Shopify Development",
+      "desc": "I build, customize, and optimize Shopify stores with a focus on performance, functionality, and user experience.",
+      "items": [
+        "Shopify 2.0 & Horizon Framework",
+        "Custom Liquid Sections",
+        "Figma to Shopify Development",
+        "Theme Customization",
+        "Custom Product Pages & Landing Pages",
+        "Third-party App & API Integrations",
+        "Store Speed & Responsive Optimization",
+        "CRO-focused Improvements"
+      ]
+    },
+    {
+      "icon": "monitor",
+      "title": "Frontend Web Development",
+      "desc": "I create clean, responsive, and user-friendly websites using modern frontend technologies.",
+      "items": [
+        "HTML5, CSS3 & JavaScript",
+        "Responsive Website Development",
+        "Modern UI Implementation",
+        "Website Bug Fixing",
+        "UI Improvements & Optimization",
+        "Git & GitHub Workflows"
+      ]
+    },
+    {
+      "icon": "wallet",
+      "title": "Technical & Web3 Operations",
+      "desc": "I have practical experience working with crypto-related platforms and technical operations.",
+      "items": [
+        "Crypto Wallet Operations",
+        "Blockchain Platform Familiarity",
+        "Transaction Monitoring",
+        "Technical Support",
+        "Online Community & Moderation Support"
+      ]
+    }
+  ],
+  "approach": "I believe in building practical solutions, writing maintainable code, and using the right tools to deliver reliable results. I combine hands-on development experience with AI-assisted workflows to work smarter and solve problems efficiently.",
+  "reviews": [],
+  "faq": [
+    {
+      "q": "What kind of projects do you take on?",
+      "a": "AI automation and Python bots, Shopify store development and customization, frontend websites, and technical work around crypto platforms. If you're not sure your project fits, send me a message and I'll tell you honestly."
+    },
+    {
+      "q": "Can you build a custom automation or bot for my business?",
+      "a": "Yes. I build Python bots and automation workflows for monitoring, data collection, API integrations and repetitive tasks. We start by mapping exactly what the bot should do, then I build, test and hand it over with clear instructions."
+    },
+    {
+      "q": "Do you work with existing Shopify themes or build from scratch?",
+      "a": "Both. I can extend your current theme with custom Liquid sections without breaking anything, or build custom sections and pages from a Figma design."
+    },
+    {
+      "q": "How long does a project usually take?",
+      "a": "Small fixes and tweaks are often done in a day or two. Larger builds depend on scope. I share a clear timeline before we start."
+    },
+    {
+      "q": "How do we start working together?",
+      "a": "Send me a message with what you need. I'll reply with questions, a plan and a quote. Once you approve, I get started."
+    }
+  ],
+  "blog": [],
+  "seo": {
+    "site_url": "",
+    "title": "Md Sohan Hossain · Shopify & AI Automation Developer",
+    "description": "Shopify developer and AI automation engineer. Custom Liquid sections, Python bots, workflow automation and API integrations.",
+    "keywords": "shopify developer, ai automation, python bot developer, shopify liquid developer, freelance developer bangladesh",
+    "og_image": "",
+    "ga_id": "",
+    "tiktok_pixel": "",
+    "gsc_meta": "",
+    "gsc_file": "",
+    "head_extra": ""
+  },
+  "badges": [
+    {
+      "icon": "award",
+      "title": "Top Rated on Upwork",
+      "sub": "Earned as a freelancer"
+    },
+    {
+      "icon": "briefcase",
+      "title": "Shopify Developer at WebDevJP",
+      "sub": "Since Oct 2025"
+    }
+  ],
+  "footer_text": "Shopify developer and AI automation engineer. I build fast stores, custom bots and workflows that save time.",
+  "design": {
+    "accent": "violet",
+    "custom": "#8b5cf6",
+    "rain": true,
+    "motion": true,
+    "marquee": true,
+    "order": [
+      "about",
+      "services",
+      "experience",
+      "skills",
+      "projects",
+      "reviews",
+      "faq",
+      "blog"
+    ],
+    "hide": {},
+    "sec": {}
   }
 }
