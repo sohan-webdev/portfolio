@@ -416,23 +416,23 @@ function setPill(){const p=$('#pill'),d=LS.get('adm_dirty')==='1';p.className='p
 /* ===================== login ===================== */
 async function checkPw(pw){
   const h=await sha(pw);
-  let live=null;try{live=await (await fetch('content.json',{cache:'no-store'})).json()}catch(e){}
+  let live=null;try{live=await (await fetch('/content.json',{cache:'no-store'})).json()}catch(e){}
   let draft=null;try{draft=JSON.parse(LS.get('portfolio_draft'))}catch(e){}
   const hashes=[live?.admin_hash,draft?.admin_hash].filter(Boolean);
   if(!hashes.length)hashes.push(await sha('sohan@admin'));
   return hashes.includes(h);
 }
-$('#gateForm').onsubmit=async e=>{e.preventDefault();$('#gateErr').textContent='';
-  try{if(await checkPw($('#pw').value)){try{sessionStorage.setItem('adm','1')}catch(e){}unlock()}else $('#gateErr').textContent='Wrong password'}
-  catch(err){$('#gateErr').textContent='Open the dashboard on your live https site to log in.'}};
+document.getElementById('gateForm').addEventListener('submit',async function(e){e.preventDefault();document.getElementById('gateErr').textContent='';
+  try{if(await checkPw(document.getElementById('pw').value)){try{sessionStorage.setItem('adm','1')}catch(ex){}unlock()}else document.getElementById('gateErr').textContent='Wrong password'}
+  catch(err){document.getElementById('gateErr').textContent='Login error: '+err.message}});
 $('#logout').onclick=()=>{try{sessionStorage.removeItem('adm')}catch(e){}location.reload()};
 /* ===================== show/hide password ===================== */
 function togglePw(id,btn){const el=$('#'+id);const show=el.type==='password';el.type=show?'text':'password';btn.style.color=show?'var(--v2)':'var(--fg3)';btn.title=show?'Hide password':'Show password'}
 /* ===================== forgot password ===================== */
 const RECOVERY_EMAIL_HASH='b3b4b2c5a7e1d9f6a0c8e2b5d4f7a1c3e6b9d2f5a8c1e4b7d0f3a6c9e2b5d8';
 async function sha256hex(s){const b=new TextEncoder().encode(s);const h=await crypto.subtle.digest('SHA-256',b);return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,'0')).join('')}
-$('#forgotBtn').onclick=()=>{$('#gateForm').hidden=true;$('#resetForm').hidden=false;$('#recEmail').focus()};
-$('#backToLogin').onclick=()=>{$('#resetForm').hidden=true;$('#gateForm').hidden=false;$('#resetErr').textContent='';$('#pw').focus()};
+document.getElementById('forgotBtn').addEventListener('click',function(){document.getElementById('gateForm').setAttribute('hidden','');document.getElementById('resetForm').removeAttribute('hidden');document.getElementById('recEmail').focus()});
+document.getElementById('backToLogin').addEventListener('click',function(){document.getElementById('resetForm').setAttribute('hidden','');document.getElementById('gateForm').removeAttribute('hidden');document.getElementById('resetErr').textContent='';document.getElementById('pw').focus()});
 $('#resetForm').onsubmit=async e=>{
   e.preventDefault();$('#resetErr').textContent='';
   const em=$('#recEmail').value.trim().toLowerCase();
@@ -445,7 +445,7 @@ $('#resetForm').onsubmit=async e=>{
   const validHashes=await Promise.all(validEmails.map(x=>sha256hex(x.toLowerCase())));
   if(!validHashes.includes(emH)){$('#resetErr').textContent='Email not recognised.';return}
   const newHash=await sha(p1);
-  let live=null;try{live=await (await fetch('content.json',{cache:'no-store'})).json()}catch(err){}
+  let live=null;try{live=await (await fetch('/content.json',{cache:'no-store'})).json()}catch(err){}
   let draft=null;try{draft=JSON.parse(LS.get('portfolio_draft'))}catch(err){}
   const base=draft||live||{};base.admin_hash=newHash;
   LS.set('portfolio_draft',JSON.stringify(base));LS.set('adm_dirty','1');
@@ -454,7 +454,7 @@ $('#resetForm').onsubmit=async e=>{
 };
 async function unlock(){
   $('#gate').hidden=true;$('#app').hidden=false;
-  try{LIVE=await (await fetch('content.json',{cache:'no-store'})).json()}catch(e){LIVE=null}
+  try{LIVE=await (await fetch('/content.json',{cache:'no-store'})).json()}catch(e){LIVE=null}
   let draft=null;try{draft=JSON.parse(LS.get('portfolio_draft'))}catch(e){}
   if(draft){C=draft}else if(LIVE){C=structuredClone(LIVE);LS.del('adm_dirty')}else{toast('Could not load content.json');return}
   normalize(C);buildNav();setPill();go(secInfo(cur)?cur:'profile');
