@@ -1,374 +1,694 @@
 /*
- * AI Chatbot for sohan-webdev.pages.dev
- * Powered by Google Gemini API (FREE)
- * Email notifications via Web3Forms (FREE)
+ * Live Chat Widget  v2.0  —  sohan-webdev.pages.dev
  *
- * SETUP (2 steps only):
- * 1. Get FREE Gemini API key: https://aistudio.google.com/app/apikey
- * 2. Get FREE Web3Forms key: https://web3forms.com (enter your email, get key instantly)
- * Then replace the two values in CONFIG below.
+ * ⚠️  IMPORTANT: Your old Gemini API key was exposed in public GitHub.
+ *     Google will DELETE it. Get a NEW key at:
+ *     https://aistudio.google.com/app/apikey
+ *     Restrict it to HTTP referrer: https://sohan-webdev.pages.dev/*
+ *     Then update GEMINI_KEY below.
+ *
+ * Features:
+ *  - Two modes: AI Agent + Direct Message
+ *  - Suggested message chips
+ *  - Escalation to WhatsApp/Email when AI doesn't know
+ *  - Contact form with image attachment
+ *  - Chat history stored in Supabase (optional, free at supabase.com)
+ *  - Admin panel at /admin.html
  */
-
 (function () {
   'use strict';
 
-  /* ============================================================
-     CONFIG — replace these two values
-  ============================================================ */
-  var CONFIG = {
-    GEMINI_API_KEY:    'AQ.Ab8RN6Je0mkux99dmHI1FX9A4wrlplWhF3gh3TyMhWyBCgM8Dg',   // aistudio.google.com/app/apikey
-    WEB3FORMS_KEY:     '4a36a48e-1581-4fb8-86f9-245c2769a4d6',    // web3forms.com  (free, instant)
-    OWNER_EMAIL:       'mdsohanhossain337@gmail.com',
-    COLOR:             '#2897FF',
-    TITLE:             "Chat with Sohan's AI",
-    SUBTITLE:          'AI Assistant · Replies instantly',
+  /* ═══════════════════════════════════════════════════════════
+     CONFIG  —  update these values
+  ═══════════════════════════════════════════════════════════ */
+  var CFG = {
+    // 🔑 NEW Gemini key — get at aistudio.google.com/app/apikey
+    GEMINI_KEY:  'YOUR_NEW_GEMINI_API_KEY',
+
+    // 📧 Web3Forms — email notifications to owner
+    W3F_KEY:     '4a36a48e-1581-4fb8-86f9-245c2769a4d6',
+    OWNER_EMAIL: 'mdsohanhossain337@gmail.com',
+
+    // 💬 WhatsApp number with country code (e.g. 8801XXXXXXXXX)
+    //    Leave empty — auto-read from /content.json contact.whatsapp
+    WHATSAPP:    '',
+
+    // 🗄  Supabase — enables /admin.html chat history (free at supabase.com)
+    //    Leave empty to skip (chat + email still work without this)
+    SUPA_URL:    '',   // e.g. https://xyz.supabase.co
+    SUPA_ANON:   '',   // anon/public key
+
+    // 🎨 Colors
+    PRIMARY:     '#16122A',  // panel background
+    ACCENT:      '#2897FF',  // buttons and highlights
   };
-  /* ============================================================ */
+  /* ═══════════════════════════════════════════════════════════ */
 
-  var siteData = null;
-  var history  = [];   // [{role:'user'|'model', text:'...'}]
-  var user     = null; // {name, email, initial}
-  var opened   = false;
+  /* — Variables — */
+  var siteData  = null;
+  var waNum     = CFG.WHATSAPP;
+  var chatHist  = [];           // {r: 'user'|'model', t: '...'}
+  var visitor   = null;         // {name, email, init}
+  var sessionId = null;
+  var isOpen    = false;
+  var chatMode  = null;         // 'ai' | 'contact'
+  var imgAttach = null;         // {file, dataUrl}
 
-  /* ---------- load content.json for AI context ---------- */
-  function loadData() {
-    fetch('/content.json')
-      .then(function (r) { return r.json(); })
-      .then(function (d) { siteData = d; })
-      .catch(function () { siteData = {}; });
+  /* — Load /content.json — */
+  fetch('/content.json')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      siteData = d;
+      if (!waNum && d.contact && d.contact.whatsapp) {
+        waNum = String(d.contact.whatsapp).replace(/\D/g, '');
+      }
+    })
+    .catch(function () { siteData = {}; });
+
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     SUPABASE HELPERS
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  function dbInsert(table, data) {
+    if (!CFG.SUPA_URL || !CFG.SUPA_ANON) return Promise.resolve(null);
+    return fetch(CFG.SUPA_URL + '/rest/v1/' + table, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': CFG.SUPA_ANON,
+        'Authorization': 'Bearer ' + CFG.SUPA_ANON,
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(data)
+    }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
   }
 
-  /* ---------- build Gemini system prompt ---------- */
-  function systemPrompt() {
-    var c = siteData || {};
-    var name     = [c.name_prefix, c.name_first, c.name_last].filter(Boolean).join(' ');
-    var role     = (c.roles || [])[0] || 'Shopify Developer';
-    var about    = (c.about || []).join(' ');
-    var services = (c.services || []).map(function (s) {
+  function dbUploadFile(file) {
+    if (!CFG.SUPA_URL || !CFG.SUPA_ANON) return Promise.resolve(null);
+    var path = 'chat-imgs/' + genUUID() + '-' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    return fetch(CFG.SUPA_URL + '/storage/v1/object/' + path, {
+      method: 'POST',
+      headers: {
+        'apikey': CFG.SUPA_ANON,
+        'Authorization': 'Bearer ' + CFG.SUPA_ANON,
+        'Content-Type': file.type
+      },
+      body: file
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        return d.error ? null : CFG.SUPA_URL + '/storage/v1/object/public/' + path;
+      })
+      .catch(function () { return null; });
+  }
+
+  function genUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      var r = Math.random() * 16 | 0;
+      return (c === 'x' ? r : (r & 3 | 8)).toString(16);
+    });
+  }
+
+  function logMsg(role, text, imgUrl) {
+    if (!sessionId || !CFG.SUPA_URL) return;
+    dbInsert('chat_messages', {
+      session_id: sessionId,
+      role: role,
+      content: text,
+      image_url: imgUrl || null
+    });
+  }
+
+  function openSession(m) {
+    sessionId = genUUID();
+    if (!CFG.SUPA_URL) return Promise.resolve();
+    return dbInsert('chat_sessions', {
+      visitor_name: visitor.name,
+      visitor_email: visitor.email,
+      mode: m,
+      page_url: location.href,
+      status: 'new'
+    }).then(function (d) {
+      if (d && d[0] && d[0].id) sessionId = d[0].id;
+    });
+  }
+
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     AI — GEMINI
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  function buildSystemPrompt() {
+    var d = siteData || {};
+    var name = [d.name_prefix, d.name_first, d.name_last].filter(Boolean).join(' ') || 'Sohan';
+    var role = (d.roles || [])[0] || 'Shopify Developer';
+    var about = (d.about || []).join(' ');
+    var services = (d.services || []).map(function (s) {
       return '- ' + s.title + ': ' + s.desc +
         ((s.items || []).length ? '\n  Includes: ' + s.items.join(', ') : '');
     }).join('\n');
-    var skills   = (c.skills || []).map(function (s) { return s.name; }).join(', ');
-    var stats    = (c.stats  || []).map(function (s) { return s.value + (s.suffix || '') + ' ' + s.label; }).join(' | ');
-    var faqs     = (c.faq    || []).map(function (f) { return 'Q: ' + f.q + '\nA: ' + f.a; }).join('\n\n');
-    var contact  = c.contact || {};
-    var avail    = c.available ? 'Currently AVAILABLE for new projects' : 'Currently busy — taking inquiries for future';
+    var skills = (d.skills || []).map(function (s) { return s.name; }).join(', ');
+    var faqs = (d.faq || []).map(function (f) { return 'Q: ' + f.q + '\nA: ' + f.a; }).join('\n\n');
+    var contact = d.contact || {};
+    var avail = d.available ? 'Currently AVAILABLE for new projects' : 'Not currently taking new projects';
 
-    return 'You are an AI assistant for ' + name + ', a ' + role + ' based in ' + (c.location || 'Bangladesh') + '.\n\n'
+    return 'You are a smart, friendly AI assistant for ' + name + ', a ' + role + ' based in ' + (d.location || 'Bangladesh') + '.\n\n'
       + 'ABOUT:\n' + about + '\n\n'
       + 'SERVICES:\n' + services + '\n\n'
       + 'SKILLS: ' + skills + '\n\n'
-      + 'STATS: ' + stats + '\n\n'
-      + 'CONTACT:\nEmail: ' + (contact.email || '') + '\nWhatsApp: ' + (contact.whatsapp || '') + '\n\n'
+      + 'CONTACT:\nEmail: ' + (contact.email || CFG.OWNER_EMAIL) + '\nWhatsApp: ' + (contact.whatsapp || '') + '\n\n'
       + 'FAQ:\n' + faqs + '\n\n'
       + 'AVAILABILITY: ' + avail + '\n\n'
       + 'INSTRUCTIONS:\n'
-      + '- Answer questions about Sohan\'s services, skills, experience and availability.\n'
-      + '- Keep replies SHORT and FRIENDLY — 2 to 4 sentences max.\n'
-      + '- For pricing questions: say it depends on project scope and suggest contacting directly.\n'
-      + '- Always end with a nudge to get in touch for project-specific details.\n'
-      + '- If you don\'t know something, say Sohan will follow up.\n'
-      + '- Reply in the SAME LANGUAGE the visitor uses (Bangla or English).\n'
-      + '- Never invent information not listed above.';
+      + '- Keep replies SHORT and friendly — 2 to 3 sentences max.\n'
+      + '- For pricing: say it depends on project scope and suggest contacting ' + name + ' directly.\n'
+      + '- If the question is outside your knowledge about ' + name + ', start your reply ONLY with [ESCALATE] then write a brief friendly note (e.g. "[ESCALATE] Great question! For this Sohan would be better placed to help.").\n'
+      + '- Match the visitor\'s language (Bangla → reply in Bangla, English → reply in English).\n'
+      + '- Never invent information.';
   }
 
-  /* ---------- call Gemini API ---------- */
-  function askGemini(text, cb) {
-    var contents = history.map(function (m) {
-      return { role: m.role, parts: [{ text: m.text }] };
+  function askAI(text, callback) {
+    var contents = chatHist.map(function (m) {
+      return { role: m.r === 'user' ? 'user' : 'model', parts: [{ text: m.t }] };
     });
     contents.push({ role: 'user', parts: [{ text: text }] });
 
     fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + CONFIG.GEMINI_API_KEY,
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + CFG.GEMINI_KEY,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemPrompt() }] },
+          system_instruction: { parts: [{ text: buildSystemPrompt() }] },
           contents: contents,
-          generationConfig: { maxOutputTokens: 300, temperature: 0.75 }
+          generationConfig: { maxOutputTokens: 220, temperature: 0.7 }
         })
       }
     )
       .then(function (r) { return r.json(); })
       .then(function (d) {
-        var reply = (d.candidates &&
-          d.candidates[0] &&
-          d.candidates[0].content &&
-          d.candidates[0].content.parts &&
-          d.candidates[0].content.parts[0].text) ||
-          'Sorry, something went wrong. Please contact Sohan directly.';
-        cb(null, reply);
+        var reply = (d.candidates && d.candidates[0] &&
+          d.candidates[0].content && d.candidates[0].content.parts &&
+          d.candidates[0].content.parts[0].text) || '[ESCALATE]';
+        callback(reply);
       })
-      .catch(function () {
-        cb('error');
-      });
+      .catch(function () { callback('[ESCALATE]'); });
   }
 
-  /* ---------- send email via Web3Forms ---------- */
-  function notifyEmail(userName, userEmail, firstMsg) {
-    if (!CONFIG.WEB3FORMS_KEY || CONFIG.WEB3FORMS_KEY === 'YOUR_WEB3FORMS_KEY') return;
-    var body = {
-      access_key:  CONFIG.WEB3FORMS_KEY,
-      subject:     'New chat message from ' + userName + ' on your portfolio',
-      from_name:   userName,
-      email:       userEmail,
-      message:     'Name: ' + userName + '\nEmail: ' + userEmail + '\n\nMessage:\n' + firstMsg + '\n\nPage: ' + location.href,
-      botcheck:    ''
-    };
-    fetch('https://api.web3forms.com/submit', {
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     EMAIL — Web3Forms
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  function sendEmail(data) {
+    return fetch('https://api.web3forms.com/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      body: JSON.stringify(Object.assign({ access_key: CFG.W3F_KEY, botcheck: '' }, data))
     }).catch(function () {});
   }
 
-  /* ---------- CSS ---------- */
-  function addStyles() {
-    var s = document.createElement('style');
-    s.textContent = [
-      '#_cb*{box-sizing:border-box;margin:0;padding:0;font-family:inherit}',
-
-      /* button */
-      '#_cb-btn{position:fixed;bottom:24px;right:24px;width:56px;height:56px;',
-      'background:' + CONFIG.COLOR + ';border-radius:50%;border:none;cursor:pointer;',
-      'display:flex;align-items:center;justify-content:center;',
-      'box-shadow:0 4px 24px rgba(40,151,255,.45);z-index:9999;',
-      'transition:transform .2s,box-shadow .2s;}',
-      '#_cb-btn:hover{transform:scale(1.1);box-shadow:0 6px 32px rgba(40,151,255,.55)}',
-      '#_cb-btn svg{width:26px;height:26px;fill:#fff;transition:opacity .15s}',
-      '#_cb-btn .ic-open{display:block}#_cb-btn .ic-close{display:none}',
-      '#_cb-btn.on .ic-open{display:none}#_cb-btn.on .ic-close{display:block}',
-
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     CSS
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  function injectStyles() {
+    var P = CFG.PRIMARY, A = CFG.ACCENT;
+    var css = [
+      '#_lc,#_lc *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}',
+      /* floating button */
+      '#_lc-btn{position:fixed;bottom:24px;right:24px;width:58px;height:58px;border-radius:50%;border:2.5px solid ' + A + ';',
+      'background:' + P + ';cursor:pointer;display:flex;align-items:center;justify-content:center;',
+      'box-shadow:0 4px 20px rgba(40,151,255,.3);z-index:2147483646;',
+      'transition:transform .2s,box-shadow .2s;animation:_lc-pulse 3.5s ease infinite}',
+      '#_lc-btn:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(40,151,255,.5)}',
+      '@keyframes _lc-pulse{0%,100%{box-shadow:0 4px 20px rgba(40,151,255,.3),0 0 0 0 rgba(40,151,255,.35)}',
+      '60%{box-shadow:0 4px 20px rgba(40,151,255,.3),0 0 0 10px rgba(40,151,255,0)}}',
+      '#_lc-btn svg{width:26px;height:26px;fill:' + A + '}',
+      '#_lc-btn .ic-open{display:block}#_lc-btn .ic-close{display:none;fill:#fff!important}',
+      '#_lc-btn.on .ic-open{display:none}#_lc-btn.on .ic-close{display:block}',
       /* badge */
-      '#_cb-badge{position:absolute;top:-3px;right:-3px;width:17px;height:17px;',
-      'background:#ef4444;border-radius:50%;font-size:10px;font-weight:700;',
-      'color:#fff;display:none;align-items:center;justify-content:center;}',
-
+      '#_lc-badge{position:absolute;top:-4px;right:-4px;width:18px;height:18px;background:#ef4444;',
+      'border-radius:50%;font-size:10px;font-weight:700;color:#fff;',
+      'display:none;align-items:center;justify-content:center;border:2px solid ' + P + '}',
       /* panel */
-      '#_cb-panel{position:fixed;bottom:90px;right:24px;width:360px;max-height:530px;',
-      'background:#0d1117;border:1px solid rgba(255,255,255,.08);border-radius:20px;',
-      'overflow:hidden;display:flex;flex-direction:column;z-index:9998;',
-      'box-shadow:0 20px 60px rgba(0,0,0,.55);',
+      '#_lc-panel{position:fixed;bottom:94px;right:24px;width:375px;max-height:580px;',
+      'background:' + P + ';border:1px solid rgba(40,151,255,.18);border-radius:22px;overflow:hidden;',
+      'display:flex;flex-direction:column;z-index:2147483645;',
+      'box-shadow:0 24px 64px rgba(0,0,0,.7),0 0 0 1px rgba(40,151,255,.08);',
       'transform:translateY(16px) scale(.96);opacity:0;pointer-events:none;',
-      'transition:transform .25s cubic-bezier(.34,1.56,.64,1),opacity .2s;}',
-      '#_cb-panel.on{transform:translateY(0) scale(1);opacity:1;pointer-events:all}',
-      '@media(max-width:400px){#_cb-panel{width:calc(100vw - 24px);right:12px;bottom:78px}}',
-
+      'transition:transform .28s cubic-bezier(.34,1.56,.64,1),opacity .2s}',
+      '#_lc-panel.on{transform:none;opacity:1;pointer-events:all}',
+      '@media(max-width:420px){#_lc-panel{width:calc(100vw - 20px);right:10px;bottom:82px}}',
       /* header */
-      '#_cb-hd{padding:14px 18px;background:' + CONFIG.COLOR + ';display:flex;align-items:center;gap:11px;flex-shrink:0}',
-      '#_cb-hd .av{width:36px;height:36px;background:rgba(255,255,255,.2);border-radius:50%;',
-      'display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:14px;flex-shrink:0}',
-      '#_cb-hd .inf{flex:1}',
-      '#_cb-hd .inf b{color:#fff;font-size:13.5px;display:block}',
-      '#_cb-hd .inf small{color:rgba(255,255,255,.75);font-size:11px}',
-      '#_cb-hd .dot{width:7px;height:7px;background:#22c55e;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle}',
-
+      '#_lc-hd{padding:15px 18px;background:linear-gradient(135deg,' + P + ' 0%,rgba(26,22,50,1) 100%);',
+      'display:flex;align-items:center;gap:11px;flex-shrink:0;border-bottom:1px solid rgba(40,151,255,.12)}',
+      '#_lc-hd .av{width:40px;height:40px;background:' + A + ';border-radius:50%;display:flex;',
+      'align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:14px;flex-shrink:0}',
+      '#_lc-hd .inf{flex:1;overflow:hidden}',
+      '#_lc-hd .inf b{color:#fff;font-size:14px;font-weight:600;display:block}',
+      '#_lc-hd .inf small{color:rgba(255,255,255,.55);font-size:11px;display:flex;align-items:center;gap:5px}',
+      '#_lc-hd .dot{width:7px;height:7px;background:#22c55e;border-radius:50%;flex-shrink:0;',
+      'animation:_lc-blink 2s ease infinite;box-shadow:0 0 5px #22c55e}',
+      '@keyframes _lc-blink{0%,100%{opacity:1}50%{opacity:.4}}',
+      '#_lc-close{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.4);',
+      'width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;',
+      'flex-shrink:0;transition:all .2s}',
+      '#_lc-close:hover{background:rgba(255,255,255,.1);color:#fff}',
+      '#_lc-close svg{width:16px;height:16px;fill:currentColor}',
       /* body */
-      '#_cb-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;',
-      'gap:10px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.08) transparent}',
-
-      /* form */
-      '#_cb-form{display:flex;flex-direction:column;gap:11px;padding:4px 0}',
-      '#_cb-form p{color:rgba(255,255,255,.65);font-size:13px;line-height:1.55}',
-      '#_cb-form input{width:100%;padding:10px 13px;background:rgba(255,255,255,.06);',
-      'border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-size:13.5px;',
+      '#_lc-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;',
+      'max-height:400px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.08) transparent}',
+      '#_lc-body::-webkit-scrollbar{width:4px}',
+      '#_lc-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}',
+      /* form typography */
+      '._lc-title{color:#fff;font-size:14.5px;font-weight:600;line-height:1.5}',
+      '._lc-sub{color:rgba(255,255,255,.5);font-size:12.5px;line-height:1.55;margin-top:3px}',
+      /* inputs */
+      '._lc-inp{width:100%;padding:11px 14px;background:rgba(255,255,255,.06);',
+      'border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:13.5px;',
       'outline:none;transition:border-color .2s;font-family:inherit}',
-      '#_cb-form input:focus{border-color:' + CONFIG.COLOR + '}',
-      '#_cb-form input::placeholder{color:rgba(255,255,255,.3)}',
-      '#_cb-form button{padding:11px;background:' + CONFIG.COLOR + ';color:#fff;border:none;',
-      'border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;',
-      'transition:opacity .2s;font-family:inherit}',
-      '#_cb-form button:hover{opacity:.88}',
-
+      '._lc-inp:focus{border-color:' + A + '}._lc-inp::placeholder{color:rgba(255,255,255,.28)}',
+      '._lc-textarea{width:100%;padding:11px 14px;background:rgba(255,255,255,.06);',
+      'border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:13.5px;',
+      'outline:none;transition:border-color .2s;font-family:inherit;resize:vertical;min-height:110px;line-height:1.6}',
+      '._lc-textarea:focus{border-color:' + A + '}._lc-textarea::placeholder{color:rgba(255,255,255,.28)}',
+      /* buttons */
+      '._lc-btn{padding:12px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;',
+      'transition:opacity .2s,transform .1s;font-family:inherit;width:100%;border:none}',
+      '._lc-btn:active{transform:scale(.98)}._lc-btn:hover{opacity:.88}',
+      '._lc-btn-p{background:' + A + ';color:#fff}',
+      '._lc-btn-s{background:rgba(255,255,255,.07);color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.1)!important}',
+      /* mode cards */
+      '._lc-modes{display:flex;flex-direction:column;gap:9px;padding:4px 0}',
+      '._lc-card{padding:14px 16px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);',
+      'border-radius:14px;cursor:pointer;display:flex;align-items:center;gap:13px;transition:all .2s}',
+      '._lc-card:hover{background:rgba(40,151,255,.1);border-color:rgba(40,151,255,.35)}',
+      '._lc-card .ico{width:42px;height:42px;border-radius:50%;background:rgba(40,151,255,.12);',
+      'display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}',
+      '._lc-card b{color:#fff;font-size:13.5px;display:block;margin-bottom:3px}',
+      '._lc-card span{color:rgba(255,255,255,.45);font-size:12px}',
+      /* suggestions */
+      '._lc-sugg{display:flex;flex-direction:column;gap:9px}',
+      '._lc-slbl{color:rgba(255,255,255,.35);font-size:11px;text-transform:uppercase;letter-spacing:.5px}',
+      '._lc-chips{display:flex;flex-wrap:wrap;gap:7px}',
+      '._lc-chip{padding:7px 13px;background:rgba(40,151,255,.1);border:1px solid rgba(40,151,255,.22);',
+      'border-radius:20px;color:rgba(255,255,255,.75);font-size:12.5px;cursor:pointer;',
+      'transition:all .15s;white-space:nowrap;font-family:inherit}',
+      '._lc-chip:hover{background:rgba(40,151,255,.22);color:#fff;border-color:rgba(40,151,255,.5)}',
       /* messages */
-      '._cm{display:flex;gap:7px;align-items:flex-end}',
-      '._cm.u{flex-direction:row-reverse}',
-      '._cm .bbl{max-width:82%;padding:9px 13px;border-radius:16px;font-size:13px;line-height:1.55}',
-      '._cm.b .bbl{background:rgba(255,255,255,.07);color:rgba(255,255,255,.88);border-bottom-left-radius:4px}',
-      '._cm.u .bbl{background:' + CONFIG.COLOR + ';color:#fff;border-bottom-right-radius:4px}',
-      '._cm .av{width:24px;height:24px;background:' + CONFIG.COLOR + ';border-radius:50%;',
-      'font-size:9px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}',
-      '._cm.u .av{background:rgba(255,255,255,.12)}',
-
-      /* typing */
-      '.tyd{display:flex;gap:4px;align-items:center;padding:3px 0}',
-      '.tyd span{width:6px;height:6px;background:rgba(255,255,255,.35);border-radius:50%;animation:_cb-b 1.2s infinite}',
-      '.tyd span:nth-child(2){animation-delay:.2s}.tyd span:nth-child(3){animation-delay:.4s}',
-      '@keyframes _cb-b{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}',
-
-      /* footer */
-      '#_cb-ft{padding:10px 14px;border-top:1px solid rgba(255,255,255,.06);',
-      'display:none;gap:8px;align-items:center;flex-shrink:0}',
-      '#_cb-in{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);',
-      'border-radius:22px;padding:8px 15px;color:#fff;font-size:13px;outline:none;',
-      'transition:border-color .2s;font-family:inherit}',
-      '#_cb-in:focus{border-color:' + CONFIG.COLOR + '}',
-      '#_cb-in::placeholder{color:rgba(255,255,255,.28)}',
-      '#_cb-send{width:34px;height:34px;background:' + CONFIG.COLOR + ';border:none;border-radius:50%;',
-      'cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .2s}',
-      '#_cb-send:hover{opacity:.88}',
-      '#_cb-send svg{width:15px;height:15px;fill:#fff}',
-      '#_cb-pw{text-align:center;font-size:10px;color:rgba(255,255,255,.18);padding:3px 0 7px}',
+      '._lc-msg{display:flex;gap:8px;align-items:flex-end}._lc-msg.u{flex-direction:row-reverse}',
+      '._lc-msg .bbl{max-width:80%;padding:10px 14px;border-radius:18px;font-size:13.5px;line-height:1.6;word-break:break-word}',
+      '._lc-msg.b .bbl{background:rgba(255,255,255,.07);color:rgba(255,255,255,.88);border-bottom-left-radius:5px}',
+      '._lc-msg.u .bbl{background:' + A + ';color:#fff;border-bottom-right-radius:5px}',
+      '._lc-msg .av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;',
+      'justify-content:center;font-size:10px;color:#fff;font-weight:700;flex-shrink:0}',
+      '._lc-msg.b .av{background:rgba(40,151,255,.18);color:' + A + '}._lc-msg.u .av{background:rgba(255,255,255,.12)}',
+      /* typing indicator */
+      '.lc-tyd{display:flex;gap:5px;align-items:center;padding:3px 0}',
+      '.lc-tyd span{width:7px;height:7px;background:rgba(40,151,255,.5);border-radius:50%;animation:_lc-t 1.2s infinite}',
+      '.lc-tyd span:nth-child(2){animation-delay:.2s}.lc-tyd span:nth-child(3){animation-delay:.4s}',
+      '@keyframes _lc-t{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}',
+      /* escalation card */
+      '._lc-esc{background:rgba(40,151,255,.07);border:1px solid rgba(40,151,255,.18);',
+      'border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;max-width:85%}',
+      '._lc-esc p{color:rgba(255,255,255,.65);font-size:13px;line-height:1.55}',
+      '._lc-esc-row{display:flex;gap:8px}',
+      '._lc-esc-row>*{flex:1;padding:9px;border-radius:10px;font-size:12.5px;font-weight:600;',
+      'cursor:pointer;text-decoration:none;text-align:center;display:flex;align-items:center;',
+      'justify-content:center;gap:5px;transition:opacity .2s;border:none;font-family:inherit}',
+      '._lc-wa{background:#25D366;color:#fff!important}',
+      '._lc-em{background:rgba(255,255,255,.1);color:rgba(255,255,255,.85)!important;',
+      'border:1px solid rgba(255,255,255,.12)!important}',
+      '._lc-esc-row>*:hover{opacity:.85}',
+      /* footer chat input */
+      '#_lc-ft{padding:12px 14px;border-top:1px solid rgba(255,255,255,.07);',
+      'display:none;gap:8px;align-items:flex-end;flex-shrink:0}',
+      '#_lc-in{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);',
+      'border-radius:22px;padding:9px 15px;color:#fff;font-size:13px;outline:none;',
+      'transition:border-color .2s;font-family:inherit;resize:none;max-height:120px;line-height:1.5;overflow-y:hidden}',
+      '#_lc-in:focus{border-color:' + A + '}#_lc-in::placeholder{color:rgba(255,255,255,.3)}',
+      '#_lc-send{width:36px;height:36px;background:' + A + ';border:none;border-radius:50%;',
+      'cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;',
+      'transition:opacity .2s;padding:0}',
+      '#_lc-send:hover{opacity:.85}#_lc-send svg{width:16px;height:16px;fill:#fff}',
+      /* brand footer */
+      '#_lc-brand{text-align:center;font-size:10px;color:rgba(255,255,255,.18);padding:4px 0 8px}',
+      /* image attach */
+      '._lc-attach{padding:9px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);',
+      'border-radius:10px;color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;',
+      'transition:all .2s;font-family:inherit;text-align:center;width:100%}',
+      '._lc-attach:hover{background:rgba(255,255,255,.1)}',
+      '._lc-preview{border-radius:10px;overflow:hidden;position:relative;max-width:160px}',
+      '._lc-preview img{width:100%;display:block;border-radius:10px}',
+      '._lc-preview .rm{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.7);border:none;',
+      'border-radius:50%;width:22px;height:22px;color:#fff;cursor:pointer;font-size:14px;',
+      'display:flex;align-items:center;justify-content:center;line-height:1}',
+      /* success */
+      '._lc-ok{text-align:center;padding:24px 16px;display:flex;flex-direction:column;align-items:center;gap:14px}',
+      '._lc-ok .ck{font-size:44px}._lc-ok h3{color:#fff;font-size:15px}',
+      '._lc-ok p{color:rgba(255,255,255,.5);font-size:13px;line-height:1.55}',
     ].join('');
-    document.head.appendChild(s);
+
+    var el = document.createElement('style');
+    el.id = '_lc-style';
+    el.textContent = css;
+    document.head.appendChild(el);
   }
 
-  /* ---------- build HTML ---------- */
-  function buildHTML() {
-    var w = document.createElement('div');
-    w.id = '_cb';
-    w.innerHTML =
-      '<button id="_cb-btn" aria-label="Open chat">' +
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     BUILD DOM
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  function buildDOM() {
+    var wrap = document.createElement('div');
+    wrap.id = '_lc';
+    wrap.innerHTML =
+      '<button id="_lc-btn" aria-label="Open Live Chat">' +
         '<svg class="ic-open" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 10H6v-2h12v2zm0-3H6V7h12v2z"/></svg>' +
         '<svg class="ic-close" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>' +
-        '<span id="_cb-badge">1</span>' +
+        '<span id="_lc-badge">1</span>' +
       '</button>' +
-      '<div id="_cb-panel">' +
-        '<div id="_cb-hd">' +
+      '<div id="_lc-panel" role="dialog" aria-label="Live Chat">' +
+        '<div id="_lc-hd">' +
           '<div class="av">SH</div>' +
           '<div class="inf">' +
-            '<b>' + esc(CONFIG.TITLE) + '</b>' +
-            '<small><span class="dot"></span>' + esc(CONFIG.SUBTITLE) + '</small>' +
+            '<b>Live Chat</b>' +
+            '<small><span class="dot"></span>Online &middot; AI &amp; Direct Support</small>' +
+          '</div>' +
+          '<button id="_lc-close" aria-label="Close chat">' +
+            '<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>' +
+          '</button>' +
+        '</div>' +
+        '<div id="_lc-body"></div>' +
+        '<div id="_lc-ft">' +
+          '<textarea id="_lc-in" rows="1" placeholder="Type a message…"></textarea>' +
+          '<button id="_lc-send"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>' +
+        '</div>' +
+        '<div id="_lc-brand">Powered by Google Gemini AI</div>' +
+      '</div>';
+    document.body.appendChild(wrap);
+  }
+
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     RENDER SCREENS
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  function $b() { return document.getElementById('_lc-body'); }
+  function $f() { return document.getElementById('_lc-ft'); }
+
+  function showIntroForm() {
+    $f().style.display = 'none';
+    $b().innerHTML =
+      '<div style="display:flex;flex-direction:column;gap:12px">' +
+        '<p class="_lc-title">👋 Hello! Nice to meet you.</p>' +
+        '<p class="_lc-sub">Share your name and email so Sohan can follow up if needed.</p>' +
+        '<input id="_lc-nm" class="_lc-inp" type="text" placeholder="Your name" autocomplete="name" />' +
+        '<input id="_lc-em" class="_lc-inp" type="email" placeholder="Your email address" autocomplete="email" />' +
+        '<button class="_lc-btn _lc-btn-p" id="_lc-go">Continue →</button>' +
+      '</div>';
+    var go = function () {
+      var nm = val('_lc-nm'), em = val('_lc-em');
+      if (!nm) { flash('_lc-nm'); return; }
+      if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { flash('_lc-em'); return; }
+      visitor = { name: nm, email: em, init: nm[0].toUpperCase() };
+      showModeSelector();
+    };
+    document.getElementById('_lc-go').onclick = go;
+    document.getElementById('_lc-em').onkeypress = function (e) { if (e.key === 'Enter') go(); };
+    setTimeout(function () { var el = document.getElementById('_lc-nm'); if (el) el.focus(); }, 100);
+  }
+
+  function showModeSelector() {
+    $b().innerHTML =
+      '<div style="display:flex;flex-direction:column;gap:12px">' +
+        '<p class="_lc-title">Hi ' + esc(visitor.name.split(' ')[0]) + '! 👋</p>' +
+        '<p class="_lc-sub">How can I help you today?</p>' +
+        '<div class="_lc-modes">' +
+          '<div class="_lc-card" id="_lc-pick-ai">' +
+            '<div class="ico">🤖</div>' +
+            '<div><b>Chat with AI Agent</b><span>Instant answers about Sohan\'s work</span></div>' +
+          '</div>' +
+          '<div class="_lc-card" id="_lc-pick-contact">' +
+            '<div class="ico">✉️</div>' +
+            '<div><b>Send a Direct Message</b><span>Message Sohan personally</span></div>' +
           '</div>' +
         '</div>' +
-        '<div id="_cb-body"></div>' +
-        '<div id="_cb-ft">' +
-          '<input id="_cb-in" type="text" placeholder="Type a message…" autocomplete="off"/>' +
-          '<button id="_cb-send"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>' +
+      '</div>';
+    document.getElementById('_lc-pick-ai').onclick = function () { chooseMode('ai'); };
+    document.getElementById('_lc-pick-contact').onclick = function () { chooseMode('contact'); };
+  }
+
+  function chooseMode(m) {
+    chatMode = m;
+    openSession(m);
+    if (m === 'ai') {
+      showAIMode();
+    } else {
+      showContactForm();
+    }
+  }
+
+  function showAIMode() {
+    $f().style.display = 'flex';
+    if (chatHist.length === 0) showSuggestions();
+    setTimeout(function () { var inp = document.getElementById('_lc-in'); if (inp) inp.focus(); }, 100);
+  }
+
+  function showSuggestions() {
+    $b().innerHTML =
+      '<div class="_lc-sugg">' +
+        '<p class="_lc-slbl">Suggested questions</p>' +
+        '<div class="_lc-chips">' +
+          mkChip('What services do you offer?') +
+          mkChip('Are you available for work?') +
+          mkChip('How much do you charge?') +
+          mkChip('Tell me about your Shopify experience') +
         '</div>' +
-        '<div id="_cb-pw">Powered by Google Gemini AI</div>' +
       '</div>';
-    document.body.appendChild(w);
-  }
-
-  /* ---------- show intro form ---------- */
-  function showForm() {
-    var body = document.getElementById('_cb-body');
-    body.innerHTML =
-      '<div id="_cb-form">' +
-        '<p>👋 Hi! Please introduce yourself before we chat.</p>' +
-        '<input id="_cb-nm" type="text" placeholder="Your name" />' +
-        '<input id="_cb-em" type="email" placeholder="Your email address" />' +
-        '<input id="_cb-fm" type="text" placeholder="What would you like to know?" />' +
-        '<button id="_cb-go">Start Chat →</button>' +
-      '</div>';
-
-    document.getElementById('_cb-go').onclick = startChat;
-    document.getElementById('_cb-fm').onkeypress = function (e) {
-      if (e.key === 'Enter') startChat();
-    };
-  }
-
-  /* ---------- start chat ---------- */
-  function startChat() {
-    var nm  = val('_cb-nm');
-    var em  = val('_cb-em');
-    var msg = val('_cb-fm');
-
-    if (!nm || !em || !msg) { alert('Please fill in all fields.'); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { alert('Please enter a valid email.'); return; }
-
-    user = { name: nm, email: em, initial: nm[0].toUpperCase() };
-    document.getElementById('_cb-body').innerHTML = '';
-    document.getElementById('_cb-ft').style.display = 'flex';
-
-    notifyEmail(nm, em, msg); // fire-and-forget
-
-    addMsg('u', msg, user.initial);
-    getReply(msg);
-  }
-
-  /* ---------- get AI reply ---------- */
-  function getReply(text) {
-    history.push({ role: 'user', text: text });
-    showTyping();
-    askGemini(text, function (err, reply) {
-      removeTyping();
-      if (err) {
-        reply = "I'm having a moment! Please contact Sohan directly at " + CONFIG.OWNER_EMAIL;
-      }
-      history.push({ role: 'model', text: reply });
-      addMsg('b', reply, 'SH');
+    $b().querySelectorAll('._lc-chip').forEach(function (c) {
+      c.onclick = function () { sendAIMsg(c.textContent); };
     });
   }
 
-  /* ---------- message helpers ---------- */
-  function addMsg(type, text, initial) {
-    var body = document.getElementById('_cb-body');
+  function mkChip(txt) { return '<button class="_lc-chip">' + esc(txt) + '</button>'; }
+
+  function showContactForm() {
+    $f().style.display = 'none';
+    $b().innerHTML =
+      '<div style="display:flex;flex-direction:column;gap:12px">' +
+        '<p class="_lc-title">✉️ Send Sohan a Message</p>' +
+        '<input id="_lc-ct-nm" class="_lc-inp" type="text" placeholder="Your name" value="' + esc(visitor.name) + '" />' +
+        '<input id="_lc-ct-em" class="_lc-inp" type="email" placeholder="Your email" value="' + esc(visitor.email) + '" />' +
+        '<textarea id="_lc-ct-msg" class="_lc-textarea" placeholder="Write your message…"></textarea>' +
+        '<input type="file" id="_lc-file" accept="image/*" style="display:none">' +
+        '<button class="_lc-attach" id="_lc-att">📎 Attach an image (optional)</button>' +
+        '<div id="_lc-prev-wrap"></div>' +
+        '<button class="_lc-btn _lc-btn-p" id="_lc-ct-send">Send Message →</button>' +
+        '<button class="_lc-btn _lc-btn-s" id="_lc-ct-back">← Back</button>' +
+      '</div>';
+
+    document.getElementById('_lc-att').onclick = function () { document.getElementById('_lc-file').click(); };
+    document.getElementById('_lc-file').onchange = handleImgSelect;
+    document.getElementById('_lc-ct-send').onclick = submitContact;
+    document.getElementById('_lc-ct-back').onclick = function () {
+      chatMode = null; chatHist = []; imgAttach = null;
+      $f().style.display = 'none';
+      showModeSelector();
+    };
+    setTimeout(function () { var el = document.getElementById('_lc-ct-msg'); if (el) el.focus(); }, 100);
+  }
+
+  function handleImgSelect(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function (ev) {
+      imgAttach = { file: file, dataUrl: ev.target.result };
+      var wrap = document.getElementById('_lc-prev-wrap');
+      wrap.innerHTML =
+        '<div class="_lc-preview">' +
+          '<img src="' + ev.target.result + '" alt="Preview">' +
+          '<button class="rm" id="_lc-rm">\xD7</button>' +
+        '</div>';
+      document.getElementById('_lc-rm').onclick = function () {
+        imgAttach = null;
+        wrap.innerHTML = '';
+        document.getElementById('_lc-file').value = '';
+      };
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function submitContact() {
+    var nm = val('_lc-ct-nm'), em = val('_lc-ct-em'), msg = val('_lc-ct-msg');
+    if (!nm || !em || !msg) return;
+    var btn = document.getElementById('_lc-ct-send');
+    btn.textContent = 'Sending…'; btn.disabled = true;
+
+    var imgUpload = (imgAttach && CFG.SUPA_URL) ? dbUploadFile(imgAttach.file) : Promise.resolve(null);
+
+    imgUpload.then(function (imgUrl) {
+      openSession('contact').then(function () {
+        logMsg('user', msg, imgUrl);
+        var body = 'Name: ' + nm + '\nEmail: ' + em + '\nPage: ' + location.href + '\n\nMessage:\n' + msg;
+        if (imgUrl) body += '\n\nAttachment: ' + imgUrl;
+        return sendEmail({ subject: 'Direct message from ' + nm + ' on your portfolio', from_name: nm, email: em, message: body });
+      }).then(function () {
+        imgAttach = null;
+        showSuccess();
+      });
+    });
+  }
+
+  function showSuccess() {
+    $f().style.display = 'none';
+    $b().innerHTML =
+      '<div class="_lc-ok">' +
+        '<div class="ck">✅</div>' +
+        '<h3>Message Sent!</h3>' +
+        '<p>Thanks ' + esc(visitor.name.split(' ')[0]) + '! Sohan will reply to<br>' +
+        '<strong style="color:#2897FF">' + esc(visitor.email) + '</strong> shortly.</p>' +
+        '<button class="_lc-btn _lc-btn-s" style="width:auto;padding:9px 20px;font-size:13px" id="_lc-another">Send another →</button>' +
+      '</div>';
+    document.getElementById('_lc-another').onclick = showContactForm;
+  }
+
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     AI CHAT ACTIONS
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  function sendAIMsg(text) {
+    text = text.trim();
+    if (!text) return;
+
+    // Remove suggestions if present
+    var sugg = $b().querySelector('._lc-sugg');
+    if (sugg) sugg.remove();
+
+    addBubble('u', text, visitor.init);
+    chatHist.push({ r: 'user', t: text });
+    logMsg('user', text);
+
+    // Notify owner on first message
+    if (chatHist.length === 1) {
+      sendEmail({
+        subject: 'New AI chat from ' + visitor.name + ' on your portfolio',
+        from_name: visitor.name,
+        email: visitor.email,
+        message: 'Name: ' + visitor.name + '\nEmail: ' + visitor.email + '\nPage: ' + location.href + '\n\nFirst message:\n' + text
+      });
+    }
+
+    showTyping();
+    askAI(text, function (reply) {
+      removeTyping();
+      if (reply.indexOf('[ESCALATE]') === 0) {
+        var note = reply.replace('[ESCALATE]', '').trim();
+        if (note) addBubble('b', note, 'SH');
+        addEscCard();
+      } else {
+        chatHist.push({ r: 'model', t: reply });
+        logMsg('ai', reply);
+        addBubble('b', reply, 'SH');
+      }
+    });
+  }
+
+  function addEscCard() {
+    var body = $b();
     var d = document.createElement('div');
-    d.className = '_cm ' + type;
+    d.className = '_lc-msg b';
+    var waLink = waNum
+      ? '<a href="https://wa.me/' + waNum.replace(/\D/g, '') + '?text=' + encodeURIComponent("Hi Sohan! I'd like to discuss a project.") + '" target="_blank" rel="noopener" class="_lc-wa">💬 WhatsApp</a>'
+      : '';
     d.innerHTML =
-      '<div class="av">' + esc(initial || 'SH') + '</div>' +
+      '<div class="av">SH</div>' +
+      '<div class="_lc-esc">' +
+        '<p>For this, I\'d recommend reaching out to Sohan directly — he\'ll be better placed to help!</p>' +
+        '<div class="_lc-esc-row">' +
+          waLink +
+          '<button class="_lc-em" id="_lc-esc-em">✉️ Send Email</button>' +
+        '</div>' +
+      '</div>';
+    body.appendChild(d);
+    body.scrollTop = body.scrollHeight;
+    d.querySelector('#_lc-esc-em').onclick = function () { chooseMode('contact'); };
+  }
+
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     BUBBLE / TYPING
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  function addBubble(type, text, init) {
+    var body = $b();
+    var d = document.createElement('div');
+    d.className = '_lc-msg ' + type;
+    d.innerHTML =
+      '<div class="av">' + esc(init || 'SH') + '</div>' +
       '<div class="bbl">' + esc(text).replace(/\n/g, '<br>') + '</div>';
     body.appendChild(d);
     body.scrollTop = body.scrollHeight;
   }
 
   function showTyping() {
-    var body = document.getElementById('_cb-body');
+    var body = $b();
     var d = document.createElement('div');
-    d.className = '_cm b'; d.id = '_cb-ty';
-    d.innerHTML = '<div class="av">SH</div><div class="bbl"><div class="tyd"><span></span><span></span><span></span></div></div>';
+    d.className = '_lc-msg b'; d.id = '_lc-ty';
+    d.innerHTML = '<div class="av">SH</div><div class="bbl"><div class="lc-tyd"><span></span><span></span><span></span></div></div>';
     body.appendChild(d);
     body.scrollTop = body.scrollHeight;
   }
 
-  function removeTyping() {
-    var el = document.getElementById('_cb-ty');
-    if (el) el.remove();
-  }
+  function removeTyping() { var el = document.getElementById('_lc-ty'); if (el) el.remove(); }
 
-  /* ---------- toggle panel ---------- */
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     TOGGLE + INIT
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
   function toggle() {
-    opened = !opened;
-    document.getElementById('_cb-panel').classList.toggle('on', opened);
-    document.getElementById('_cb-btn').classList.toggle('on', opened);
-    document.getElementById('_cb-badge').style.display = 'none';
-    if (opened && !user) showForm();
-    if (opened && user) {
-      var inp = document.getElementById('_cb-in');
-      if (inp) setTimeout(function () { inp.focus(); }, 50);
+    isOpen = !isOpen;
+    document.getElementById('_lc-panel').classList.toggle('on', isOpen);
+    document.getElementById('_lc-btn').classList.toggle('on', isOpen);
+    document.getElementById('_lc-badge').style.display = 'none';
+
+    if (isOpen) {
+      if (!visitor) showIntroForm();
+      else if (!chatMode) showModeSelector();
+      else if (chatMode === 'ai') {
+        setTimeout(function () { var inp = document.getElementById('_lc-in'); if (inp) inp.focus(); }, 100);
+      }
     }
   }
 
-  /* ---------- send user message ---------- */
-  function sendMsg() {
-    var inp = document.getElementById('_cb-in');
-    var text = inp.value.trim();
-    if (!text || !user) return;
-    inp.value = '';
-    addMsg('u', text, user.initial);
-    getReply(text);
+  /* — Utils — */
+  function val(id) { var el = document.getElementById(id); return el && el.value ? el.value.trim() : ''; }
+  function esc(t) { return String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function flash(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.style.borderColor = '#ef4444'; el.focus();
+    setTimeout(function () { el.style.borderColor = ''; }, 2000);
   }
 
-  /* ---------- utils ---------- */
-  function val(id) { return (document.getElementById(id) || {}).value && document.getElementById(id).value.trim(); }
-  function esc(t) {
-    return String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  }
-
-  /* ---------- init ---------- */
+  /* — Init — */
   function init() {
-    addStyles();
-    buildHTML();
-    loadData();
+    injectStyles();
+    buildDOM();
 
+    // Show badge after 5s
     setTimeout(function () {
-      if (!opened) {
-        var b = document.getElementById('_cb-badge');
-        if (b) { b.style.display = 'flex'; }
-      }
-    }, 4000);
+      if (!isOpen) document.getElementById('_lc-badge').style.display = 'flex';
+    }, 5000);
 
-    document.getElementById('_cb-btn').onclick = toggle;
-    document.getElementById('_cb-send').onclick = sendMsg;
-    document.addEventListener('keypress', function (e) {
-      if (e.key === 'Enter' && opened && user) {
-        var inp = document.getElementById('_cb-in');
-        if (document.activeElement === inp) sendMsg();
-      }
+    document.getElementById('_lc-btn').onclick = toggle;
+    document.getElementById('_lc-close').onclick = toggle;
+
+    var sendBtn = document.getElementById('_lc-send');
+    var inp = document.getElementById('_lc-in');
+
+    sendBtn.onclick = function () {
+      if (!inp.value.trim()) return;
+      sendAIMsg(inp.value);
+      inp.value = ''; inp.style.height = '';
+    };
+
+    inp.addEventListener('input', function () {
+      this.style.height = '';
+      this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+
+    inp.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendBtn.click(); }
     });
   }
 
