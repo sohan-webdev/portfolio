@@ -217,6 +217,18 @@ input[type=color]{height:42px;padding:4px;cursor:pointer}
     <input type="password" id="pw" autocomplete="current-password" placeholder="Password" autofocus>
     <div class="err" id="gateErr"></div>
     <button class="b pri" type="submit">Unlock</button>
+    <button type="button" class="b ghost" id="forgotBtn" style="margin-top:8px;width:100%;background:none;border:1px solid rgba(255,255,255,.12);color:#a3adbd;font-size:13px;padding:10px">Forgot password?</button>
+  </form>
+  <form id="resetForm" hidden style="margin-top:0">
+    <div class="lk" data-i="key" data-s="20"></div>
+    <h1>Reset password</h1>
+    <p>Enter your recovery email to verify, then set a new password.</p>
+    <input type="email" id="recEmail" placeholder="Recovery email" autocomplete="email" style="margin-bottom:10px">
+    <input type="password" id="newPw" placeholder="New password" autocomplete="new-password" style="margin-bottom:10px">
+    <input type="password" id="newPw2" placeholder="Confirm new password" autocomplete="new-password">
+    <div class="err" id="resetErr"></div>
+    <button class="b pri" type="submit" style="margin-top:4px">Set new password</button>
+    <button type="button" class="b ghost" id="backToLogin" style="margin-top:8px;width:100%;background:none;border:1px solid rgba(255,255,255,.12);color:#a3adbd;font-size:13px;padding:10px">← Back to login</button>
   </form>
 </div>
 
@@ -410,6 +422,30 @@ $('#gateForm').onsubmit=async e=>{e.preventDefault();$('#gateErr').textContent='
   try{if(await checkPw($('#pw').value)){try{sessionStorage.setItem('adm','1')}catch(e){}unlock()}else $('#gateErr').textContent='Wrong password'}
   catch(err){$('#gateErr').textContent='Open the dashboard on your live https site to log in.'}};
 $('#logout').onclick=()=>{try{sessionStorage.removeItem('adm')}catch(e){}location.reload()};
+/* ===================== forgot password ===================== */
+const RECOVERY_EMAIL_HASH='b3b4b2c5a7e1d9f6a0c8e2b5d4f7a1c3e6b9d2f5a8c1e4b7d0f3a6c9e2b5d8';
+async function sha256hex(s){const b=new TextEncoder().encode(s);const h=await crypto.subtle.digest('SHA-256',b);return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,'0')).join('')}
+$('#forgotBtn').onclick=()=>{$('#gateForm').hidden=true;$('#resetForm').hidden=false;$('#recEmail').focus()};
+$('#backToLogin').onclick=()=>{$('#resetForm').hidden=true;$('#gateForm').hidden=false;$('#resetErr').textContent='';$('#pw').focus()};
+$('#resetForm').onsubmit=async e=>{
+  e.preventDefault();$('#resetErr').textContent='';
+  const em=$('#recEmail').value.trim().toLowerCase();
+  const p1=$('#newPw').value,p2=$('#newPw2').value;
+  if(!em||!p1){$('#resetErr').textContent='Please fill in all fields.';return}
+  if(p1!==p2){$('#resetErr').textContent='Passwords do not match.';return}
+  if(p1.length<6){$('#resetErr').textContent='Password must be at least 6 characters.';return}
+  const emH=await sha256hex(em);
+  const validEmails=['mdsohanhossain337@gmail.com','uxlinkwork515@gmail.com'];
+  const validHashes=await Promise.all(validEmails.map(x=>sha256hex(x.toLowerCase())));
+  if(!validHashes.includes(emH)){$('#resetErr').textContent='Email not recognised.';return}
+  const newHash=await sha(p1);
+  let live=null;try{live=await (await fetch('content.json',{cache:'no-store'})).json()}catch(err){}
+  let draft=null;try{draft=JSON.parse(LS.get('portfolio_draft'))}catch(err){}
+  const base=draft||live||{};base.admin_hash=newHash;
+  LS.set('portfolio_draft',JSON.stringify(base));LS.set('adm_dirty','1');
+  $('#resetErr').style.color='#4ade80';$('#resetErr').textContent='Password updated! You can now log in.';
+  setTimeout(()=>{$('#resetForm').hidden=true;$('#gateForm').hidden=false;$('#resetErr').textContent='';$('#resetErr').style.color='';$('#pw').value='';$('#pw').focus()},2000);
+};
 async function unlock(){
   $('#gate').hidden=true;$('#app').hidden=false;
   try{LIVE=await (await fetch('content.json',{cache:'no-store'})).json()}catch(e){LIVE=null}
