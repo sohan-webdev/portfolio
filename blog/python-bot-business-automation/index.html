@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07090f">
+<title>5 Business Tasks to Automate with a Python Bot · Sohan Hossain</title>
+<meta name="description" content="Monitoring, alerts, reports and data syncing: five common business tasks you can automate with a Python bot, plus a simple code example.">
+<meta name="keywords" content="Python, AI Automation, Bots">
+<link rel="canonical" href="https://sohan-webdev.netlify.app/blog/python-bot-business-automation/">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sohan-webdev.netlify.app/blog/python-bot-business-automation/">
+<meta property="og:title" content="5 Business Tasks to Automate with a Python Bot">
+<meta property="og:description" content="Monitoring, alerts, reports and data syncing: five common business tasks you can automate with a Python bot, plus a simple code example.">
+<meta property="og:image" content="https://sohan-webdev.netlify.app/assets/blog/bot-cover.jpg">
+<meta property="article:published_time" content="2026-11-13">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="5 Business Tasks to Automate with a Python Bot">
+<meta name="twitter:description" content="Monitoring, alerts, reports and data syncing: five common business tasks you can automate with a Python bot, plus a simple code example.">
+<meta name="twitter:image" content="https://sohan-webdev.netlify.app/assets/blog/bot-cover.jpg">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"5 Business Tasks You Can Hand Over to a Python Bot","description":"Monitoring, alerts, reports and data syncing: five common business tasks you can automate with a Python bot, plus a simple code example.","image":"https://sohan-webdev.netlify.app/assets/blog/bot-cover.jpg","datePublished":"2026-11-13","dateModified":"2026-11-13","author":{"@type":"Person","name":"Md Sohan Hossain","url":"https://sohan-webdev.netlify.app/"},"mainEntityOfPage":"https://sohan-webdev.netlify.app/blog/python-bot-business-automation/","keywords":"Python, AI Automation, Bots"}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap">
+<style>:root{--bg:#07090f;--card:#0f141e;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);--fg:#e8ecf3;--fg2:#a3adbd;--fg3:#5f6979;--v:#8b5cf6;--v2:#b18cff;--vr:139,92,246;--mono:'JetBrains Mono',ui-monospace,monospace;--display:'Space Grotesk',system-ui,sans-serif;--sans:'Inter',system-ui,sans-serif;color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:17px;line-height:1.75;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}img{max-width:100%;display:block;height:auto}
+.glow{position:fixed;top:-220px;left:50%;transform:translateX(-50%);width:900px;max-width:100%;height:500px;background:radial-gradient(closest-side,rgba(var(--vr),.3),transparent);pointer-events:none;z-index:0}
+.w{max-width:1100px;margin:0 auto;padding:0 20px}
+header{position:sticky;top:0;z-index:10;background:rgba(7,9,15,.8);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+header .w{display:flex;align-items:center;justify-content:space-between;height:64px;gap:12px}
+.logo{font-family:var(--mono);font-weight:700;font-size:15px;white-space:nowrap}.logo i{color:var(--v2);font-style:normal}
+header nav{display:flex;gap:6px;align-items:center}
+header nav a{font-family:var(--mono);font-size:13px;color:var(--fg2);padding:8px 12px;border-radius:8px}
+header nav a:hover{color:var(--fg);background:rgba(255,255,255,.05)}
+header nav a.cta{color:var(--v2);border:1px solid rgba(var(--vr),.45);background:rgba(var(--vr),.1)}
+main{position:relative;z-index:1}
+.art{max-width:760px;margin:0 auto;padding:56px 20px 40px}
+.back{font-family:var(--mono);font-size:13px;color:var(--fg2);display:inline-flex;align-items:center;gap:8px;margin-bottom:28px}.back:hover{color:var(--v2)}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--v2);border:1px solid rgba(var(--vr),.35);border-radius:999px;padding:3px 10px}
+h1{font-family:var(--display);font-size:clamp(2rem,5.4vw,3.2rem);line-height:1.1;letter-spacing:-.03em;font-weight:700;overflow-wrap:anywhere}
+.meta{font-family:var(--mono);font-size:13px;color:var(--fg3);margin:18px 0 32px;display:flex;gap:14px;flex-wrap:wrap}
+.cover{width:100%;border-radius:18px;border:1px solid var(--line);margin-bottom:40px;aspect-ratio:16/9;object-fit:cover}
+.prose{color:#cfd6e2;overflow-wrap:break-word}
+.prose>*+*{margin-top:1.15em}
+.prose h2{font-family:var(--display);font-size:1.75rem;line-height:1.25;letter-spacing:-.02em;color:var(--fg);margin-top:2em}
+.prose h3{font-family:var(--display);font-size:1.32rem;color:var(--fg);margin-top:1.7em}
+.prose h4{font-size:1.08rem;color:var(--fg);margin-top:1.5em}
+.prose a{color:var(--v2);text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(177,140,255,.4)}
+.prose strong{color:var(--fg)}
+.prose ul,.prose ol{padding-left:1.4em}.prose li+li{margin-top:.4em}.prose li::marker{color:var(--v2)}
+.prose blockquote{border-left:3px solid var(--v);padding:4px 0 4px 20px;color:var(--fg2);font-style:italic}
+.prose code{font-family:var(--mono);font-size:.86em;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+.prose pre{background:#0a0e16;border:1px solid var(--line2);border-radius:14px;padding:18px 20px;overflow-x:auto}
+.prose pre code{background:none;border:0;padding:0;font-size:14px;line-height:1.7}
+.prose img{border-radius:14px;border:1px solid var(--line)}
+.prose hr{border:0;height:1px;background:var(--line2);margin:2.4em 0}
+.ctab{margin-top:56px;border:1px solid var(--line2);border-radius:22px;padding:34px;background:radial-gradient(500px circle at 0% 0%,rgba(var(--vr),.18),transparent 60%),var(--card)}
+.ctab h3{font-family:var(--display);font-size:1.45rem;letter-spacing:-.02em}
+.ctab p{color:var(--fg2);margin:8px 0 20px}
+.btn{font-family:var(--mono);font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:10px;padding:13px 22px;border-radius:12px;background:linear-gradient(135deg,var(--v),var(--v2));color:#fff;box-shadow:0 10px 30px -10px rgba(var(--vr),.7)}
+.btn:hover{filter:brightness(1.1)}
+.sec{max-width:1100px;margin:0 auto;padding:30px 20px 70px}
+.sec h2{font-family:var(--display);font-size:1.5rem;margin-bottom:20px;letter-spacing:-.02em}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;transition:transform .4s cubic-bezier(.22,1,.36,1),border-color .3s}
+.card:hover{transform:translateY(-5px);border-color:var(--line2)}
+.card .cv{aspect-ratio:16/9;background:radial-gradient(circle at 30% 30%,#2a1a5e,#0b1622);display:grid;place-items:center;color:var(--v2);overflow:hidden}
+.card .cv img{width:100%;height:100%;object-fit:cover}
+.card .pb{padding:20px;display:flex;flex-direction:column;gap:8px;flex:1}
+.card small{font-family:var(--mono);font-size:11px;color:var(--fg3)}
+.card h3{font-family:var(--display);font-size:1.12rem;line-height:1.3}
+.card p{color:var(--fg2);font-size:.92rem;line-height:1.6}
+.hero{max-width:1100px;margin:0 auto;padding:70px 20px 30px}
+.hero .eb{font-family:var(--mono);font-size:13px;color:var(--v2);margin-bottom:12px}
+.hero p{color:var(--fg2);max-width:560px;margin-top:14px}
+footer{border-top:1px solid var(--line);padding:28px 0 calc(28px + env(safe-area-inset-bottom));position:relative;z-index:1}
+footer .w{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:var(--fg3)}
+.fs{display:flex;gap:8px;flex-wrap:wrap}.fs a{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;border:1px solid var(--line2);color:var(--fg2)}.fs a:hover{color:#fff;background:var(--v);border-color:var(--v)}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){footer .w{flex-direction:column;align-items:center;text-align:center}body{font-size:16px}.grid{grid-template-columns:1fr}.art{padding-top:36px}.ctab{padding:24px}header nav a{padding:6px 7px;font-size:12px}header nav a.hm{display:none}.logo{font-size:13px}.prose h2{font-size:1.5rem}}
+.prose u{text-underline-offset:3px}.prose figure{margin:2em 0}.prose figure img{margin:0 auto}.prose figcaption{text-align:center;color:var(--fg3);font-size:14px;margin-top:10px}
+.prose .ff-serif{font-family:'Lora',Georgia,serif}.prose .ff-mono{font-family:var(--mono)}.prose .ff-display{font-family:var(--display)}.prose .ff-sans{font-family:var(--sans)}
+.prose .fs-sm{font-size:.85em}.prose .fs-lg{font-size:1.25em}.prose .fs-xl{font-size:1.6em;line-height:1.3}
+.prose .ta-center{text-align:center}.prose .ta-right{text-align:right}
+.prose pre{white-space:pre-wrap}:root{--v:#8b5cf6;--v2:#b18cff;--vr:139,92,246}</style>
+
+</head>
+<body>
+<div class="glow"></div>
+<header><div class="w"><a class="logo" href="/"><i>&lt;</i>Sohan-WebDev<i>/&gt;</i></a><nav><a class="hm" href="/">home</a><a href="/reviews/">reviews</a><a href="/blog/">blog</a><a class="cta" href="/#contact">hire_me()</a></nav></div></header>
+<main><article class="art">
+<a class="back" href="/blog/"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> All articles</a>
+<div class="tags"><span class="tag">Python</span><span class="tag">AI Automation</span><span class="tag">Bots</span></div>
+<h1>5 Business Tasks You Can Hand Over to a Python Bot</h1>
+<div class="meta"><span>Nov 13, 2026</span><span>2 min read</span><span>by Md Sohan Hossain</span></div>
+<img class="cover" src="/assets/blog/bot-cover.jpg" alt="5 Business Tasks You Can Hand Over to a Python Bot">
+<div class="prose"><p>If someone on your team opens the same websites every morning, copies numbers into a spreadsheet or checks a dashboard twenty times a day, that job can probably be done by a small <strong>Python bot</strong>. Bots don't get tired, don't forget, and run at 3 AM without complaining.</p><p>Here are five tasks I see businesses automate most often, and what each one looks like in practice.</p><h2>1. Price and stock monitoring</h2><p>A bot can check competitor prices, supplier stock or marketplace listings on a schedule and tell you only when something changes. Instead of checking 50 pages by hand, you get one message: "3 prices changed today".</p><h2>2. Market and data alerts</h2><p>Many APIs give you live data: crypto markets, exchange rates, weather, shipping status. A bot can watch these numbers and alert you when they cross a level you care about. You decide the rules, the bot does the watching.</p><figure><img src="/assets/blog/bot-flow.jpg" alt="Diagram of how a monitoring bot works" loading="lazy"><figcaption>Almost every monitoring bot follows these four steps</figcaption></figure><h2>3. Daily and weekly reports</h2><p>A bot can pull numbers from Shopify, Google Sheets or any API, put them together and send a clean summary to your email or Telegram every morning. No more logging into five dashboards.</p><h2>4. Moving data between tools</h2><p>New order in one system needs to appear in another? A form submission needs to become a row in a sheet and a message to your team? This kind of "glue" work is perfect for automation through APIs.</p><h2>5. Repetitive website tasks</h2><p>Downloading invoices, checking that pages are online, collecting public information you're allowed to use. A bot can do these the same way every time and keep a log of what it did.</p><h2>What a simple bot looks like</h2><p>Here is a stripped-down example of a price watcher. A real one adds error handling, logging and a proper notification channel, but the idea is the same:</p><pre><code>import requests, time
+
+URL = "https://example.com/api/price"   # the data you want to watch
+CHECK_EVERY = 15 * 60                    # seconds
+last_price = None
+
+def notify(text):
+    # send to Telegram, email, Slack... here we just print
+    print(text)
+
+while True:
+    price = requests.get(URL, timeout=20).json()["price"]
+    if last_price is not None and price != last_price:
+        change = (price - last_price) / last_price * 100
+        notify(f"Price changed: {last_price} -&gt; {price} ({change:+.1f}%)")
+    last_price = price
+    time.sleep(CHECK_EVERY)</code></pre><h2>Before you build a bot</h2><ul><li><strong>Use official APIs when they exist.</strong> They are faster and more reliable than scraping web pages.</li><li><strong>Respect the rules</strong> of the websites and platforms you connect to. Read their terms and rate limits.</li><li><strong>Plan for failures.</strong> Internet drops and APIs change, so a good bot retries and tells you when something breaks.</li><li><strong>Start small.</strong> Automate one painful task first, then add more.</li></ul><p>Have a task you repeat every day? <a href="/#contact">Describe it to me</a> and I'll tell you honestly whether a bot can do it and how long it would take to build.</p></div>
+<div class="ctab"><h3>Need help with your project?</h3><p>Shopify development, AI automation and custom bots. Tell me what you need and I'll reply with a plan.</p><a class="btn" href="/#contact">Get in touch <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a></div>
+</article>
+<section class="sec"><h2>More articles</h2><div class="grid"><a class="card" href="/blog/build-custom-shopify-section-liquid/"><div class="cv"><img src="/assets/blog/liquid-cover.jpg" alt="How to Build a Custom Shopify Section with Liquid (Step by Step)" loading="lazy"></div><div class="pb"><small>Nov 20, 2026 · 3 min read</small><h3>How to Build a Custom Shopify Section with Liquid (Step by Step)</h3><p>Build a fully editable testimonial section from scratch with Liquid, schema settings, blocks and section-scoped CSS.</p></div></a><a class="card" href="/blog/shopify-flow-vs-mechanic/"><div class="cv"><img src="/assets/blog/flow-cover.jpg" alt="Shopify Flow vs Mechanic: Which Automation Tool Should Your Store Use?" loading="lazy"></div><div class="pb"><small>Nov 6, 2026 · 2 min read</small><h3>Shopify Flow vs Mechanic: Which Automation Tool Should Your Store Use?</h3><p>Both tools automate your store, but they shine at different jobs. Here&#39;s how to pick the right one, or use both.</p></div></a></div></section></main>
+<footer><div class="w"><span>© 2026 Sohan Hossain</span><div class="fs"><a href="https://www.linkedin.com/in/sohan337/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a><a href="https://github.com/sohan-webdev" target="_blank" rel="noopener" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.1-1.3-.3-2.5-1-3.5.3-1.2.3-2.4 0-3.5 0 0-1 0-3 1.5a10.3 10.3 0 0 0-5.5 0C6.5 2 5.5 2 5.5 2c-.3 1.1-.3 2.3 0 3.5A5.4 5.4 0 0 0 4.5 9c0 3.5 3 5.5 6 5.5-.4.5-.7 1-.8 1.6-.2.6-.3 1.2-.2 1.9v4"/><path d="M9 18c-4.5 2-5-2-7-2"/></svg></a><a href="https://wa.me/8801716575122" target="_blank" rel="noopener" aria-label="WhatsApp"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21l1.7-5A9 9 0 1 1 8 19.3z"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/></svg></a></div><a href="/">Back to portfolio</a></div></footer>
+</body>
+</html>

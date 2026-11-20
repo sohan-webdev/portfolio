@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0"><channel><title>Blog · Sohan Hossain</title><link>https://sohan-webdev.netlify.app/blog/</link><description>Articles by Sohan Hossain</description>
-
+<item><title>How to Build a Custom Shopify Section with Liquid (Step by Step)</title><link>https://sohan-webdev.netlify.app/blog/build-custom-shopify-section-liquid/</link><guid>https://sohan-webdev.netlify.app/blog/build-custom-shopify-section-liquid/</guid><pubDate>Fri, 20 Nov 2026 00:00:00 GMT</pubDate><description>Build a fully editable testimonial section from scratch with Liquid, schema settings, blocks and section-scoped CSS.</description></item>
+<item><title>5 Business Tasks You Can Hand Over to a Python Bot</title><link>https://sohan-webdev.netlify.app/blog/python-bot-business-automation/</link><guid>https://sohan-webdev.netlify.app/blog/python-bot-business-automation/</guid><pubDate>Fri, 13 Nov 2026 00:00:00 GMT</pubDate><description>Price checks, alerts, daily reports and more. Five repetitive jobs a small Python bot can do for you, with a simple example.</description></item>
+<item><title>Shopify Flow vs Mechanic: Which Automation Tool Should Your Store Use?</title><link>https://sohan-webdev.netlify.app/blog/shopify-flow-vs-mechanic/</link><guid>https://sohan-webdev.netlify.app/blog/shopify-flow-vs-mechanic/</guid><pubDate>Fri, 06 Nov 2026 00:00:00 GMT</pubDate><description>Both tools automate your store, but they shine at different jobs. Here&apos;s how to pick the right one, or use both.</description></item>
 </channel></rss>
