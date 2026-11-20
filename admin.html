@@ -1039,7 +1039,7 @@ async function publish(){
     const same=nt.sha===baseTree;
     if(!same){
       const nc=await gh('/git/commits',{method:'POST',body:JSON.stringify({message:'Update site from dashboard',tree:nt.sha,parents:[head]})});
-      await gh('/git/refs/heads/'+encodeURIComponent(br),{method:'PATCH',body:JSON.stringify({sha:nc.sha})});
+      await gh('/git/refs/heads/'+encodeURIComponent(br),{method:'PATCH',body:JSON.stringify({sha:nc.sha,force:true})});
     }
     progress(4,'done');
     out.blog.forEach((b,i)=>{if(C.blog[i]?.slug_auto)b.slug_auto=true});
