@@ -339,7 +339,7 @@ window.ICONS = {
   github: '<path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.1-1.3-.3-2.5-1-3.5.3-1.2.3-2.4 0-3.5 0 0-1 0-3 1.5a10.3 10.3 0 0 0-5.5 0C6.5 2 5.5 2 5.5 2c-.3 1.1-.3 2.3 0 3.5A5.4 5.4 0 0 0 4.5 9c0 3.5 3 5.5 6 5.5-.4.5-.7 1-.8 1.6-.2.6-.3 1.2-.2 1.9v4"/><path d="M9 18c-4.5 2-5-2-7-2"/>',
   linkedin: '<path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/>',
   whatsapp: '<path d="M3 21l1.7-5A9 9 0 1 1 8 19.3z"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/>',
-  fiverr: '<circle cx="12" cy="12" r="10"/><path d="M10 17v-6h4v6"/><path d="M8 11h2V9.5A1.5 1.5 0 0 1 11.5 8h.5"/><circle cx="14" cy="8" r=".6" fill="currentColor"/>',
+  fiverr: '<path d="M9 20V9.5A3.5 3.5 0 0 1 12.5 6H14"/><path d="M6.5 11H13"/><path d="M17 11v9"/><circle cx="17" cy="7" r="1.1" fill="currentColor" stroke="none"/>',
   menu: '<line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>',
   close: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
   plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
@@ -1105,11 +1105,12 @@ header nav.dsk a.cta{display:none}
 .drw nav{gap:0}
 .drw nav a{display:flex;align-items:center;justify-content:space-between;font-family:var(--display);font-size:1.12rem;font-weight:500;padding:15px 4px;color:var(--fg);border:0;border-bottom:1px solid var(--line);border-radius:0;background:none}
 .drw nav a:hover,.drw nav a:active{background:none;border-color:var(--line);color:#fff}
-.drw nav a svg{color:var(--fg3)}.drw nav a.ds{color:var(--fg2)}
+.drw nav a svg{color:var(--fg3)}.drw nav a.ds{border:1px solid var(--line2);border-radius:12px;padding:13px 16px;margin-bottom:12px;background:rgba(255,255,255,.03);flex-direction:row-reverse;justify-content:flex-end;gap:12px;font-family:var(--sans);font-size:15px;color:var(--fg3)}.drw nav a.ds svg{color:var(--v2)}
 .dfoot{margin-top:auto;padding-top:28px;display:grid;gap:18px;justify-items:center}
-.dbtn{width:100%;display:flex;justify-content:center;align-items:center;gap:10px;font-family:var(--mono);font-size:14px;font-weight:600;padding:14px 24px;border-radius:12px;background:linear-gradient(135deg,var(--v),var(--v2));color:#fff;box-shadow:0 10px 30px -10px rgba(var(--vr),.7),inset 0 1px 0 rgba(255,255,255,.2)}
-.dsoc{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-.dsoc a{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;border:1px solid var(--line2);color:var(--fg2)}
+.dbtn{width:100%;display:flex;justify-content:center;align-items:center;gap:10px;font-family:var(--display);font-size:1.12rem;font-weight:500;padding:14px 24px;border-radius:12px;background:linear-gradient(135deg,var(--v),var(--v2));color:#fff;box-shadow:0 10px 30px -10px rgba(var(--vr),.7),inset 0 1px 0 rgba(255,255,255,.2)}
+.dsoc{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.dsoc a{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;border:1px solid var(--line2);background:rgba(255,255,255,.03);color:var(--fg2);transition:.25s}
+.dsoc a:active,.dsoc a:hover{color:#fff;background:var(--v);border-color:var(--v)}
 @keyframes blink{50%{opacity:0}}
 .logo{display:flex;align-items:center;gap:2px}.logo .cur{display:inline-block;width:8px;height:16px;background:var(--v2);margin-left:4px;animation:blink 1s steps(1) infinite}
 .hbg{width:42px;height:42px;padding:11px;border-radius:10px}
@@ -1172,7 +1173,7 @@ header nav.dsk a.cta{display:none}
     var drw=document.getElementById('drw');
     if(drw){
       var LB={about:'About',services:'Services',experience:'Experience',skills:'Skills',projects:'Projects',faq:'FAQ',contact:'Contact'};
-      var items='<a href="#" class="ds" id="dSearch">Search'+ico('search',16)+'</a>';
+      var items='<a href="#" class="ds" id="dSearch">Search services, projects, articles...'+ico('search',17)+'</a>';
       o.concat(['contact']).forEach(function(id){if(LB[id]&&!h[id])items+='<a href="/#'+id+'">'+LB[id]+ico('arrow',16)+'</a>'});
       if(!h.reviews)items+='<a href="/reviews/">All reviews'+ico('external',15)+'</a>';
       if(!h.blog)items+='<a href="/blog/">Blog'+ico('external',15)+'</a>';
