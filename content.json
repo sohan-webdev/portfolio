@@ -4,7 +4,7 @@
   "name_prefix": "Md",
   "handle": "Sohan-WebDev",
   "photo": "/assets/up/2dbdfa2876e1f043.jpg",
-  "available": false,
+  "available": true,
   "available_text": "Open to new projects",
   "roles": [
     "Shopify Liquid Developer",
