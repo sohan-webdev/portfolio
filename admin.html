@@ -24,6 +24,10 @@ svg{flex-shrink:0}
 .gate h1{font-family:var(--mono);font-size:17px}
 .gate p{color:var(--fg2);font-size:13px;margin-top:-8px}
 .err{color:var(--r);font-size:12px;font-family:var(--mono);min-height:1em}
+.pw-wrap{position:relative;display:flex;align-items:center}
+.pw-wrap input{width:100%;padding-right:44px}
+.eye-btn{position:absolute;right:0;top:0;bottom:0;width:42px;background:none;border:none;cursor:pointer;font-size:16px;color:var(--fg3);display:grid;place-items:center;border-radius:0 10px 10px 0;transition:color .2s}
+.eye-btn:hover{color:var(--fg2)}
 .app{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:100svh}
 .side{position:sticky;top:0;height:100svh;background:var(--side);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:20px 14px}
 .brand{font-family:var(--mono);font-weight:600;font-size:14px;padding:4px 10px 20px}
@@ -214,7 +218,7 @@ input[type=color]{height:42px;padding:4px;cursor:pointer}
     <div class="lk" data-i="lock" data-s="20"></div>
     <h1>Dashboard login</h1>
     <p>Enter your admin password to edit your site.</p>
-    <input type="password" id="pw" autocomplete="current-password" placeholder="Password" autofocus>
+    <div class="pw-wrap"><input type="password" id="pw" autocomplete="current-password" placeholder="Password" autofocus><button type="button" class="eye-btn" onclick="togglePw('pw',this)" aria-label="Show password">👁</button></div>
     <div class="err" id="gateErr"></div>
     <button class="b pri" type="submit">Unlock</button>
     <button type="button" class="b ghost" id="forgotBtn" style="margin-top:8px;width:100%;background:none;border:1px solid rgba(255,255,255,.12);color:#a3adbd;font-size:13px;padding:10px">Forgot password?</button>
@@ -224,8 +228,8 @@ input[type=color]{height:42px;padding:4px;cursor:pointer}
     <h1>Reset password</h1>
     <p>Enter your recovery email to verify, then set a new password.</p>
     <input type="email" id="recEmail" placeholder="Recovery email" autocomplete="email" style="margin-bottom:10px">
-    <input type="password" id="newPw" placeholder="New password" autocomplete="new-password" style="margin-bottom:10px">
-    <input type="password" id="newPw2" placeholder="Confirm new password" autocomplete="new-password">
+    <div class="pw-wrap" style="margin-bottom:10px"><input type="password" id="newPw" placeholder="New password" autocomplete="new-password"><button type="button" class="eye-btn" onclick="togglePw('newPw',this)" aria-label="Show password">👁</button></div>
+    <div class="pw-wrap"><input type="password" id="newPw2" placeholder="Confirm new password" autocomplete="new-password"><button type="button" class="eye-btn" onclick="togglePw('newPw2',this)" aria-label="Show password">👁</button></div>
     <div class="err" id="resetErr"></div>
     <button class="b pri" type="submit" style="margin-top:4px">Set new password</button>
     <button type="button" class="b ghost" id="backToLogin" style="margin-top:8px;width:100%;background:none;border:1px solid rgba(255,255,255,.12);color:#a3adbd;font-size:13px;padding:10px">← Back to login</button>
@@ -422,6 +426,8 @@ $('#gateForm').onsubmit=async e=>{e.preventDefault();$('#gateErr').textContent='
   try{if(await checkPw($('#pw').value)){try{sessionStorage.setItem('adm','1')}catch(e){}unlock()}else $('#gateErr').textContent='Wrong password'}
   catch(err){$('#gateErr').textContent='Open the dashboard on your live https site to log in.'}};
 $('#logout').onclick=()=>{try{sessionStorage.removeItem('adm')}catch(e){}location.reload()};
+/* ===================== show/hide password ===================== */
+function togglePw(id,btn){const el=$('#'+id);const show=el.type==='password';el.type=show?'text':'password';btn.textContent=show?'🙈':'👁';btn.style.opacity=show?'1':'.5'}
 /* ===================== forgot password ===================== */
 const RECOVERY_EMAIL_HASH='b3b4b2c5a7e1d9f6a0c8e2b5d4f7a1c3e6b9d2f5a8c1e4b7d0f3a6c9e2b5d8';
 async function sha256hex(s){const b=new TextEncoder().encode(s);const h=await crypto.subtle.digest('SHA-256',b);return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,'0')).join('')}
