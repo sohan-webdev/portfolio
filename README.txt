@@ -8,3 +8,4 @@ One-time setup:
 2. Dashboard > Settings > GitHub connection: repo + token, click Save & test.
 
 After that: edit anything in the Dashboard and click Publish. Live in about 1 minute.
+
