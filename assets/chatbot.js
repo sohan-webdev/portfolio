@@ -259,16 +259,16 @@
       '._lc-title{color:#fff;font-size:14.5px;font-weight:600;line-height:1.5}',
       '._lc-sub{color:rgba(255,255,255,.5);font-size:12.5px;line-height:1.55;margin-top:3px}',
       /* inputs */
-      '._lc-inp{width:100%;padding:13px 16px;background:rgba(255,255,255,.06);',
+      '._lc-inp{width:100%;padding:16px 18px;background:rgba(255,255,255,.06);',
       'border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:14px;',
       'outline:none;transition:border-color .2s;font-family:inherit}',
       '._lc-inp:focus{border-color:' + A + '}._lc-inp::placeholder{color:rgba(255,255,255,.28)}',
-      '._lc-textarea{width:100%;padding:13px 16px;background:rgba(255,255,255,.06);',
+      '._lc-textarea{width:100%;padding:16px 18px;background:rgba(255,255,255,.06);',
       'border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:14px;',
       'outline:none;transition:border-color .2s;font-family:inherit;resize:vertical;min-height:110px;line-height:1.6}',
       '._lc-textarea:focus{border-color:' + A + '}._lc-textarea::placeholder{color:rgba(255,255,255,.28)}',
       /* buttons */
-      '._lc-btn{padding:14px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;',
+      '._lc-btn{padding:16px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;',
       'transition:opacity .2s,transform .1s;font-family:inherit;width:100%;border:none}',
       '._lc-btn:active{transform:scale(.98)}._lc-btn:hover{opacity:.88}',
       '._lc-btn-p{background:' + A + ';color:#fff}',
@@ -393,7 +393,7 @@
     $f().style.display = 'none';
     $b().innerHTML =
       '<div style="display:flex;flex-direction:column;gap:12px">' +
-        '<p class="_lc-title"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#8B5CF6" stroke-width="2" style="vertical-align:middle;margin-right:5px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Hello! Nice to meet you.</p>' +
+        '<p class="_lc-title">👋 Hello! Nice to meet you.</p>' +
         '<p class="_lc-sub">Share your name and email so Sohan can follow up if needed.</p>' +
         '<input id="_lc-nm" class="_lc-inp" type="text" placeholder="Your name" autocomplete="name" />' +
         '<input id="_lc-em" class="_lc-inp" type="email" placeholder="Your email address" autocomplete="email" />' +
