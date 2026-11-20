@@ -23,7 +23,7 @@
   ═══════════════════════════════════════════════════════════ */
   var CFG = {
     // 🔑 NEW Gemini key — get at aistudio.google.com/app/apikey
-    GEMINI_KEY:  'YOUR_NEW_GEMINI_API_KEY',
+    GEMINI_KEY:  'AQ.Ab8RN6I3IfBylTUSjZg77aiXNm3Jl_A5gSjQOD_xMaQhO7EHvw',
 
     // 📧 Web3Forms — email notifications to owner
     W3F_KEY:     '4a36a48e-1581-4fb8-86f9-245c2769a4d6',
