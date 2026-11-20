@@ -418,7 +418,7 @@ async function checkPw(pw){
   const h=await sha(pw);
   let live=null;try{live=await (await fetch('/content.json',{cache:'no-store'})).json()}catch(e){}
   let draft=null;try{draft=JSON.parse(LS.get('portfolio_draft'))}catch(e){}
-  const hashes=[live?.admin_hash,draft?.admin_hash].filter(Boolean);
+  const hashes=[live?.admin_hash,draft?.admin_hash,LS.get('adm_hash_local')].filter(Boolean);
   if(!hashes.length)hashes.push(await sha('sohan@admin'));
   return hashes.includes(h);
 }
@@ -448,8 +448,9 @@ $('#resetForm').onsubmit=async e=>{
   let live=null;try{live=await (await fetch('/content.json',{cache:'no-store'})).json()}catch(err){}
   let draft=null;try{draft=JSON.parse(LS.get('portfolio_draft'))}catch(err){}
   const base=draft||live||{};base.admin_hash=newHash;
-  LS.set('portfolio_draft',JSON.stringify(base));LS.set('adm_dirty','1');
-  $('#resetErr').style.color='#4ade80';$('#resetErr').textContent='Password updated! You can now log in.';
+  LS.set('portfolio_draft',JSON.stringify(base));LS.set('adm_dirty','1');LS.set('adm_hash_local',newHash);
+  let saved=false;try{saved=await pushHash(newHash)}catch(err){}
+  $('#resetErr').style.color='#4ade80';$('#resetErr').textContent=saved?'Password updated and saved permanently. You can now log in.':'Password updated! Log in, then click Publish to save it permanently.';
   setTimeout(()=>{$('#resetForm').hidden=true;$('#gateForm').hidden=false;$('#resetErr').textContent='';$('#resetErr').style.color='';$('#pw').value='';$('#pw').focus()},2000);
 };
 async function unlock(){
@@ -858,7 +859,7 @@ function wireSettings(){
     catch(e){st.className='status-box full bad';st.textContent=e.message}};
   const fg=$('#gForget');if(fg)fg.onclick=()=>{LS.del('gh_token');render();toast('Token removed from this browser')};
   $('#npSave').onclick=async()=>{const a=$('#np1').value,b=$('#np2').value;if(a.length<6){toast('Use at least 6 characters');return}if(a!==b){toast('Passwords do not match');return}
-    C.admin_hash=await sha(a);save();$('#np1').value=$('#np2').value='';toast('Password changed. Click Publish to make it active.')};
+    C.admin_hash=await sha(a);save();LS.set('adm_hash_local',C.admin_hash);$('#np1').value=$('#np2').value='';let ok=false;try{ok=await pushHash(C.admin_hash)}catch(e){}toast(ok?'Password changed and saved permanently.':'Password changed. Click Publish to make it active.')};
   $('#bkDown').onclick=()=>{const b=new Blob([JSON.stringify(C,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='portfolio-backup-'+today()+'.json';a.click();toast('Backup downloaded')};
   $('#bkUp').onclick=()=>$('#importIn').click();
   const d=$('#bkDiscard');d.onclick=async()=>{if(!d.dataset.ok){d.dataset.ok=1;d.lastChild.textContent='Click again to confirm';setTimeout(()=>{if(d.isConnected){delete d.dataset.ok;d.lastChild.textContent='Discard unpublished changes'}},3000);return}
@@ -1200,6 +1201,16 @@ function sitemap(site,posts){const t=today();return `<?xml version="1.0" encodin
 function rss(c,site,posts){const nm=c.name_first+' '+c.name_last;return `<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"><channel><title>${xmlEsc('Blog · '+nm)}</title><link>${xmlEsc(site)}/blog/</link><description>${xmlEsc('Articles by '+nm)}</description>\n${posts.map(p=>`<item><title>${xmlEsc(p.title)}</title><link>${xmlEsc(site)}/blog/${xmlEsc(p.slug)}/</link><guid>${xmlEsc(site)}/blog/${xmlEsc(p.slug)}/</guid><pubDate>${new Date(p.date+'T00:00:00Z').toUTCString()}</pubDate><description>${xmlEsc(p.excerpt||'')}</description></item>`).join('\n')}\n</channel></rss>\n`}
 
 /* ===================== GitHub publish ===================== */
+async function pushHash(hash){
+  if(!LS.get('gh_repo')||!LS.get('gh_token'))return false;
+  const br=LS.get('gh_branch')||'main';
+  const f=await gh('/contents/content.json?ref='+encodeURIComponent(br));
+  const raw=decodeURIComponent(escape(atob(f.content.replace(/\n/g,''))));
+  const j=JSON.parse(raw);j.admin_hash=hash;
+  const b64=btoa(unescape(encodeURIComponent(JSON.stringify(j,null,2))));
+  await gh('/contents/content.json',{method:'PUT',body:JSON.stringify({message:'Update admin password',content:b64,sha:f.sha,branch:br})});
+  return true;
+}
 async function gh(path,opt={}){
   const repo=LS.get('gh_repo'),tok=LS.get('gh_token');
   if(!repo||!tok)throw new Error('GitHub is not connected yet. Fill in Settings → GitHub connection.');
