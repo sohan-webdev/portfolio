@@ -413,7 +413,10 @@ footer{border-top:1px solid var(--line);padding:70px 0 0;background:linear-gradi
   .drawer{display:flex!important;flex-direction:column}
   .drawer a{display:flex;align-items:center;justify-content:space-between;font-family:var(--display);font-size:1.12rem;font-weight:500;padding:15px 4px;color:var(--fg);border-bottom:1px solid var(--line);transform:translateY(16px);opacity:0;transition:.5s var(--ease)}
   .drawer a svg{color:var(--fg3)}
-  .drawer a.ds{color:var(--fg2)}
+  .drawer a.ds{border:1px solid var(--line2);border-radius:12px;padding:13px 16px;margin-bottom:12px;background:rgba(255,255,255,.03);flex-direction:row-reverse;justify-content:flex-end;gap:12px;font-family:var(--sans);font-size:15px;color:var(--fg3)}
+  .drawer a.ds svg{color:var(--violet2)}
+  .dfoot .fsoc{gap:12px}.dfoot .fsoc a span{display:grid;place-items:center;line-height:0}.dfoot .fsoc a{padding:0;display:grid;justify-content:center;opacity:1;transform:none}.dfoot .fsoc a svg,.dfoot .btn svg{color:inherit}.dfoot .fsoc a{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;border:1px solid var(--line2);background:rgba(255,255,255,.03);color:var(--fg2);transition:.25s}
+  .dfoot .fsoc a:active,.dfoot .fsoc a:hover{color:#fff;background:var(--violet);border-color:var(--violet)}
   .dfoot{margin-top:auto;padding-top:28px;display:grid;gap:18px;justify-items:center}
   .dfoot .btn{width:100%;justify-content:center}
   .dfoot .fsoc{margin:0;justify-content:center}
@@ -736,7 +739,7 @@ function render(c){
   const num=id=>String(vis.findIndex(x=>x.id===id)+1).padStart(2,'0');
   $('#navLinks').innerHTML=NAV.map(([id,h],i)=>`<li><a href="${h}">${id[0].toUpperCase()+id.slice(1)}</a></li>`).join('');
   const pages=[['reviews','All reviews','/reviews/'],['blog','Blog','/blog/']].filter(([id])=>!HIDE[id]);
-  $('#drawerLinks').innerHTML=vis.filter(x=>x.id!=='reviews'&&x.id!=='blog').map(x=>`<a href="#${x.id}">${LBL[x.id]||x.id}<span data-i="arrow" data-s="16"></span></a>`).join('')+pages.map(([id,n,h])=>`<a href="${h}">${n}<span data-i="external" data-s="15"></span></a>`).join('');$('#drawerLinks').insertAdjacentHTML('afterbegin',`<a href="#" class="ds" id="dSearch">Search<span data-i="search" data-s="16"></span></a>`);
+  $('#drawerLinks').innerHTML=vis.filter(x=>x.id!=='reviews'&&x.id!=='blog').map(x=>`<a href="#${x.id}">${LBL[x.id]||x.id}<span data-i="arrow" data-s="16"></span></a>`).join('')+pages.map(([id,n,h])=>`<a href="${h}">${n}<span data-i="external" data-s="15"></span></a>`).join('');$('#drawerLinks').insertAdjacentHTML('afterbegin',`<a href="#" class="ds" id="dSearch">Search services, projects, articles...<span data-i="search" data-s="17"></span></a>`);
   document.querySelectorAll('#drawerLinks a,#dHire').forEach(a=>a.onclick=()=>window.__shut&&window.__shut());
   $('#dSearch').onclick=e=>{e.preventDefault();window.__shut();openSearch()};
   window.__LBL=LBL;
