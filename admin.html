@@ -358,7 +358,7 @@ const SEC_DEF={about:['The developer behind the store',''],services:['What I do'
 const ACCENTS={violet:['#8b5cf6','#b18cff'],blue:['#3b82f6','#7fb2ff'],cyan:['#06b6d4','#67e8f9'],emerald:['#10b981','#6ee7b7'],orange:['#f97316','#fdba74'],rose:['#f43f5e','#fda4af'],gold:['#d4a017','#f5d77a']};
 const DEFAULTS={services_intro:'',services:[],approach:'',reviews:[],faq:[],blog:[],badges:[],footer_text:'',
   design:{accent:'violet',custom:'#8b5cf6',rain:true,motion:true,marquee:true,order:[],hide:{},sec:{}},
-  seo:{site_url:'',title:'',description:'',keywords:'',og_image:'',ga_id:'',tiktok_pixel:'',gsc_meta:'',gsc_file:'',head_extra:''}};
+  seo:{site_url:'',title:'',description:'',keywords:'',og_image:'',favicon:'',ga_id:'',tiktok_pixel:'',gsc_meta:'',gsc_file:'',head_extra:''}};
 function normalize(c){
   for(const k in DEFAULTS){if(c[k]===undefined)c[k]=structuredClone(DEFAULTS[k])}
   c.seo={...DEFAULTS.seo,...(c.seo||{})};
@@ -524,6 +524,7 @@ seo:()=>{const s=C.seo,site=siteUrl();return `
     ${inp('Keywords','seo.keywords',{full:1,hint:'Comma separated',ph:'shopify developer, ai automation'})}
     ${inp('Site URL','seo.site_url',{full:1,ph:location.origin,hint:'Leave empty to use this address. Change it if you connect a custom domain.'})}
     ${imgField('Share image (Facebook, WhatsApp, LinkedIn)','seo.og_image',{shape:'wide',max:1200,hint:'1200×630 is ideal. Your photo is used if empty.'})}
+    ${imgField('Favicon (browser tab icon)','seo.favicon',{shape:'round',max:256,hint:'Square PNG or SVG, at least 64×64px. Default "S" icon is used if empty.'})}
   </div></div>
   <div class="card"><h2><span data-i="chart2" data-s="16"></span>Google Analytics</h2><p class="d">analytics.google.com → Admin → Data streams → Web → copy the <b>Measurement ID</b>.</p><div class="grid">${inp('Measurement ID','seo.ga_id',{ph:'G-XXXXXXXXXX'})}<div class="hint" data-valid="ga" style="align-self:end;padding-bottom:12px"></div></div></div>
   <div class="card"><h2><span data-i="shield" data-s="16"></span>Google Search Console</h2><p class="d">search.google.com/search-console → Add property → <b>URL prefix</b> → enter your site URL → <b>HTML tag</b> → copy the whole tag and paste it below. Click <b>Publish</b> here, wait 1 minute, then click <b>Verify</b> in Google.</p><div class="grid">${inp('HTML tag','seo.gsc_meta',{full:1,ph:'<meta name="google-site-verification" content="..." />'})}<div class="hint full" data-valid="gsc"></div>${inp('HTML file name (only if you use the file method)','seo.gsc_file',{full:1,ph:'google1234abcd.html'})}</div>
@@ -876,6 +877,7 @@ function homeHead(c,site){
   `<meta property="og:title" content="${esc(title)}">`,`<meta property="og:description" content="${esc(desc)}">`,img?`<meta property="og:image" content="${esc(img)}">`:'',
   `<meta name="twitter:card" content="${img?'summary_large_image':'summary'}">`,`<meta name="twitter:title" content="${esc(title)}">`,`<meta name="twitter:description" content="${esc(desc)}">`,img?`<meta name="twitter:image" content="${esc(img)}">`:'',
   g?`<meta name="google-site-verification" content="${esc(g)}">`:'',
+  s.favicon?`<link rel="icon" type="image/png" href="${esc(s.favicon)}">`:`<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2307090f'/%3E%3Crect x='1' y='1' width='30' height='30' rx='7' fill='none' stroke='%238b5cf6' stroke-width='1.5' opacity='.6'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='700' font-size='18' fill='%238b5cf6'%3ES%3C/text%3E%3C/svg%3E">`,
   (c.blog||[]).some(b=>!b.draft)?`<link rel="alternate" type="application/rss+xml" title="Blog" href="${esc(site)}/blog/feed.xml">`:'',
   jsonld({'@context':'https://schema.org','@type':'Person',name:full,url:site+'/',image:img||undefined,jobTitle:(c.roles||[])[0]||'Developer',description:desc,address:c.location?{'@type':'PostalAddress',addressLocality:c.location}:undefined,sameAs:same.length?same:undefined}),
   faq.length?jsonld({'@context':'https://schema.org','@type':'FAQPage',mainEntity:faq.map(f=>({'@type':'Question',name:f.q,acceptedAnswer:{'@type':'Answer',text:f.a}}))}):'',
@@ -1006,6 +1008,7 @@ const shell=(c,head,body)=>`<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#07090f">
+${c.seo?.favicon?`<link rel="icon" type="image/png" href="${c.seo.favicon}">`:`<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2307090f'/%3E%3Crect x='1' y='1' width='30' height='30' rx='7' fill='none' stroke='%238b5cf6' stroke-width='1.5' opacity='.6'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='700' font-size='18' fill='%238b5cf6'%3ES%3C/text%3E%3C/svg%3E">`}
 ${head}
 ${FONTS}
 <style>${BLOG_CSS}${accentCss(c)}</style>
