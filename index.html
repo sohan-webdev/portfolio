@@ -419,7 +419,9 @@ footer{border-top:1px solid var(--line);padding:70px 0 0;background:linear-gradi
   .dfoot .fsoc{margin:0;justify-content:center}
   .drawer.open a{transform:none;opacity:1}
   .drawer.open a:nth-child(2){transition-delay:.05s}.drawer.open a:nth-child(3){transition-delay:.1s}.drawer.open a:nth-child(4){transition-delay:.15s}.drawer.open a:nth-child(5){transition-delay:.2s}.drawer.open a:nth-child(n+6){transition-delay:.25s}
-  .drawer .close{position:absolute;top:calc(env(safe-area-inset-top) + 13px);right:20px}
+  .drawer .close{display:none}
+  .drawer{padding-top:calc(env(safe-area-inset-top) + 80px)}
+  body.dopen #hdr{z-index:200;background:rgba(7,9,15,.98);border-color:var(--line)}
   section{padding:84px 0}
   /* centered mobile layout */
   .hero-grid>div:first-child{text-align:center;display:flex;flex-direction:column;align-items:center}
@@ -734,7 +736,7 @@ function render(c){
   const num=id=>String(vis.findIndex(x=>x.id===id)+1).padStart(2,'0');
   $('#navLinks').innerHTML=NAV.map(([id,h],i)=>`<li><a href="${h}">${id[0].toUpperCase()+id.slice(1)}</a></li>`).join('');
   const pages=[['reviews','All reviews','/reviews/'],['blog','Blog','/blog/']].filter(([id])=>!HIDE[id]);
-  $('#drawerLinks').innerHTML=vis.filter(x=>x.id!=='reviews'&&x.id!=='blog').map(x=>`<a href="#${x.id}">${LBL[x.id]||x.id}<span data-i="arrow" data-s="16"></span></a>`).join('')+pages.map(([id,n,h])=>`<a href="${h}">${n}<span data-i="external" data-s="15"></span></a>`).join('')+`<a href="#" class="ds" id="dSearch">Search<span data-i="search" data-s="16"></span></a>`;
+  $('#drawerLinks').innerHTML=vis.filter(x=>x.id!=='reviews'&&x.id!=='blog').map(x=>`<a href="#${x.id}">${LBL[x.id]||x.id}<span data-i="arrow" data-s="16"></span></a>`).join('')+pages.map(([id,n,h])=>`<a href="${h}">${n}<span data-i="external" data-s="15"></span></a>`).join('');$('#drawerLinks').insertAdjacentHTML('afterbegin',`<a href="#" class="ds" id="dSearch">Search<span data-i="search" data-s="16"></span></a>`);
   document.querySelectorAll('#drawerLinks a,#dHire').forEach(a=>a.onclick=()=>window.__shut&&window.__shut());
   $('#dSearch').onclick=e=>{e.preventDefault();window.__shut();openSearch()};
   window.__LBL=LBL;
@@ -820,8 +822,9 @@ addEventListener('scroll',()=>{const y=scrollY;hdr.classList.toggle('scrolled',y
   let cur='';document.querySelectorAll('section[id]:not([hidden])').forEach(s=>{if(s.offsetTop-140<=y)cur=s.id});
   document.querySelectorAll('.links a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur))},{passive:true});
 const dr=$('#drawer');
-$('#burger').onclick=()=>{dr.classList.add('open');document.body.style.overflow='hidden'};
-const shut=window.__shut=()=>{dr.classList.remove('open');document.body.style.overflow=''};
+const bg=$('#burger');
+const shut=window.__shut=()=>{dr.classList.remove('open');document.body.classList.remove('dopen');document.body.style.overflow='';bg.innerHTML=icon('menu',20);bg.setAttribute('aria-label','Open menu')};
+bg.onclick=()=>{if(dr.classList.contains('open')){shut();return}dr.classList.add('open');document.body.classList.add('dopen');document.body.style.overflow='hidden';bg.innerHTML=icon('close',20);bg.setAttribute('aria-label','Close menu')};
 $('#closeMenu').onclick=shut;
 
 $('#copyBtn').onclick=async()=>{const t=$('#mail').textContent;try{await navigator.clipboard.writeText(t);$('#copyTxt').textContent='Copied'}catch(e){const r=document.createRange();r.selectNodeContents($('#mail'));getSelection().removeAllRanges();getSelection().addRange(r);$('#copyTxt').textContent='Selected'}setTimeout(()=>$('#copyTxt').textContent='Copy',1800)};
