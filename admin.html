@@ -599,7 +599,17 @@ settings:()=>{const repo=LS.get('gh_repo')||'',br=LS.get('gh_branch')||'main',to
       <button class="b" id="bkDown"><span data-i="download" data-s="15"></span>Download backup</button>
       <button class="b" id="bkUp"><span data-i="upload" data-s="15"></span>Restore backup</button>
       <button class="b del" id="bkDiscard"><span data-i="trash" data-s="15"></span><span>Discard unpublished changes</span></button>
-    </div></div>`}
+    </div></div>
+  <div class="card"><h2><span data-i="image" data-s="16"></span>Chatbot avatar</h2><p class="d">The photo shown in the live chat widget on your site. Stored only in this browser — set it on each device you use.</p>
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <div id="lcAvPrev" style="width:64px;height:64px;border-radius:50%;background:#8b5cf6;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:20px;overflow:hidden;flex-shrink:0;border:2px solid rgba(139,92,246,.4)">${typeof localStorage !== 'undefined' && localStorage.getItem('_lc_avatar') ? '<img src="' + (localStorage.getItem('_lc_avatar')||'') + '" style="width:100%;height:100%;object-fit:cover">' : 'SH'}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="b sm" id="lcAvUpload"><span data-i="upload" data-s="14"></span>Upload photo</button>
+        <button class="b sm del" id="lcAvRemove" ${typeof localStorage !== 'undefined' && localStorage.getItem('_lc_avatar') ? '' : 'hidden'}>Remove</button>
+      </div>
+    </div>
+    <input type="file" id="lcAvFile" accept="image/*" hidden>
+  </div>`}
 };
 
 function secFields(id){const sc=C.design.sec[id]||{},df=SEC_DEF[id];return `<label class="f full">Title<input data-sec="${id}.title" value="${esc(sc.title||'')}" placeholder="${esc(df[0])}"></label>${id==='services'?'<p class="hint full">The text under this title is edited in Services.</p>':`<label class="f full">Text under the title<textarea data-sec="${id}.sub" placeholder="${esc(df[1])}" style="min-height:70px">${esc(sc.sub||'')}</textarea></label>`}<p class="hint full">Leave empty to use the default shown in grey.</p>`}
@@ -865,6 +875,10 @@ function wireSettings(){
   const d=$('#bkDiscard');d.onclick=async()=>{if(!d.dataset.ok){d.dataset.ok=1;d.lastChild.textContent='Click again to confirm';setTimeout(()=>{if(d.isConnected){delete d.dataset.ok;d.lastChild.textContent='Discard unpublished changes'}},3000);return}
     try{LIVE=await (await fetch('content.json',{cache:'no-store'})).json()}catch(e){toast('Could not load the live version');return}
     LS.del('portfolio_draft');LS.del('adm_dirty');C=normalize(structuredClone(LIVE));setPill();render();toast('Back to the live version')};
+  // Chatbot avatar
+  $('#lcAvUpload').onclick=()=>$('#lcAvFile').click();
+  $('#lcAvFile').onchange=e=>{const f=e.target.files[0];if(!f)return;if(f.size>2*1024*1024){toast('Image too large. Use a photo under 2 MB.');return}const r=new FileReader();r.onload=ev=>{localStorage.setItem('_lc_avatar',ev.target.result);const p=$('#lcAvPrev');p.innerHTML='<img src="'+ev.target.result+'" style="width:100%;height:100%;object-fit:cover">';const rm=$('#lcAvRemove');if(rm)rm.hidden=false;toast('Chatbot avatar saved to this browser.');e.target.value=''};r.readAsDataURL(f)};
+  const lcRm=$('#lcAvRemove');if(lcRm)lcRm.onclick=()=>{localStorage.removeItem('_lc_avatar');const p=$('#lcAvPrev');p.innerHTML='SH';lcRm.hidden=true;toast('Avatar removed')};
 }
 $('#importIn').onchange=async e=>{try{C=normalize(JSON.parse(await e.target.files[0].text()));save();render();toast('Backup restored. Click Publish to make it live.')}catch(err){toast('That file is not a valid backup')}};
 
