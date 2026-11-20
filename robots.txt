@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /admin.html
 
-Sitemap: https://sohan-webdev.netlify.app/sitemap.xml
+Sitemap: https://sohan-webdev.pages.dev/sitemap.xml
