@@ -11,15 +11,18 @@ export async function onRequestPost(context) {
       status: 400, headers: { 'Content-Type': 'application/json' }
     });
   }
-  const models = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
+  const MODEL = 'gemini-3.8-flash';
+  const URL = 'https://generativelanguage.googleapis.com/v1beta/models/' + MODEL + ':generateContent?key=' + GEMINI_KEY;
   let resp, data;
-  for (const model of models) {
-    resp = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + GEMINI_KEY,
-      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
-    );
+  for (let i = 0; i < 3; i++) {
+    if (i > 0) await new Promise(r => setTimeout(r, 1500));
+    resp = await fetch(URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
     data = await resp.json();
-    if (!data.error || (data.error.code !== 503 && data.error.code !== 404 && data.error.code !== 429)) break;
+    if (!data.error || (data.error.code !== 503 && data.error.code !== 429)) break;
   }
   return new Response(JSON.stringify(data), {
     status: resp.status,
