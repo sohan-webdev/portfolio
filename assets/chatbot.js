@@ -167,9 +167,12 @@
       + 'FAQ:\n' + faqs + '\n\n'
       + 'AVAILABILITY: ' + avail + '\n\n'
       + 'INSTRUCTIONS:\n'
-      + '- Give detailed, helpful replies. Explain fully what Sohan can do — no need to be brief.\n'
+      + '- Keep replies SHORT and conversational — 2 to 4 bullet points max, or 2 to 3 short sentences. Never write long paragraphs or walls of text.\n'
+      + '- Write like a friendly human, not a formal document. Use simple, natural language.\n'
+      + '- If listing features or services, use a short bullet list (3 to 4 items max). Skip headers, bold text, and markdown formatting.\n'
       + '- Sohan is highly skilled and can handle almost any Shopify or web development task, so confidently say yes to most things.\n'
       + '- For pricing: say it depends on project scope and suggest contacting ' + name + ' directly.\n'
+      + '- If the visitor seems interested or asks about hiring/working together, end your reply with: "Feel free to reach out — Email: ' + (contact.email || CFG.OWNER_EMAIL) + ' or WhatsApp: ' + (contact.whatsapp || '') + '"\n'
       + '- NEVER use [ESCALATE] for questions about Shopify, web development, Sohan\'s skills, services, experience, or anything related to his work. Answer those confidently using the info above.\n'
       + '- Only use [ESCALATE] if the question is completely personal (e.g. "what did you eat today") or entirely unrelated to web/Shopify development. Start the reply ONLY with [ESCALATE] then a brief friendly note.\n'
       + '- Match the visitor\'s language (Bangla → reply in Bangla, English → reply in English).\n'
@@ -194,7 +197,7 @@
         body: JSON.stringify({
           system_instruction: { parts: [{ text: buildSystemPrompt() }] },
           contents: contents,
-          generationConfig: { maxOutputTokens: 1200, temperature: 0.7 }
+          generationConfig: { maxOutputTokens: 400, temperature: 0.7 }
         })
       }
     )
