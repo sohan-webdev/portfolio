@@ -52,7 +52,8 @@
   var sessionId = null;
   var isOpen    = false;
   var chatMode  = null;         // 'ai' | 'contact'
-  var imgAttach = null;         // {file, dataUrl}
+  var imgAttach = null;         // {file, dataUrl} - contact form
+  var aiImgAttach = null;       // {file, dataUrl, mime, b64} - AI chat
 
   /* — Load /content.json — */
   fetch('/content.json', {cache:'no-store'})
@@ -173,7 +174,11 @@
     var contents = chatHist.map(function (m) {
       return { role: m.r === 'user' ? 'user' : 'model', parts: [{ text: m.t }] };
     });
-    contents.push({ role: 'user', parts: [{ text: text }] });
+    var userParts = [{ text: text }];
+  if (aiImgAttach && aiImgAttach.b64) {
+    userParts.push({ inlineData: { mimeType: aiImgAttach.mime, data: aiImgAttach.b64 } });
+  }
+  contents.push({ role: 'user', parts: userParts });
 
     fetch(
       '/gemini',
@@ -525,9 +530,16 @@
     imgUpload.then(function (imgUrl) {
       openSession('contact').then(function () {
         logMsg('user', msg, imgUrl);
-        var body = 'Name: ' + nm + '\nEmail: ' + em + '\nPage: ' + location.href + '\n\nMessage:\n' + msg;
-        if (imgUrl) body += '\n\nAttachment: ' + imgUrl;
-        return sendEmail({ subject: 'Direct message from ' + nm + ' on your portfolio', from_name: nm, email: em, message: body });
+        var emailHtml = '<p><strong>Name:</strong> ' + nm + '</p>' +
+          '<p><strong>Email:</strong> ' + em + '</p>' +
+          '<p><strong>Page:</strong> ' + location.href + '</p>' +
+          '<p><strong>Message:</strong></p><p>' + msg.replace(/\n/g,'<br>') + '</p>';
+        if (imgAttach && imgAttach.dataUrl) {
+          emailHtml += '<p><strong>Attachment:</strong></p><img src="' + imgAttach.dataUrl + '" style="max-width:500px;border-radius:8px;border:1px solid #ddd">';
+        } else if (imgUrl) {
+          emailHtml += '<p><strong>Attachment:</strong> <a href="' + imgUrl + '">' + imgUrl + '</a></p>';
+        }
+        return sendEmail({ subject: 'Direct message from ' + nm + ' on your portfolio', from_name: nm, email: em, message: emailHtml, is_html: true });
       }).then(function () {
         imgAttach = null;
         try{var _inbox=JSON.parse(localStorage.getItem('_lc_inbox')||'[]');_inbox.unshift({id:genUUID(),name:nm,email:em,message:msg,time:new Date().toISOString(),read:false});localStorage.setItem('_lc_inbox',JSON.stringify(_inbox));localStorage.setItem('_lc_unread',String(_inbox.filter(function(x){return!x.read;}).length));}catch(_e){}
@@ -563,6 +575,11 @@
     addBubble('u', text, visitor.init);
     chatHist.push({ r: 'user', t: text });
     logMsg('user', text);
+    aiImgAttach = null;
+    var prevDiv = document.getElementById('_lc-ai-prev');
+    if (prevDiv) { prevDiv.style.display = 'none'; prevDiv.innerHTML = ''; }
+    var imgBtn2 = document.getElementById('_lc-imgbtn');
+    if (imgBtn2) imgBtn2.classList.remove('has-img');
 
     // Notify owner on first message
     if (chatHist.length === 1) {
@@ -683,8 +700,8 @@
     var inp = document.getElementById('_lc-in');
 
     sendBtn.onclick = function () {
-      if (!inp.value.trim()) return;
-      sendAIMsg(inp.value);
+      if (!inp.value.trim() && !aiImgAttach) return;
+      sendAIMsg(inp.value || (aiImgAttach ? '📎 [Image attached]' : ''));
       inp.value = ''; inp.style.height = '';
     };
 
@@ -696,6 +713,37 @@
     inp.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendBtn.click(); }
     });
+
+    // AI chat image button
+    var aiImgBtn = document.getElementById('_lc-imgbtn');
+    var aiFileInp = document.getElementById('_lc-aifile');
+    if (aiImgBtn && aiFileInp) {
+      aiImgBtn.onclick = function () { aiFileInp.click(); };
+      aiFileInp.onchange = function (e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function (ev) {
+          var dataUrl = ev.target.result;
+          var b64 = dataUrl.split(',')[1];
+          aiImgAttach = { file: file, dataUrl: dataUrl, mime: file.type, b64: b64 };
+          aiImgBtn.classList.add('has-img');
+          var prevDiv = document.getElementById('_lc-ai-prev');
+          if (prevDiv) {
+            prevDiv.style.display = 'flex';
+            prevDiv.innerHTML = '<img src="' + dataUrl + '" alt="preview"><button class="rm2" id="_lc-airemove">\xD7</button>';
+            document.getElementById('_lc-airemove').onclick = function () {
+              aiImgAttach = null;
+              aiImgBtn.classList.remove('has-img');
+              prevDiv.style.display = 'none';
+              prevDiv.innerHTML = '';
+              aiFileInp.value = '';
+            };
+          }
+        };
+        reader.readAsDataURL(file);
+      };
+    }
   }
 
   if (document.readyState === 'loading') {
