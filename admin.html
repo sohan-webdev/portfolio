@@ -372,7 +372,7 @@ const SEC_IDS=['about','services','experience','skills','projects','reviews','fa
 const SEC_NAMES={about:'About',services:'Services',experience:'Experience',skills:'Skills',projects:'Projects',reviews:'Reviews',faq:'FAQ',blog:'Blog',contact:'Contact'};
 const SEC_DEF={about:['The developer behind the store',''],services:['What I do',''],experience:["Where I've been building",'Agency work and long-running freelance clients.'],skills:['Skills & expertise','Every line hand-written. Zero page builders.'],projects:['Featured projects','Shopify stores built and extended with custom code.'],reviews:['What clients say',"Feedback from store owners and agencies I've worked with."],faq:['Questions, answered',"Can't find what you need? Send me a message and I'll get back to you."],blog:['From the blog','Notes on Shopify development, automation and AI workflows.'],contact:["Have a project in mind? Let's build it.",'Shopify stores, automation workflows or custom bots. I usually reply within a few hours.']};
 const ACCENTS={violet:['#8b5cf6','#b18cff'],blue:['#3b82f6','#7fb2ff'],cyan:['#06b6d4','#67e8f9'],emerald:['#10b981','#6ee7b7'],orange:['#f97316','#fdba74'],rose:['#f43f5e','#fda4af'],gold:['#d4a017','#f5d77a']};
-const DEFAULTS={services_intro:'',services:[],approach:'',reviews:[],faq:[],blog:[],badges:[],footer_text:'',
+const DEFAULTS={services_intro:'',services:[],approach:'',reviews:[],faq:[],blog:[],badges:[],footer_text:'',chatbot_greeting:'',chatbot_whatsapp:'',chatbot_wa_msg:'',chatbot_email:'',chatbot_chips:[],
   design:{accent:'violet',custom:'#8b5cf6',rain:true,motion:true,marquee:true,order:[],hide:{},sec:{}},
   seo:{site_url:'',title:'',description:'',keywords:'',og_image:'',favicon:'',ga_id:'',tiktok_pixel:'',gsc_meta:'',gsc_file:'',head_extra:''}};
 function normalize(c){
@@ -399,6 +399,7 @@ const SECTIONS=[
   ['projects','Projects','cart','Portfolio cards. Add a screenshot to replace the icon.'],
   ['reviews','Reviews','star','Client feedback. The section stays hidden until you add one.'],
   ['faq','FAQ','help','Questions and answers near the bottom of the site.'],
+  ['chatbot','Chatbot','bot','AI chatbot greeting, suggested questions and contact settings.'],
   ['blog','Blog','edit','Write SEO articles. Each one gets its own page on your site.'],
   ['contact','Contact & footer','mail','Email, social links and footer text.'],
   '-',
@@ -503,6 +504,7 @@ const BLANKS={
   reviews:()=>({name:'',role:'',text:'',rating:5,source:'Upwork',avatar:'',video:'',poster:''}),
   badges:()=>({icon:'award',title:'',sub:''}),
   faq:()=>({q:'',a:''}),
+  chatbot_chips:()=>({text:''}),
   stats:()=>({value:0,suffix:'+',label:''})
 };
 
@@ -541,6 +543,16 @@ reviews:()=>`<div class="card" style="border-color:rgba(251,191,36,.25)"><p clas
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="b sm" type="button" data-vup="${i}"><span data-i="video" data-s="14"></span>Upload video file</button>${r.video?`<button class="b sm del" type="button" data-vdel="${i}">Remove video</button>`:''}<span class="hint">Max 50 MB. Bigger videos: upload to YouTube as Unlisted and paste the link.</span></div>
   ${r.video?imgField('Cover image (optional)','reviews.'+i+'.poster',{shape:'wide',max:1200,hint:'YouTube links get a cover automatically.'}):''}</div>
   ${inp(r.video?'Short quote (optional)':'Review','reviews.'+i+'.text',{area:1,full:1})}<label class="f">Rating<select data-p="reviews.${i}.rating">${[5,4,3,2,1].map(n=>`<option value="${n}" ${+r.rating===n?'selected':''}>${n} stars</option>`).join('')}</select></label>${inp('Source','reviews.'+i+'.source',{ph:'Upwork, Direct, Agency'})}${imgField('Client photo','reviews.'+i+'.avatar',{shape:'round',max:200,hint:'Optional. Initials are shown if empty.'})}`}),
+chatbot:()=>`
+  <div class="card"><h2><span data-i="bot" data-s="16"></span>Greeting & contact</h2><p class="d">What the bot says first, and how visitors can reach you.</p>
+  <div class="grid">
+    ${inp('Greeting message','chatbot_greeting',{full:1,area:1,ph:'Hey! 👋 I am Sohan assistant. How can I help?',hint:'First message shown when chat opens'})}
+    ${inp('Contact email','chatbot_email',{type:'email',full:1,hint:'Where contact form submissions are sent'})}
+    ${inp('WhatsApp number','chatbot_whatsapp',{ph:'8801716575122',hint:'Number only, no + or spaces'})}
+    ${inp('WhatsApp pre-filled text','chatbot_wa_msg',{full:1,hint:'Message that pre-fills in WhatsApp'})}
+  </div></div>
+  ${listView('chatbot_chips',{title:'Suggested questions',addLbl:'Add question',head:c=>[c.text],body:(c,i)=>\`${inp('Question text','chatbot_chips.'+i+'.text',{full:1})}\`})}
+`,
 faq:()=>listView('faq',{title:'Questions',addLbl:'Add question',head:f=>[f.q],body:(f,i)=>`${inp('Question','faq.'+i+'.q',{full:1})}${inp('Answer','faq.'+i+'.a',{area:1,full:1,rows:4})}`}),
 contact:()=>`<div class="card"><h2><span data-i="mail" data-s="16"></span>Contact links</h2><p class="d">Empty links are hidden on the site.</p><div class="grid">
   ${inp('Email','contact.email',{type:'email'})}
