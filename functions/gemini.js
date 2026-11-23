@@ -11,11 +11,16 @@ export async function onRequestPost(context) {
       status: 400, headers: { 'Content-Type': 'application/json' }
     });
   }
-  const resp = await fetch(
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=' + GEMINI_KEY,
-    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
-  );
-  const data = await resp.json();
+  const models = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
+  let resp, data;
+  for (const model of models) {
+    resp = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + GEMINI_KEY,
+      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+    );
+    data = await resp.json();
+    if (!data.error || (data.error.code !== 503 && data.error.code !== 404 && data.error.code !== 429)) break;
+  }
   return new Response(JSON.stringify(data), {
     status: resp.status,
     headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
