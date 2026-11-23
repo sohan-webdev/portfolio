@@ -551,7 +551,7 @@ chatbot:()=>`
     ${inp('WhatsApp number','chatbot_whatsapp',{ph:'8801716575122',hint:'Number only, no + or spaces'})}
     ${inp('WhatsApp pre-filled text','chatbot_wa_msg',{full:1,hint:'Message that pre-fills in WhatsApp'})}
   </div></div>
-  ${listView('chatbot_chips',{title:'Suggested questions',addLbl:'Add question',head:c=>[c.text],body:(c,i)=>\`${inp('Question text','chatbot_chips.'+i+'.text',{full:1})}\`})}
+  ${listView('chatbot_chips',{title:'Suggested questions',addLbl:'Add question',head:c=>[c.text],body:(c,i)=>inp('Question text','chatbot_chips.'+i+'.text',{full:1})})}
 `,
 faq:()=>listView('faq',{title:'Questions',addLbl:'Add question',head:f=>[f.q],body:(f,i)=>`${inp('Question','faq.'+i+'.q',{full:1})}${inp('Answer','faq.'+i+'.a',{area:1,full:1,rows:4})}`}),
 contact:()=>`<div class="card"><h2><span data-i="mail" data-s="16"></span>Contact links</h2><p class="d">Empty links are hidden on the site.</p><div class="grid">
