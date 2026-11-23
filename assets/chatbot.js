@@ -48,7 +48,8 @@
   var siteData  = null;
   var waNum     = CFG.WHATSAPP;
   var chatHist  = [];           // {r: 'user'|'model', t: '...'}
-  var visitor   = null;         // {name, email, init}
+  var visitor   = (function () { try { return JSON.parse(localStorage.getItem('_lc_visitor') || 'null'); } catch (e) { return null; } })();
+  var ownerUnread = 0;
   var sessionId = null;
   var isOpen    = false;
   var chatMode  = null;         // 'ai' | 'contact'
@@ -491,6 +492,7 @@
       if (!nm) { flash('_lc-nm'); return; }
       if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { flash('_lc-em'); return; }
       visitor = { name: nm, email: em, init: nm[0].toUpperCase() };
+      lsSet('_lc_visitor', JSON.stringify(visitor));
       showModeSelector();
     };
     document.getElementById('_lc-go').onclick = go;
@@ -512,7 +514,7 @@
           '</div>' +
           '<div class="_lc-card" id="_lc-pick-contact">' +
             '<div class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>' +
-            '<div><b>Send a Direct Message</b><span>Message Sohan personally</span></div>' +
+            '<div><b>' + (dmSid() ? 'Your chat with Sohan' : 'Send a Direct Message') + '</b><span>' + (dmSid() ? 'See replies & continue the conversation' : 'Message Sohan personally') + '</span></div>' +
           '</div>' +
         '</div>' +
       '</div>';
@@ -612,15 +614,11 @@
     imgUpload.then(function (imgUrl) {
       openSession('contact').then(function () {
         logMsg('user', msg, imgUrl);
-        var emailHtml = '<p><strong>Name:</strong> ' + nm + '</p>' +
-          '<p><strong>Email:</strong> ' + em + '</p>' +
-          '<p><strong>Page:</strong> ' + location.href + '</p>' +
-          '<p><strong>Message:</strong></p><p>' + msg.replace(/\n/g,'<br>') + '</p>';
-        if (imgUrl) {
-          emailHtml += '<p><strong>Attachment:</strong> <a href="' + imgUrl + '">' + imgUrl + '</a></p>';
-        }
+        var emailTxt = 'Name: ' + nm + '\nEmail: ' + em + '\nPage: ' + location.href + '\n\nMessage:\n' + msg +
+          (imgUrl ? '\n\nImage: ' + imgUrl : '') +
+          '\n\nReply in your inbox: ' + location.origin + '/inbox.html';
         var attachFile = (imgAttach && imgAttach.file && !imgUrl) ? imgAttach.file : null;
-        return sendEmail({ subject: 'Direct message from ' + nm + ' on your portfolio', from_name: nm, email: em, message: emailHtml, is_html: true }, attachFile);
+        return sendEmail({ subject: 'Direct message from ' + nm + ' on your portfolio', from_name: nm, email: em, replyto: em, message: emailTxt }, attachFile);
       }).then(function () {
         imgAttach = null;
         if (sessionId) lsSet('_lc_dm_sid', sessionId);
@@ -741,9 +739,30 @@
     var up = (img && CFG.SUPA_URL) ? dbUploadFile(img.file) : Promise.resolve(null);
     up.then(function (url) {
       logMsg('user', text || '📎 Image', url);
-      var html = '<p><strong>' + esc(visitor.name) + '</strong> (' + esc(visitor.email) + ') replied in your website chat:</p><p>' + esc(text).replace(/\n/g, '<br>') + '</p>' + (url ? '<p><a href="' + url + '">View image</a></p>' : '');
-      sendEmail({ subject: 'New chat message from ' + visitor.name, from_name: visitor.name, email: visitor.email, message: html, is_html: true }, (img && !url) ? img.file : null);
+      var txt = visitor.name + ' (' + visitor.email + ') wrote in your website chat:\n\n' + (text || '(image)') + (url ? '\n\nImage: ' + url : '') + '\n\nReply here: ' + location.origin + '/inbox.html';
+      sendEmail({ subject: 'New chat message from ' + visitor.name, from_name: visitor.name, email: visitor.email, replyto: visitor.email, message: txt }, (img && !url) ? img.file : null);
     });
+  }
+  function notifyOwnerReply(text) {
+    try {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination); o.frequency.value = 880; g.gain.value = 0.08;
+      o.start(); o.frequency.setValueAtTime(660, ctx.currentTime + 0.12); o.stop(ctx.currentTime + 0.25);
+    } catch (e) {}
+    var t = document.getElementById('_lc-toast');
+    if (!t) {
+      t = document.createElement('div'); t.id = '_lc-toast';
+      t.style.cssText = 'position:fixed;right:24px;bottom:94px;max-width:300px;background:#1a1630;color:#fff;border:1px solid rgba(139,92,246,.45);border-radius:16px;padding:12px 14px;display:flex;gap:10px;align-items:center;box-shadow:0 12px 40px rgba(0,0,0,.5);z-index:2147483002;cursor:pointer;font:14px/1.45 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif';
+      document.body.appendChild(t);
+    }
+    t.innerHTML = '<div style="width:34px;height:34px;border-radius:50%;overflow:hidden;flex-shrink:0;background:#8B5CF6;display:flex;align-items:center;justify-content:center">' + ownerAv(true) + '</div><div style="min-width:0"><b style="display:block;font-size:13px">Sohan replied</b><span style="display:block;opacity:.75;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(text) + '</span></div>';
+    t.style.display = 'flex';
+    t.onclick = function () { t.style.display = 'none'; if (!isOpen) toggle(); showDMThread(); };
+    clearTimeout(t._h); t._h = setTimeout(function () { t.style.display = 'none'; }, 12000);
+    var orig = document.title, n = 0;
+    clearInterval(window._lcTitle);
+    window._lcTitle = setInterval(function () { document.title = (n++ % 2) ? orig : '💬 Sohan replied'; if (n > 12 || !document.hidden && n > 4) { clearInterval(window._lcTitle); document.title = orig; } }, 1000);
   }
   function pollOwnerReplies() {
     var sid = dmSid();
@@ -756,8 +775,11 @@
         fresh.forEach(function (m) { addBubble('b', m.content || '', 'SH'); if (m.image_url) { var bs = $b().querySelectorAll('._lc-msg .bbl'); bs[bs.length - 1].insertAdjacentHTML('beforeend', '<img src="' + esc(m.image_url) + '" alt="">'); } });
         markSeen(fresh.map(function (m) { return m.id; }));
       } else {
+        ownerUnread = fresh.length;
         var b = document.getElementById('_lc-badge');
         if (b) { b.textContent = fresh.length > 9 ? '9+' : String(fresh.length); b.style.display = 'flex'; }
+        var last = fresh[fresh.length - 1];
+        if (lsGet('_lc_last_toast') !== String(last.id)) { lsSet('_lc_last_toast', String(last.id)); notifyOwnerReply(last.content || 'New message'); }
       }
     });
   }
@@ -830,9 +852,10 @@
     document.getElementById('_lc-badge').style.display = 'none';
 
     if (isOpen) {
+      var _t = document.getElementById('_lc-toast'); if (_t) _t.style.display = 'none';
       if (!visitor) showIntroForm();
+      else if (dmSid() && (ownerUnread > 0 || chatMode === 'dm')) { ownerUnread = 0; showDMThread(); }
       else if (!chatMode) showModeSelector();
-      else if (chatMode === 'dm') { pollOwnerReplies(); }
       else if (chatMode === 'ai') {
         setTimeout(function () { var inp = document.getElementById('_lc-in'); if (inp) inp.focus(); }, 100);
       }
