@@ -1,3 +1,12 @@
+export async function onRequestGet(context) {
+  const GEMINI_KEY = context.env.GEMINI_KEY;
+  const resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + GEMINI_KEY);
+  const data = await resp.json();
+  return new Response(JSON.stringify(data), {
+    status: resp.status,
+    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+  });
+}
 export async function onRequestPost(context) {
   const GEMINI_KEY = context.env.GEMINI_KEY;
   if (!GEMINI_KEY) {
@@ -32,7 +41,7 @@ export async function onRequestPost(context) {
 export async function onRequestOptions() {
   return new Response(null, { headers: {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type'
   }});
 }
