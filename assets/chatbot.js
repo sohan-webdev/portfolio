@@ -35,8 +35,8 @@
 
     // 🗄  Supabase — enables /admin.html chat history (free at supabase.com)
     //    Leave empty to skip (chat + email still work without this)
-    SUPA_URL:    '',   // e.g. https://xyz.supabase.co
-    SUPA_ANON:   '',   // anon/public key
+    SUPA_URL:    'https://hmcszrysrjdcptiqcxin.supabase.co',   // e.g. https://xyz.supabase.co
+    SUPA_ANON:   'sb_publishable_gM19SHNk-nV0jMGqVntLUg_11kyn-cZ',   // anon/public key
 
     // 🎨 Colors
     PRIMARY:     '#16122A',  // panel background
