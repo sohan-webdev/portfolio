@@ -259,17 +259,17 @@
       '._lc-title{color:#fff;font-size:14.5px;font-weight:600;line-height:1.5}',
       '._lc-sub{color:rgba(255,255,255,.5);font-size:12.5px;line-height:1.55;margin-top:3px}',
       /* inputs */
-      '._lcfi{width:100%!important;padding:14px 18px!important;background:rgba(255,255,255,.06)!important;',
-      'border:1px solid rgba(255,255,255,.1)!important;border-radius:12px!important;color:#fff!important;font-size:15px!important;',
-      'outline:none!important;transition:border-color .2s;font-family:inherit!important;box-sizing:border-box!important;min-height:52px!important}',
-      '._lcfi:focus{border-color:' + A + '!important}._lcfi::placeholder{color:rgba(255,255,255,.28)!important}',
-      '._lcft{width:100%!important;padding:14px 18px!important;background:rgba(255,255,255,.06)!important;',
+      '._lcfi{width:100%!important;padding:10px 16px!important;background:rgba(255,255,255,.06)!important;',
       'border:1px solid rgba(255,255,255,.1)!important;border-radius:12px!important;color:#fff!important;font-size:14px!important;',
-      'outline:none!important;transition:border-color .2s;font-family:inherit!important;resize:vertical!important;min-height:110px!important;line-height:1.6!important;box-sizing:border-box!important}',
+      'outline:none!important;transition:border-color .2s;font-family:inherit!important;box-sizing:border-box!important;min-height:44px!important}',
+      '._lcfi:focus{border-color:' + A + '!important}._lcfi::placeholder{color:rgba(255,255,255,.28)!important}',
+      '._lcft{width:100%!important;padding:10px 14px!important;background:rgba(255,255,255,.06)!important;',
+      'border:1px solid rgba(255,255,255,.1)!important;border-radius:12px!important;color:#fff!important;font-size:14px!important;',
+      'outline:none!important;transition:border-color .2s;font-family:inherit!important;resize:vertical!important;min-height:100px!important;line-height:1.6!important;box-sizing:border-box!important}',
       '._lcft:focus{border-color:' + A + '!important}._lcft::placeholder{color:rgba(255,255,255,.28)!important}',
       /* buttons */
-      '._lcfb{padding:16px 24px!important;border-radius:12px!important;font-size:15px!important;font-weight:600!important;cursor:pointer!important;',
-      'transition:opacity .2s,transform .1s;font-family:inherit!important;width:100%!important;border:none!important;min-height:52px!important;box-sizing:border-box!important;display:block!important}',
+      '._lcfb{padding:12px 24px!important;border-radius:12px!important;font-size:14px!important;font-weight:600!important;cursor:pointer!important;',
+      'transition:opacity .2s,transform .1s;font-family:inherit!important;width:100%!important;border:none!important;min-height:46px!important;box-sizing:border-box!important;display:block!important}',
       '._lcfb:active{transform:scale(.98)}._lcfb:hover{opacity:.88}',
       '._lcfbp{background:' + A + '!important;color:#fff!important}',
       '._lcfbs{background:rgba(255,255,255,.07)!important;color:rgba(255,255,255,.75)!important;border:1px solid rgba(255,255,255,.1)!important}',
@@ -286,7 +286,7 @@
       '._lc-sugg{display:flex;flex-direction:column;gap:9px}',
       '._lc-slbl{color:rgba(255,255,255,.35);font-size:11px;text-transform:uppercase;letter-spacing:.5px}',
       '._lc-chips{display:flex;flex-wrap:wrap;gap:7px}',
-      '._lc-chip{padding:10px 16px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.22);',
+      '._lc-chip{padding:7px 14px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.22);',
       'border-radius:20px;color:rgba(255,255,255,.85);font-size:13.5px;cursor:pointer;',
       'transition:all .15s;white-space:nowrap;font-family:inherit}',
       '._lc-chip:hover{background:rgba(139,92,246,.22);color:#fff;border-color:rgba(139,92,246,.5)}',
@@ -599,7 +599,7 @@
         '<p>For this, I\'d recommend reaching out to Sohan directly — he\'ll be better placed to help!</p>' +
         '<div class="_lc-esc-row">' +
           waLink +
-          '<button class="_lc-em" id="_lc-esc-em">✉️ Send Email</button>' +
+          '<button class="_lc-em" id="_lc-esc-em"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:5px"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Send Email</button>' +
         '</div>' +
       '</div>';
     body.appendChild(d);
