@@ -366,7 +366,7 @@
       '<button id="_lc-btn" aria-label="Open Live Chat">' +
         '<svg class="ic-open" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 10H6v-2h12v2zm0-3H6V7h12v2z"/></svg>' +
         '<svg class="ic-close" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>' +
-        '<span id="_lc-badge">1</span>' +
+        '<span id="_lc-badge" style="display:none">0</span>' +
       '</button>' +
       '<div id="_lc-panel" role="dialog" aria-label="Live Chat">' +
         '<div id="_lc-hd">' +
@@ -531,6 +531,7 @@
         return sendEmail({ subject: 'Direct message from ' + nm + ' on your portfolio', from_name: nm, email: em, message: body });
       }).then(function () {
         imgAttach = null;
+        try{var _inbox=JSON.parse(localStorage.getItem('_lc_inbox')||'[]');_inbox.unshift({id:genUUID(),name:nm,email:em,message:msg,time:new Date().toISOString(),read:false});localStorage.setItem('_lc_inbox',JSON.stringify(_inbox));localStorage.setItem('_lc_unread',String(_inbox.filter(function(x){return!x.read;}).length));}catch(_e){}
         showSuccess();
       });
     });
@@ -670,7 +671,10 @@
 
     // Show badge after 5s
     setTimeout(function () {
-      if (!isOpen) document.getElementById('_lc-badge').style.display = 'flex';
+      if (!isOpen) {
+        var _u=0;try{_u=parseInt(localStorage.getItem('_lc_unread')||'0',10);}catch(_e){}
+        if(_u>0){var _b=document.getElementById('_lc-badge');_b.textContent=_u>9?'9+':String(_u);_b.style.display='flex';}
+      }
     }, 5000);
 
     document.getElementById('_lc-btn').onclick = toggle;
