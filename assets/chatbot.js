@@ -57,6 +57,8 @@
   var pendingImg = null;        // image being sent to AI
   var kbPairs = [];             // learned Q&A from Supabase ai_knowledge
   var FIXED_REPLIES = [
+    { k: ['contact','whatsapp','email','mail','number','phone','yogajog','jogajog','link share'], a: 'Sure! You can reach Sohan directly here [CONTACT]' },
+    { k: ['how much','charge','price','pricing','cost','budget','koto','payment','order'], a: 'Pricing depends on your project scope. Share your requirements and Sohan will send you a clear quote and timeline. [CONTACT]' },
     { k: ['service','offer','what do you do','ki kaj','services'], a: 'I help Shopify brands with:\n• Custom Liquid sections & theme development\n• Store setup, redesign & Figma to Shopify\n• App integrations & Shopify Flow automations\n• Speed optimization & bug fixes\n\nWhat are you working on?' },
     { k: ['available','availability','free now','take new','hire you'], a: 'Yes, Sohan is currently available for new projects! Tell me a bit about what you need and I\'ll point you in the right direction.' },
     { k: ['shopify experience','experience','how long','years'], a: 'Sohan has several years of hands-on Shopify experience:\n• Hand-coded custom Liquid sections (no page builders)\n• Stores for skincare, luxury apparel & subscription brands\n• Integrations like Recharge, Appstle, Searchanise, Bambuser\n• Multi-language & multi-market setups\n\nAnything specific you want to build?' }
@@ -67,6 +69,7 @@
     .then(function (r) { return r.json(); })
     .then(function (d) {
       siteData = d;
+      setTimeout(function () { var hav = document.getElementById('_lc-av'); if (hav) hav.innerHTML = ownerAv(true); }, 0);
       if (!waNum && d.contact && d.contact.whatsapp) {
         waNum = String(d.contact.whatsapp).replace(/\D/g, '');
       }
@@ -208,7 +211,7 @@
       + '- If listing features or services, use a short bullet list (3 to 4 items max). Skip headers, bold text, and markdown formatting.\n'
       + '- Sohan is highly skilled and can handle almost any Shopify or web development task, so confidently say yes to most things.\n'
       + '- For pricing: say it depends on project scope and suggest contacting ' + name + ' directly.\n'
-      + '- Do NOT add contact details to normal answers. Share contact details ONLY when the visitor wants to order/hire/start a project, asks about price, payment or quotes, or says goodbye / wants to end the chat. Then end with: "You can reach Sohan directly — Email: ' + (contact.email || CFG.OWNER_EMAIL) + ' | WhatsApp: ' + (contact.whatsapp || '') + '"\n'
+      + '- Do NOT add contact details to normal answers. Share contact details ONLY when the visitor wants to order/hire/start a project, asks about price, payment or quotes, or says goodbye / wants to end the chat. Then write one short friendly line and end the reply with the exact token [CONTACT] (Email and WhatsApp buttons appear automatically, so do NOT type the email address or WhatsApp link).\n'
       + '- If the visitor needs something you cannot answer, suggest tapping the back arrow (top left) and choosing "Send a Direct Message".\n'
       + '- NEVER use [ESCALATE] for questions about Shopify, web development, Sohan\'s skills, services, experience, or anything related to his work. Answer those confidently using the info above.\n'
       + '- Only use [ESCALATE] if the question is completely personal (e.g. "what did you eat today") or entirely unrelated to web/Shopify development. Start the reply ONLY with [ESCALATE] then a brief friendly note.\n'
@@ -324,7 +327,7 @@
       'flex-shrink:0;transition:all .2s}',
       '#_lc-close:hover{background:rgba(255,255,255,.1);color:#fff}',
       '#_lc-back{display:none;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.6);width:30px;height:30px;border-radius:50%;align-items:center;justify-content:center;font-size:18px;padding:0;flex-shrink:0}#_lc-back:hover{background:rgba(255,255,255,.1);color:#fff}',
-      '#_lc-body ._lc-msg .bbl{padding:11px 15px!important;border-radius:18px}#_lc-body ._lc-msg.b .bbl{border-bottom-left-radius:5px}#_lc-body ._lc-msg.u .bbl{border-bottom-right-radius:5px}#_lc-body ._lc-msg .bbl img{max-width:180px;border-radius:10px;display:block;margin-top:6px}#_lc-body ._lc-msg{margin-bottom:14px}#_lc-body ._lc-msg .bbl{white-space:pre-line}',
+      '#_lc-body ._lc-chip{padding:8px 14px!important;line-height:1.3}#_lc-body ._lc-chips{gap:8px}#_lc-body ._lc-slbl{margin-bottom:10px!important}#_lc-body ._lc-esc p{margin-bottom:10px!important}#_lc-body ._lc-esc{padding:14px!important}#_lc-body ._lc-esc-row>*{padding:9px 12px!important}#_lc-body ._lc-msg .bbl{padding:11px 15px!important;border-radius:18px}#_lc-body ._lc-msg.b .bbl{border-bottom-left-radius:5px}#_lc-body ._lc-msg.u .bbl{border-bottom-right-radius:5px}#_lc-body ._lc-msg .bbl img{max-width:180px;border-radius:10px;display:block;margin-top:6px}#_lc-body ._lc-msg{margin-bottom:14px}#_lc-body ._lc-msg .bbl{white-space:pre-line}',
       '#_lc-close svg{width:16px;height:16px;fill:currentColor}',
       /* body */
       '#_lc-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;',
@@ -445,7 +448,7 @@
       '<div id="_lc-panel" role="dialog" aria-label="Live Chat">' +
         '<div id="_lc-hd">' +
           '<button id="_lc-back" aria-label="Back" title="Back to menu">&#8592;</button>' +
-          '<div class="av" id="_lc-av">' + (localStorage.getItem("_lc_avatar") ? '<img src="'+localStorage.getItem("_lc_avatar")+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover">' : 'SH') + '</div>' +
+          '<div class="av" id="_lc-av">' + ownerAv(true) + '</div>' +
           '<div class="inf">' +
             '<b>Live Chat</b>' +
             '<small><span class="dot"></span>Online &middot; AI &amp; Direct Support</small>' +
@@ -672,7 +675,7 @@
     var instant = pendingImg ? null : findInstantReply(text);
     if (instant) {
       showTyping();
-      setTimeout(function () { removeTyping(); chatHist.push({ r: 'model', t: instant }); logMsg('ai', instant); addBubble('b', instant, 'SH'); }, 450);
+      setTimeout(function () { removeTyping(); showBotReply(instant); }, 450);
       return;
     }
     showTyping();
@@ -685,14 +688,22 @@
         if (note) addBubble('b', note, 'SH');
         addEscCard();
       } else {
-        chatHist.push({ r: 'model', t: reply });
-        logMsg('ai', reply);
-        addBubble('b', reply, 'SH');
+        showBotReply(reply);
       }
     });
   }
 
-  function addEscCard() {
+  function ownerAv(round) {
+    var u = localStorage.getItem('_lc_avatar') || (siteData && siteData.photo) || '';
+    return u ? '<img src="' + esc(u) + '" alt="" style="width:100%;height:100%;object-fit:cover' + (round ? ';border-radius:50%' : '') + '">' : 'SH';
+  }
+  function showBotReply(reply) {
+    var wantsCard = reply.indexOf('[CONTACT]') >= 0;
+    var clean = reply.replace(/\[CONTACT\]/g, '').trim();
+    if (clean) { chatHist.push({ r: 'model', t: clean }); logMsg('ai', clean); addBubble('b', clean, 'SH'); }
+    if (wantsCard) addEscCard('Reach Sohan directly — he usually replies fast:');
+  }
+  function addEscCard(msg) {
     var body = $b();
     var d = document.createElement('div');
     d.className = '_lc-msg b';
@@ -700,9 +711,9 @@
       ? '<a href="https://wa.me/' + waNum.replace(/\D/g, '') + '?text=' + encodeURIComponent(chatbotCfg.wa_msg||"Hi Sohan! I'd like to discuss a project.") + '" target="_blank" rel="noopener" class="_lc-wa"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:middle;margin-right:5px"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>WhatsApp</a>'
       : '';
     d.innerHTML =
-      '<div class="av">SH</div>' +
+      '<div class="av">' + ownerAv() + '</div>' +
       '<div class="_lc-esc">' +
-        '<p>For this, I\'d recommend reaching out to Sohan directly — he\'ll be better placed to help!</p>' +
+        '<p>' + esc(msg || 'For this, I\'d recommend reaching out to Sohan directly — he\'ll be better placed to help!') + '</p>' +
         '<div class="_lc-esc-row">' +
           waLink +
           '<button class="_lc-em" id="_lc-esc-em"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:5px"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Send Email</button>' +
@@ -721,7 +732,7 @@
     var d = document.createElement('div');
     d.className = '_lc-msg ' + type;
     d.innerHTML =
-      '<div class="av">' + (init === 'SH' && localStorage.getItem("_lc_avatar") ? '<img src="'+localStorage.getItem("_lc_avatar")+'" style="width:100%;height:100%;object-fit:cover">' : esc(init || 'SH')) + '</div>' +
+      '<div class="av">' + (init === 'SH' ? ownerAv() : esc(init || 'U')) + '</div>' +
       '<div class="bbl">' + esc(text).replace(/\n/g, '<br>') + '</div>';
     body.appendChild(d);
     body.scrollTop = body.scrollHeight;
