@@ -155,19 +155,25 @@
     var contact = d.contact || {};
     var avail = d.available ? 'Currently AVAILABLE for new projects' : 'Not currently taking new projects';
 
+    var fallbackAbout = 'Sohan Hossain is a freelance Shopify developer and designer based in Bangladesh with several years of experience building and customizing Shopify stores. He specializes in custom Liquid section development, CSS/JS theming, Shopify Flow automations, Mechanic tasks, and app integrations. He has worked with international clients on stores ranging from skincare brands to luxury apparel and subscription businesses.';
+    var fallbackServices = '- Custom Shopify theme development (Liquid, CSS, JS)\n- Shopify store setup and customization\n- Custom sections and landing pages\n- App integrations (Searchanise, Appstle, Recharge, Bambuser, Mechanic)\n- Shopify Flow automations\n- Multilingual/multi-market store configuration\n- Performance optimization\n- Bug fixes and ongoing maintenance';
+    var fallbackSkills = 'Shopify Liquid, HTML, CSS, JavaScript, Shopify Flow, Mechanic, GemPages, Figma, REST APIs';
+
     return 'You are a smart, friendly AI assistant for ' + name + ', a ' + role + ' based in ' + (d.location || 'Bangladesh') + '.\n\n'
-      + 'ABOUT:\n' + about + '\n\n'
-      + 'SERVICES:\n' + services + '\n\n'
-      + 'SKILLS: ' + skills + '\n\n'
+      + 'ABOUT:\n' + (about || fallbackAbout) + '\n\n'
+      + 'SERVICES:\n' + (services || fallbackServices) + '\n\n'
+      + 'SKILLS: ' + (skills || fallbackSkills) + '\n\n'
       + 'CONTACT:\nEmail: ' + (contact.email || CFG.OWNER_EMAIL) + '\nWhatsApp: ' + (contact.whatsapp || '') + '\n\n'
       + 'FAQ:\n' + faqs + '\n\n'
       + 'AVAILABILITY: ' + avail + '\n\n'
       + 'INSTRUCTIONS:\n'
-      + '- Give detailed, helpful replies. Explain fully what Sohan can do — no need to be brief.\n- Sohan is highly skilled and can handle almost any Shopify or web development task, so confidently say yes to most things.\n'
+      + '- Give detailed, helpful replies. Explain fully what Sohan can do — no need to be brief.\n'
+      + '- Sohan is highly skilled and can handle almost any Shopify or web development task, so confidently say yes to most things.\n'
       + '- For pricing: say it depends on project scope and suggest contacting ' + name + ' directly.\n'
-      + '- Only use [ESCALATE] if the question is completely unrelated to web/Shopify development or if you truly cannot answer. For anything related to Shopify, web dev, or Sohan\'s work — answer confidently. If the question is outside your knowledge about ' + name + ', start your reply ONLY with [ESCALATE] then write a brief friendly note (e.g. "[ESCALATE] Great question! For this Sohan would be better placed to help.").\n'
+      + '- NEVER use [ESCALATE] for questions about Shopify, web development, Sohan\'s skills, services, experience, or anything related to his work. Answer those confidently using the info above.\n'
+      + '- Only use [ESCALATE] if the question is completely personal (e.g. "what did you eat today") or entirely unrelated to web/Shopify development. Start the reply ONLY with [ESCALATE] then a brief friendly note.\n'
       + '- Match the visitor\'s language (Bangla → reply in Bangla, English → reply in English).\n'
-      + '- Never invent information.';
+      + '- Never invent information not provided above.';
   }
 
   function askAI(text, callback) {
