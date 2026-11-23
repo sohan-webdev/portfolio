@@ -314,7 +314,7 @@
       'border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;max-width:85%}',
       '._lc-esc p{color:rgba(255,255,255,.65);font-size:13px;line-height:1.55}',
       '._lc-esc-row{display:flex;gap:8px}',
-      '._lc-esc-row>*{flex:1;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;',
+      '._lc-esc-row>*{flex:1;padding:8px 12px;border-radius:10px;font-size:13px;font-weight:600;',
       'cursor:pointer;text-decoration:none;text-align:center;display:flex;align-items:center;',
       'justify-content:center;gap:5px;transition:opacity .2s;border:none;font-family:inherit}',
       '._lc-wa{background:#25D366;color:#fff!important}',
