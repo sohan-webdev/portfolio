@@ -327,7 +327,7 @@
       'flex-shrink:0;transition:all .2s}',
       '#_lc-close:hover{background:rgba(255,255,255,.1);color:#fff}',
       '#_lc-back{display:none;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.6);width:30px;height:30px;border-radius:50%;align-items:center;justify-content:center;font-size:18px;padding:0;flex-shrink:0}#_lc-back:hover{background:rgba(255,255,255,.1);color:#fff}',
-      '#_lc-body ._lc-chip{padding:8px 14px!important;line-height:1.3}#_lc-body ._lc-chips{gap:8px}#_lc-body ._lc-slbl{margin-bottom:10px!important}#_lc-body ._lc-esc p{margin-bottom:10px!important}#_lc-body ._lc-esc{padding:14px!important}#_lc-body ._lc-esc-row>*{padding:9px 12px!important}#_lc-body ._lc-msg .bbl{padding:11px 15px!important;border-radius:18px}#_lc-body ._lc-msg.b .bbl{border-bottom-left-radius:5px}#_lc-body ._lc-msg.u .bbl{border-bottom-right-radius:5px}#_lc-body ._lc-msg .bbl img{max-width:180px;border-radius:10px;display:block;margin-top:6px}#_lc-body ._lc-msg{margin-bottom:14px}#_lc-body ._lc-msg .bbl{white-space:pre-line}',
+      '#_lc-body ._lc-msg.b .av{color:#c4b5fd}#_lc-body ._lc-msg.b .av svg{display:block}#_lc-body ._lc-chip{padding:8px 14px!important;line-height:1.3}#_lc-body ._lc-chips{gap:8px}#_lc-body ._lc-slbl{margin-bottom:10px!important}#_lc-body ._lc-esc p{margin-bottom:10px!important}#_lc-body ._lc-esc{padding:14px!important}#_lc-body ._lc-esc-row>*{padding:9px 12px!important}#_lc-body ._lc-msg .bbl{padding:11px 15px!important;border-radius:18px}#_lc-body ._lc-msg.b .bbl{border-bottom-left-radius:5px}#_lc-body ._lc-msg.u .bbl{border-bottom-right-radius:5px}#_lc-body ._lc-msg .bbl img{max-width:180px;border-radius:10px;display:block;margin-top:6px}#_lc-body ._lc-msg{margin-bottom:14px}#_lc-body ._lc-msg .bbl{white-space:pre-line}',
       '#_lc-close svg{width:16px;height:16px;fill:currentColor}',
       /* body */
       '#_lc-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;',
@@ -521,6 +521,7 @@
   }
 
   function chooseMode(m) {
+    if (m === 'contact' && dmSid()) { showDMThread(); return; }
     chatMode = m;
     openSession(m);
     if (m === 'ai') {
@@ -533,6 +534,7 @@
   function showAIMode() {
     $f().style.display = 'flex';
     var bk = document.getElementById('_lc-back'); if (bk) bk.style.display = 'flex';
+    var _pi = document.getElementById('_lc-in'); if (_pi) _pi.placeholder = 'Type a message…';
     if (chatHist.length === 0) showSuggestions();
     setTimeout(function () { var inp = document.getElementById('_lc-in'); if (inp) inp.focus(); }, 100);
   }
@@ -621,8 +623,9 @@
         return sendEmail({ subject: 'Direct message from ' + nm + ' on your portfolio', from_name: nm, email: em, message: emailHtml, is_html: true }, attachFile);
       }).then(function () {
         imgAttach = null;
+        if (sessionId) lsSet('_lc_dm_sid', sessionId);
         try{var _inbox=JSON.parse(localStorage.getItem('_lc_inbox')||'[]');_inbox.unshift({id:genUUID(),name:nm,email:em,message:msg,time:new Date().toISOString(),read:false});localStorage.setItem('_lc_inbox',JSON.stringify(_inbox));localStorage.setItem('_lc_unread',String(_inbox.filter(function(x){return!x.read;}).length));}catch(_e){}
-        showSuccess();
+        if (dmSid()) { showDMThread(); setTimeout(function () { addBubble('b', 'Thanks! Your message reached Sohan. His reply will appear right here, so keep this chat handy.', 'AI'); }, 900); } else { showSuccess(); }
       });
     });
   }
@@ -682,16 +685,84 @@
     askAI(text, function (reply) {
       removeTyping();
       if (reply === '[RETRY]') {
-        addBubble('b', "AI is briefly unavailable — please try again in a moment.", 'SH');
+        if (!sendAIMsg._retried) {
+          sendAIMsg._retried = true;
+          showTyping();
+          setTimeout(function () { askAI(text, function (r2) { removeTyping(); sendAIMsg._retried = false; if (r2 === '[RETRY]') { addBubble('b', 'The AI is a bit busy right now. You can try again, or message Sohan directly:', 'AI'); addEscCard('Reach Sohan directly:'); } else if (r2.indexOf('[ESCALATE]') === 0) { var n2 = r2.replace('[ESCALATE]', '').trim(); if (n2) addBubble('b', n2, 'AI'); addEscCard(); } else { showBotReply(r2); } }); }, 1800);
+          return;
+        }
+        sendAIMsg._retried = false;
+        addBubble('b', 'The AI is a bit busy right now. Please try again in a moment.', 'AI');
       } else if (reply.indexOf('[ESCALATE]') === 0) {
         var note = reply.replace('[ESCALATE]', '').trim();
-        if (note) addBubble('b', note, 'SH');
+        if (note) addBubble('b', note, 'AI');
         addEscCard();
       } else {
         showBotReply(reply);
       }
     });
   }
+
+  var BOT_AV = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4"/><circle cx="12" cy="3" r="1"/><circle cx="9" cy="14" r="1.2" fill="currentColor"/><circle cx="15" cy="14" r="1.2" fill="currentColor"/><path d="M2 13v3M22 13v3"/></svg>';
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function dmSid() { return lsGet('_lc_dm_sid'); }
+  function supaGet(q) {
+    if (!CFG.SUPA_URL || !CFG.SUPA_ANON) return Promise.resolve([]);
+    return fetch(CFG.SUPA_URL + '/rest/v1/' + q, { headers: { apikey: CFG.SUPA_ANON, Authorization: 'Bearer ' + CFG.SUPA_ANON } })
+      .then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; });
+  }
+  function seenIds() { try { return JSON.parse(lsGet('_lc_seen') || '[]'); } catch (e) { return []; } }
+  function markSeen(ids) { var s = seenIds(); ids.forEach(function (i) { if (s.indexOf(i) < 0) s.push(i); }); lsSet('_lc_seen', JSON.stringify(s.slice(-300))); }
+  function showDMThread() {
+    chatMode = 'dm';
+    sessionId = dmSid();
+    var bk = document.getElementById('_lc-back'); if (bk) bk.style.display = 'flex';
+    $f().style.display = 'flex';
+    $b().innerHTML = '<p class="_lc-sub" style="text-align:center;margin-bottom:14px">Direct chat with Sohan. His replies will appear here.</p>';
+    supaGet('chat_messages?session_id=eq.' + encodeURIComponent(sessionId) + '&select=id,role,content,image_url,created_at&order=created_at.asc').then(function (rows) {
+      if (chatMode !== 'dm') return;
+      rows.forEach(function (m) {
+        addBubble(m.role === 'owner' ? 'b' : 'u', m.content || '', m.role === 'owner' ? 'SH' : visitor.init);
+        if (m.image_url) { var bs = $b().querySelectorAll('._lc-msg .bbl'); bs[bs.length - 1].insertAdjacentHTML('beforeend', '<img src="' + esc(m.image_url) + '" alt="">'); }
+      });
+      markSeen(rows.filter(function (m) { return m.role === 'owner'; }).map(function (m) { return m.id; }));
+    });
+    setTimeout(function () { var inp = document.getElementById('_lc-in'); if (inp) { inp.placeholder = 'Message Sohan…'; inp.focus(); } }, 100);
+  }
+  function sendDM(text) {
+    text = (text || '').trim();
+    var img = aiImgAttach; aiImgAttach = null;
+    var prevDiv = document.getElementById('_lc-ai-prev'); if (prevDiv) { prevDiv.style.display = 'none'; prevDiv.innerHTML = ''; }
+    var ib = document.getElementById('_lc-imgbtn'); if (ib) ib.classList.remove('has-img');
+    if (!text && !img) return;
+    addBubble('u', text || '📎 Image', visitor.init);
+    if (img) { var bs = $b().querySelectorAll('._lc-msg.u .bbl'); bs[bs.length - 1].insertAdjacentHTML('beforeend', '<img src="' + img.dataUrl + '" alt="">'); }
+    var up = (img && CFG.SUPA_URL) ? dbUploadFile(img.file) : Promise.resolve(null);
+    up.then(function (url) {
+      logMsg('user', text || '📎 Image', url);
+      var html = '<p><strong>' + esc(visitor.name) + '</strong> (' + esc(visitor.email) + ') replied in your website chat:</p><p>' + esc(text).replace(/\n/g, '<br>') + '</p>' + (url ? '<p><a href="' + url + '">View image</a></p>' : '');
+      sendEmail({ subject: 'New chat message from ' + visitor.name, from_name: visitor.name, email: visitor.email, message: html, is_html: true }, (img && !url) ? img.file : null);
+    });
+  }
+  function pollOwnerReplies() {
+    var sid = dmSid();
+    if (!sid) return;
+    supaGet('chat_messages?session_id=eq.' + encodeURIComponent(sid) + '&role=eq.owner&select=id,content,image_url&order=created_at.asc').then(function (rows) {
+      var seen = seenIds();
+      var fresh = rows.filter(function (m) { return seen.indexOf(m.id) < 0; });
+      if (!fresh.length) return;
+      if (isOpen && chatMode === 'dm') {
+        fresh.forEach(function (m) { addBubble('b', m.content || '', 'SH'); if (m.image_url) { var bs = $b().querySelectorAll('._lc-msg .bbl'); bs[bs.length - 1].insertAdjacentHTML('beforeend', '<img src="' + esc(m.image_url) + '" alt="">'); } });
+        markSeen(fresh.map(function (m) { return m.id; }));
+      } else {
+        var b = document.getElementById('_lc-badge');
+        if (b) { b.textContent = fresh.length > 9 ? '9+' : String(fresh.length); b.style.display = 'flex'; }
+      }
+    });
+  }
+  setInterval(pollOwnerReplies, 10000);
+  setTimeout(pollOwnerReplies, 2500);
 
   function ownerAv(round) {
     var u = localStorage.getItem('_lc_avatar') || (siteData && siteData.photo) || '';
@@ -700,7 +771,7 @@
   function showBotReply(reply) {
     var wantsCard = reply.indexOf('[CONTACT]') >= 0;
     var clean = reply.replace(/\[CONTACT\]/g, '').trim();
-    if (clean) { chatHist.push({ r: 'model', t: clean }); logMsg('ai', clean); addBubble('b', clean, 'SH'); }
+    if (clean) { chatHist.push({ r: 'model', t: clean }); logMsg('ai', clean); addBubble('b', clean, 'AI'); }
     if (wantsCard) addEscCard('Reach Sohan directly — he usually replies fast:');
   }
   function addEscCard(msg) {
@@ -711,7 +782,7 @@
       ? '<a href="https://wa.me/' + waNum.replace(/\D/g, '') + '?text=' + encodeURIComponent(chatbotCfg.wa_msg||"Hi Sohan! I'd like to discuss a project.") + '" target="_blank" rel="noopener" class="_lc-wa"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="vertical-align:middle;margin-right:5px"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>WhatsApp</a>'
       : '';
     d.innerHTML =
-      '<div class="av">' + ownerAv() + '</div>' +
+      '<div class="av">' + BOT_AV + '</div>' +
       '<div class="_lc-esc">' +
         '<p>' + esc(msg || 'For this, I\'d recommend reaching out to Sohan directly — he\'ll be better placed to help!') + '</p>' +
         '<div class="_lc-esc-row">' +
@@ -732,7 +803,7 @@
     var d = document.createElement('div');
     d.className = '_lc-msg ' + type;
     d.innerHTML =
-      '<div class="av">' + (init === 'SH' ? ownerAv() : esc(init || 'U')) + '</div>' +
+      '<div class="av">' + (init === 'SH' ? ownerAv() : init === 'AI' ? BOT_AV : esc(init || 'U')) + '</div>' +
       '<div class="bbl">' + esc(text).replace(/\n/g, '<br>') + '</div>';
     body.appendChild(d);
     body.scrollTop = body.scrollHeight;
@@ -761,6 +832,7 @@
     if (isOpen) {
       if (!visitor) showIntroForm();
       else if (!chatMode) showModeSelector();
+      else if (chatMode === 'dm') { pollOwnerReplies(); }
       else if (chatMode === 'ai') {
         setTimeout(function () { var inp = document.getElementById('_lc-in'); if (inp) inp.focus(); }, 100);
       }
@@ -799,6 +871,7 @@
 
     sendBtn.onclick = function () {
       if (!inp.value.trim() && !aiImgAttach) return;
+      if (chatMode === 'dm') { sendDM(inp.value); inp.value = ''; inp.style.height = ''; return; }
       sendAIMsg(inp.value || (aiImgAttach ? '📎 [Image attached]' : ''));
       inp.value = ''; inp.style.height = '';
     };
