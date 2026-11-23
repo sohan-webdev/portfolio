@@ -400,6 +400,7 @@ const SECTIONS=[
   ['reviews','Reviews','star','Client feedback. The section stays hidden until you add one.'],
   ['faq','FAQ','help','Questions and answers near the bottom of the site.'],
   ['chatbot','Chatbot','bot','AI chatbot greeting, suggested questions and contact settings.'],
+  ['messages','Messages','inbox','Contact form submissions sent via the chatbot.'],
   ['blog','Blog','edit','Write SEO articles. Each one gets its own page on your site.'],
   ['contact','Contact & footer','mail','Email, social links and footer text.'],
   '-',
@@ -553,6 +554,7 @@ chatbot:()=>`
   </div></div>
   ${listView('chatbot_chips',{title:'Suggested questions',addLbl:'Add question',head:c=>[c.text],body:(c,i)=>inp('Question text','chatbot_chips.'+i+'.text',{full:1})})}
 `,
+messages:()=>{var _msgs=[];try{_msgs=JSON.parse(localStorage.getItem('_lc_inbox')||'[]');}catch(_e){}try{localStorage.setItem('_lc_inbox',JSON.stringify(_msgs.map(function(m){return Object.assign({},m,{read:true});})));localStorage.setItem('_lc_unread','0');}catch(_e){}if(!_msgs.length)return '<div class="card"><h2><span data-i="inbox" data-s="16"></span>Inbox</h2><p class="d">No messages yet. When someone submits the contact form in your chatbot, it will appear here.</p></div>';return '<div class="card"><h2><span data-i="inbox" data-s="16"></span>Inbox <span class="hint">('+_msgs.length+' messages)</span></h2><div style="display:flex;flex-direction:column;gap:0">'+ _msgs.map(function(m,i){var d=new Date(m.time);return '<div style="border-top:'+(i?'1px solid rgba(255,255,255,.07)':'none')+';padding:16px 0"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px"><div><strong style="font-size:14px">'+esc(m.name)+'</strong><span style="display:block;color:#8B5CF6;font-size:12px;margin-top:2px">'+esc(m.email)+'</span></div><span style="color:rgba(255,255,255,.35);font-size:11px;white-space:nowrap;margin-left:12px">'+d.toLocaleDateString()+' '+d.toLocaleTimeString()+'</span></div><p style="color:rgba(255,255,255,.75);font-size:13px;line-height:1.6;margin:0;white-space:pre-wrap">'+esc(m.message)+'</p></div>';}).join('')+'</div></div>';},
 faq:()=>listView('faq',{title:'Questions',addLbl:'Add question',head:f=>[f.q],body:(f,i)=>`${inp('Question','faq.'+i+'.q',{full:1})}${inp('Answer','faq.'+i+'.a',{area:1,full:1,rows:4})}`}),
 contact:()=>`<div class="card"><h2><span data-i="mail" data-s="16"></span>Contact links</h2><p class="d">Empty links are hidden on the site.</p><div class="grid">
   ${inp('Email','contact.email',{type:'email'})}
