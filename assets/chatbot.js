@@ -259,20 +259,20 @@
       '._lc-title{color:#fff;font-size:14.5px;font-weight:600;line-height:1.5}',
       '._lc-sub{color:rgba(255,255,255,.5);font-size:12.5px;line-height:1.55;margin-top:3px}',
       /* inputs */
-      '._lc-inp{width:100%;padding:24px 18px;background:rgba(255,255,255,.06);',
-      'border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:15px;',
-      'outline:none;transition:border-color .2s;font-family:inherit}',
-      '._lc-inp:focus{border-color:' + A + '}._lc-inp::placeholder{color:rgba(255,255,255,.28)}',
-      '._lc-textarea{width:100%;padding:24px 18px;background:rgba(255,255,255,.06);',
-      'border:1px solid rgba(255,255,255,.1);border-radius:12px;color:#fff;font-size:14px;',
-      'outline:none;transition:border-color .2s;font-family:inherit;resize:vertical;min-height:110px;line-height:1.6}',
-      '._lc-textarea:focus{border-color:' + A + '}._lc-textarea::placeholder{color:rgba(255,255,255,.28)}',
+      '._lcfi{width:100%!important;padding:14px 18px!important;background:rgba(255,255,255,.06)!important;',
+      'border:1px solid rgba(255,255,255,.1)!important;border-radius:12px!important;color:#fff!important;font-size:15px!important;',
+      'outline:none!important;transition:border-color .2s;font-family:inherit!important;box-sizing:border-box!important;min-height:52px!important}',
+      '._lcfi:focus{border-color:' + A + '!important}._lcfi::placeholder{color:rgba(255,255,255,.28)!important}',
+      '._lcft{width:100%!important;padding:14px 18px!important;background:rgba(255,255,255,.06)!important;',
+      'border:1px solid rgba(255,255,255,.1)!important;border-radius:12px!important;color:#fff!important;font-size:14px!important;',
+      'outline:none!important;transition:border-color .2s;font-family:inherit!important;resize:vertical!important;min-height:110px!important;line-height:1.6!important;box-sizing:border-box!important}',
+      '._lcft:focus{border-color:' + A + '!important}._lcft::placeholder{color:rgba(255,255,255,.28)!important}',
       /* buttons */
-      '._lc-btn{padding:24px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;',
-      'transition:opacity .2s,transform .1s;font-family:inherit;width:100%;border:none}',
-      '._lc-btn:active{transform:scale(.98)}._lc-btn:hover{opacity:.88}',
-      '._lc-btn-p{background:' + A + ';color:#fff}',
-      '._lc-btn-s{background:rgba(255,255,255,.07);color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.1)!important}',
+      '._lcfb{padding:16px 24px!important;border-radius:12px!important;font-size:15px!important;font-weight:600!important;cursor:pointer!important;',
+      'transition:opacity .2s,transform .1s;font-family:inherit!important;width:100%!important;border:none!important;min-height:52px!important;box-sizing:border-box!important;display:block!important}',
+      '._lcfb:active{transform:scale(.98)}._lcfb:hover{opacity:.88}',
+      '._lcfbp{background:' + A + '!important;color:#fff!important}',
+      '._lcfbs{background:rgba(255,255,255,.07)!important;color:rgba(255,255,255,.75)!important;border:1px solid rgba(255,255,255,.1)!important}',
       /* mode cards */
       '._lc-modes{display:flex;flex-direction:column;gap:9px;padding:4px 0}',
       '._lc-card{padding:14px 16px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);',
@@ -395,9 +395,9 @@
       '<div style="display:flex;flex-direction:column;gap:12px">' +
         '<p class="_lc-title">👋 Hello! Nice to meet you.</p>' +
         '<p class="_lc-sub">Share your name and email so Sohan can follow up if needed.</p>' +
-        '<input id="_lc-nm" class="_lc-inp" type="text" placeholder="Your name" autocomplete="name" />' +
-        '<input id="_lc-em" class="_lc-inp" type="email" placeholder="Your email address" autocomplete="email" />' +
-        '<button class="_lc-btn _lc-btn-p" id="_lc-go">Continue →</button>' +
+        '<input id="_lc-nm" class="_lcfi" type="text" placeholder="Your name" autocomplete="name" />' +
+        '<input id="_lc-em" class="_lcfi" type="email" placeholder="Your email address" autocomplete="email" />' +
+        '<button class="_lcfb _lcfbp" id="_lc-go">Continue →</button>' +
       '</div>';
     var go = function () {
       var nm = val('_lc-nm'), em = val('_lc-em');
@@ -470,14 +470,14 @@
     $b().innerHTML =
       '<div style="display:flex;flex-direction:column;gap:12px">' +
         '<p class="_lc-title">✉️ Send Sohan a Message</p>' +
-        '<input id="_lc-ct-nm" class="_lc-inp" type="text" placeholder="Your name" value="' + esc(visitor.name) + '" />' +
-        '<input id="_lc-ct-em" class="_lc-inp" type="email" placeholder="Your email" value="' + esc(visitor.email) + '" />' +
-        '<textarea id="_lc-ct-msg" class="_lc-textarea" placeholder="Write your message…"></textarea>' +
+        '<input id="_lc-ct-nm" class="_lcfi" type="text" placeholder="Your name" value="' + esc(visitor.name) + '" />' +
+        '<input id="_lc-ct-em" class="_lcfi" type="email" placeholder="Your email" value="' + esc(visitor.email) + '" />' +
+        '<textarea id="_lc-ct-msg" class="_lcft" placeholder="Write your message…"></textarea>' +
         '<input type="file" id="_lc-file" accept="image/*" style="display:none">' +
         '<button class="_lc-attach" id="_lc-att"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:5px"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>Attach Image (optional)</button>' +
         '<div id="_lc-prev-wrap"></div>' +
-        '<button class="_lc-btn _lc-btn-p" id="_lc-ct-send">Send Message →</button>' +
-        '<button class="_lc-btn _lc-btn-s" id="_lc-ct-back">← Back</button>' +
+        '<button class="_lcfb _lcfbp" id="_lc-ct-send">Send Message →</button>' +
+        '<button class="_lcfb _lcfbs" id="_lc-ct-back">← Back</button>' +
       '</div>';
 
     document.getElementById('_lc-att').onclick = function () { document.getElementById('_lc-file').click(); };
@@ -541,7 +541,7 @@
         '<h3>Message Sent!</h3>' +
         '<p>Thanks ' + esc(visitor.name.split(' ')[0]) + '! Sohan will reply to<br>' +
         '<strong style="color:#8B5CF6">' + esc(visitor.email) + '</strong> shortly.</p>' +
-        '<button class="_lc-btn _lc-btn-s" style="width:auto;padding:9px 20px;font-size:13px" id="_lc-another">Send another →</button>' +
+        '<button class="_lcfb _lcfbs"class="_lcfb _lcfbs" style="width:auto!important;padding:9px 20px!important;font-size:13px!important" id="_lc-another">Send another →</button>' +
       '</div>';
     document.getElementById('_lc-another').onclick = showContactForm;
   }
