@@ -618,7 +618,7 @@
           (imgUrl ? '\n\nImage: ' + imgUrl : '') +
           '\n\nReply in your inbox: ' + location.origin + '/inbox.html';
         var attachFile = (imgAttach && imgAttach.file && !imgUrl) ? imgAttach.file : null;
-        return sendEmail({ subject: 'Direct message from ' + nm + ' on your portfolio', from_name: nm, email: em, replyto: em, message: emailTxt }, attachFile);
+        return sendEmail({ subject: 'Direct message from ' + nm + ' on your portfolio [#' + sessionId + ']', from_name: nm, email: em, replyto: em, message: emailTxt }, attachFile);
       }).then(function () {
         imgAttach = null;
         if (sessionId) lsSet('_lc_dm_sid', sessionId);
@@ -740,7 +740,7 @@
     up.then(function (url) {
       logMsg('user', text || '📎 Image', url);
       var txt = visitor.name + ' (' + visitor.email + ') wrote in your website chat:\n\n' + (text || '(image)') + (url ? '\n\nImage: ' + url : '') + '\n\nReply here: ' + location.origin + '/inbox.html';
-      sendEmail({ subject: 'New chat message from ' + visitor.name, from_name: visitor.name, email: visitor.email, replyto: visitor.email, message: txt }, (img && !url) ? img.file : null);
+      sendEmail({ subject: 'New chat message from ' + visitor.name + ' [#' + sessionId + ']', from_name: visitor.name, email: visitor.email, replyto: visitor.email, message: txt }, (img && !url) ? img.file : null);
     });
   }
   function notifyOwnerReply(text) {
