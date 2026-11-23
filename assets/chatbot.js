@@ -172,7 +172,8 @@
       + '- If listing features or services, use a short bullet list (3 to 4 items max). Skip headers, bold text, and markdown formatting.\n'
       + '- Sohan is highly skilled and can handle almost any Shopify or web development task, so confidently say yes to most things.\n'
       + '- For pricing: say it depends on project scope and suggest contacting ' + name + ' directly.\n'
-      + '- If the visitor seems interested or asks about hiring/working together, end your reply with: "Feel free to reach out — Email: ' + (contact.email || CFG.OWNER_EMAIL) + ' or WhatsApp: ' + (contact.whatsapp || '') + '"\n'
+      + '- Do NOT add contact details to normal answers. Share contact details ONLY when the visitor wants to order/hire/start a project, asks about price, payment or quotes, or says goodbye / wants to end the chat. Then end with: "You can reach Sohan directly — Email: ' + (contact.email || CFG.OWNER_EMAIL) + ' | WhatsApp: ' + (contact.whatsapp || '') + '"\n'
+      + '- If the visitor needs something you cannot answer, suggest tapping the back arrow (top left) and choosing "Send a Direct Message".\n'
       + '- NEVER use [ESCALATE] for questions about Shopify, web development, Sohan\'s skills, services, experience, or anything related to his work. Answer those confidently using the info above.\n'
       + '- Only use [ESCALATE] if the question is completely personal (e.g. "what did you eat today") or entirely unrelated to web/Shopify development. Start the reply ONLY with [ESCALATE] then a brief friendly note.\n'
       + '- Match the visitor\'s language (Bangla → reply in Bangla, English → reply in English).\n'
@@ -197,7 +198,7 @@
         body: JSON.stringify({
           system_instruction: { parts: [{ text: buildSystemPrompt() }] },
           contents: contents,
-          generationConfig: { maxOutputTokens: 600, temperature: 0.7 }
+          generationConfig: { maxOutputTokens: 800, temperature: 0.7, thinkingConfig: { thinkingBudget: 0 } }
         })
       }
     )
@@ -249,7 +250,7 @@
       /* floating button */
       '#_lc-btn{position:fixed;bottom:24px;right:24px;width:58px;height:58px;border-radius:50%;border:2.5px solid ' + A + ';',
       'background:' + P + ';cursor:pointer;display:flex;align-items:center;justify-content:center;',
-      'box-shadow:0 4px 20px rgba(139,92,246,.3);z-index:99;',
+      'box-shadow:0 4px 20px rgba(139,92,246,.3);z-index:2147483001;',
       'transition:transform .2s,box-shadow .2s;animation:_lc-pulse 3.5s ease infinite}',
       '#_lc-btn:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(139,92,246,.5)}',
       '@keyframes _lc-pulse{0%,100%{box-shadow:0 4px 20px rgba(139,92,246,.3),0 0 0 0 rgba(139,92,246,.35)}',
@@ -262,9 +263,9 @@
       'border-radius:50%;font-size:10px;font-weight:700;color:#fff;',
       'display:none;align-items:center;justify-content:center;border:2px solid ' + P + '}',
       /* panel */
-      '#_lc-panel{position:fixed;bottom:94px;right:24px;width:375px;max-height:580px;',
+      '#_lc-panel{position:fixed;bottom:94px;right:24px;width:375px;max-height:min(600px,calc(100vh - 120px));',
       'background:' + P + ';border:1px solid rgba(139,92,246,.18);border-radius:22px;overflow:hidden;',
-      'display:flex;flex-direction:column;z-index:98;',
+      'display:flex;flex-direction:column;z-index:2147483000;',
       'box-shadow:0 24px 64px rgba(0,0,0,.7),0 0 0 1px rgba(139,92,246,.08);',
       'transform:translateY(16px) scale(.96);opacity:0;pointer-events:none;',
       'transition:transform .28s cubic-bezier(.34,1.56,.64,1),opacity .2s}',
@@ -285,6 +286,8 @@
       'width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;',
       'flex-shrink:0;transition:all .2s}',
       '#_lc-close:hover{background:rgba(255,255,255,.1);color:#fff}',
+      '#_lc-back{display:none;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.6);width:30px;height:30px;border-radius:50%;align-items:center;justify-content:center;font-size:18px;padding:0;flex-shrink:0}#_lc-back:hover{background:rgba(255,255,255,.1);color:#fff}',
+      '#_lc-body ._lc-msg{margin-bottom:14px}#_lc-body ._lc-msg .bbl{white-space:pre-line}',
       '#_lc-close svg{width:16px;height:16px;fill:currentColor}',
       /* body */
       '#_lc-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;',
@@ -404,6 +407,7 @@
       '</button>' +
       '<div id="_lc-panel" role="dialog" aria-label="Live Chat">' +
         '<div id="_lc-hd">' +
+          '<button id="_lc-back" aria-label="Back" title="Back to menu">&#8592;</button>' +
           '<div class="av" id="_lc-av">' + (localStorage.getItem("_lc_avatar") ? '<img src="'+localStorage.getItem("_lc_avatar")+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover">' : 'SH') + '</div>' +
           '<div class="inf">' +
             '<b>Live Chat</b>' +
@@ -455,6 +459,8 @@
   }
 
   function showModeSelector() {
+    var bk0 = document.getElementById('_lc-back'); if (bk0) bk0.style.display = 'none';
+    $f().style.display = 'none';
     $b().innerHTML =
       '<div style="display:flex;flex-direction:column;gap:12px">' +
         '<p class="_lc-title">Hi ' + esc(visitor.name.split(' ')[0]) + '!</p>' +
@@ -486,6 +492,7 @@
 
   function showAIMode() {
     $f().style.display = 'flex';
+    var bk = document.getElementById('_lc-back'); if (bk) bk.style.display = 'flex';
     if (chatHist.length === 0) showSuggestions();
     setTimeout(function () { var inp = document.getElementById('_lc-in'); if (inp) inp.focus(); }, 100);
   }
@@ -729,6 +736,7 @@
 
     document.getElementById('_lc-btn').onclick = toggle;
     document.getElementById('_lc-close').onclick = toggle;
+    document.getElementById('_lc-back').onclick = function () { chatMode = null; chatHist = []; aiImgAttach = null; showModeSelector(); };
 
     var sendBtn = document.getElementById('_lc-send');
     var inp = document.getElementById('_lc-in');
