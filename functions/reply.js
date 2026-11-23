@@ -83,6 +83,14 @@ export async function onRequestPost({ request, env }) {
   if (!authed(env, request.headers.get('x-admin-pass') || body.pass)) {
     return json({ error: 'unauthorized' }, 401);
   }
+  // Remove a message for everyone
+  if (body.action === 'delete') {
+    if (!body.id) return json({ error: 'missing id' }, 400);
+    const del = await supa(env, 'chat_messages?id=eq.' + encodeURIComponent(body.id), { method: 'DELETE' });
+    if (del && del.message) return json({ error: del.message }, 400);
+    return json({ ok: true, deleted: Array.isArray(del) ? del.length : 0 });
+  }
+
   const text = String(body.text || '').trim().slice(0, 8000);
   if (!body.session_id || (!text && !body.file)) return json({ error: 'missing fields' }, 400);
 
