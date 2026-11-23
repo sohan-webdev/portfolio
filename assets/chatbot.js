@@ -826,7 +826,7 @@
     d.className = '_lc-msg ' + type;
     d.innerHTML =
       '<div class="av">' + (init === 'SH' ? ownerAv() : init === 'AI' ? BOT_AV : esc(init || 'U')) + '</div>' +
-      '<div class="bbl">' + esc(text).replace(/\n/g, '<br>') + '</div>';
+      '<div class="bbl">' + esc(text).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;word-break:break-all">$1</a>').replace(/\n/g, '<br>') + '</div>';
     body.appendChild(d);
     body.scrollTop = body.scrollHeight;
   }
