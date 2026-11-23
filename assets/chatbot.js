@@ -720,13 +720,21 @@
     $b().innerHTML = '<p class="_lc-sub" style="text-align:center;margin-bottom:14px">Direct chat with Sohan. His replies will appear here.</p>';
     supaGet('chat_messages?session_id=eq.' + encodeURIComponent(sessionId) + '&select=id,role,content,image_url,created_at&order=created_at.asc').then(function (rows) {
       if (chatMode !== 'dm') return;
-      rows.forEach(function (m) {
-        addBubble(m.role === 'owner' ? 'b' : 'u', m.content || '', m.role === 'owner' ? 'SH' : visitor.init);
-        if (m.image_url) { var bs = $b().querySelectorAll('._lc-msg .bbl'); bs[bs.length - 1].insertAdjacentHTML('beforeend', '<img src="' + esc(m.image_url) + '" alt="">'); }
-      });
-      markSeen(rows.filter(function (m) { return m.role === 'owner'; }).map(function (m) { return m.id; }));
+      renderDMRows(rows);
     });
     setTimeout(function () { var inp = document.getElementById('_lc-in'); if (inp) { inp.placeholder = 'Message Sohan…'; inp.focus(); } }, 100);
+  }
+  var dmIds = '';
+  function renderDMRows(rows) {
+    var body = $b();
+    body.querySelectorAll('._lc-msg').forEach(function (n) { n.remove(); });
+    rows.forEach(function (m) {
+      addBubble(m.role === 'owner' ? 'b' : 'u', m.content || '', m.role === 'owner' ? 'SH' : visitor.init);
+      if (m.image_url) { var bs = body.querySelectorAll('._lc-msg .bbl'); bs[bs.length - 1].insertAdjacentHTML('beforeend', '<img src="' + esc(m.image_url) + '" alt="">'); }
+    });
+    dmIds = rows.map(function (m) { return m.id; }).join(',');
+    markSeen(rows.filter(function (m) { return m.role === 'owner'; }).map(function (m) { return m.id; }));
+    body.scrollTop = body.scrollHeight;
   }
   function sendDM(text) {
     text = (text || '').trim();
@@ -767,6 +775,15 @@
   function pollOwnerReplies() {
     var sid = dmSid();
     if (!sid) return;
+    if (isOpen && chatMode === 'dm') {
+      // keep the open thread in sync: new replies appear, removed messages disappear
+      supaGet('chat_messages?session_id=eq.' + encodeURIComponent(sid) + '&select=id,role,content,image_url,created_at&order=created_at.asc').then(function (rows) {
+        if (!(isOpen && chatMode === 'dm')) return;
+        var ids = rows.map(function (m) { return m.id; }).join(',');
+        if (ids !== dmIds) renderDMRows(rows);
+      });
+      return;
+    }
     supaGet('chat_messages?session_id=eq.' + encodeURIComponent(sid) + '&role=eq.owner&select=id,content,image_url&order=created_at.asc').then(function (rows) {
       var seen = seenIds();
       var fresh = rows.filter(function (m) { return seen.indexOf(m.id) < 0; });
