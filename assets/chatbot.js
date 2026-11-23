@@ -53,7 +53,14 @@
   var isOpen    = false;
   var chatMode  = null;         // 'ai' | 'contact'
   var imgAttach = null;         // {file, dataUrl} - contact form
-  var aiImgAttach = null;       // {file, dataUrl, mime, b64} - AI chat
+  var aiImgAttach = null;
+  var pendingImg = null;        // image being sent to AI
+  var kbPairs = [];             // learned Q&A from Supabase ai_knowledge
+  var FIXED_REPLIES = [
+    { k: ['service','offer','what do you do','ki kaj','services'], a: 'I help Shopify brands with:\n• Custom Liquid sections & theme development\n• Store setup, redesign & Figma to Shopify\n• App integrations & Shopify Flow automations\n• Speed optimization & bug fixes\n\nWhat are you working on?' },
+    { k: ['available','availability','free now','take new','hire you'], a: 'Yes, Sohan is currently available for new projects! Tell me a bit about what you need and I\'ll point you in the right direction.' },
+    { k: ['shopify experience','experience','how long','years'], a: 'Sohan has several years of hands-on Shopify experience:\n• Hand-coded custom Liquid sections (no page builders)\n• Stores for skincare, luxury apparel & subscription brands\n• Integrations like Recharge, Appstle, Searchanise, Bambuser\n• Multi-language & multi-market setups\n\nAnything specific you want to build?' }
+  ];       // {file, dataUrl, mime, b64} - AI chat
 
   /* — Load /content.json — */
   fetch('/content.json', {cache:'no-store'})
@@ -141,6 +148,34 @@
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      AI — GEMINI
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  function normQ(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9\u0980-\u09ff ]+/g, ' ').replace(/\s+/g, ' ').trim(); }
+  function findInstantReply(text) {
+    var q = normQ(text);
+    if (!q) return null;
+    var best = null, bestScore = 0, qw = q.split(' ');
+    kbPairs.forEach(function (p) {
+      var pq = normQ(p.question); if (!pq) return;
+      if (pq === q) { best = p.answer; bestScore = 2; return; }
+      var pw = pq.split(' '), hit = pw.filter(function (w) { return w.length > 2 && qw.indexOf(w) >= 0; }).length;
+      var sc = hit / Math.max(pw.filter(function (w) { return w.length > 2; }).length, 1);
+      if (sc > bestScore && sc >= 0.75) { bestScore = sc; best = p.answer; }
+    });
+    if (best) return best;
+    if (qw.length > 8) return null;
+    for (var i = 0; i < FIXED_REPLIES.length; i++) {
+      for (var j = 0; j < FIXED_REPLIES[i].k.length; j++) { if (q.indexOf(FIXED_REPLIES[i].k[j]) >= 0) return FIXED_REPLIES[i].a; }
+    }
+    return null;
+  }
+  function loadKnowledge() {
+    if (!CFG.SUPA_URL || !CFG.SUPA_ANON) return;
+    fetch(CFG.SUPA_URL + '/rest/v1/ai_knowledge?select=question,answer&order=created_at.desc&limit=200', { headers: { apikey: CFG.SUPA_ANON, Authorization: 'Bearer ' + CFG.SUPA_ANON } })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (rows) { if (Array.isArray(rows)) kbPairs = rows.filter(function (r) { return r.question && r.answer; }); })
+      .catch(function () {});
+  }
+  loadKnowledge();
+
   function buildSystemPrompt() {
     var d = siteData || {};
     var name = [d.name_prefix, d.name_first, d.name_last].filter(Boolean).join(' ') || 'Sohan';
@@ -166,6 +201,7 @@
       + 'CONTACT:\nEmail: ' + (contact.email || CFG.OWNER_EMAIL) + '\nWhatsApp: ' + (contact.whatsapp || '') + '\n\n'
       + 'FAQ:\n' + faqs + '\n\n'
       + 'AVAILABILITY: ' + avail + '\n\n'
+      + (kbPairs.length ? 'HOW SOHAN ANSWERS (copy this tone and these facts):\n' + kbPairs.slice(0, 40).map(function (p) { return 'Q: ' + p.question + '\nA: ' + p.answer; }).join('\n\n') + '\n\n' : '')
       + 'INSTRUCTIONS:\n'
       + '- Keep replies SHORT and conversational — 2 to 4 bullet points max, or 2 to 3 short sentences. Never write long paragraphs or walls of text.\n'
       + '- Write like a friendly human, not a formal document. Use simple, natural language.\n'
@@ -185,9 +221,10 @@
       return { role: m.r === 'user' ? 'user' : 'model', parts: [{ text: m.t }] };
     });
     var userParts = [{ text: text }];
-  if (aiImgAttach && aiImgAttach.b64) {
-    userParts.push({ inlineData: { mimeType: aiImgAttach.mime, data: aiImgAttach.b64 } });
+  if (pendingImg && pendingImg.b64) {
+    userParts.push({ inlineData: { mimeType: pendingImg.mime, data: pendingImg.b64 } });
   }
+  pendingImg = null;
   contents.push({ role: 'user', parts: userParts });
 
     fetch(
@@ -287,7 +324,7 @@
       'flex-shrink:0;transition:all .2s}',
       '#_lc-close:hover{background:rgba(255,255,255,.1);color:#fff}',
       '#_lc-back{display:none;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.6);width:30px;height:30px;border-radius:50%;align-items:center;justify-content:center;font-size:18px;padding:0;flex-shrink:0}#_lc-back:hover{background:rgba(255,255,255,.1);color:#fff}',
-      '#_lc-body ._lc-msg{margin-bottom:14px}#_lc-body ._lc-msg .bbl{white-space:pre-line}',
+      '#_lc-body ._lc-msg .bbl{padding:11px 15px!important;border-radius:18px}#_lc-body ._lc-msg.b .bbl{border-bottom-left-radius:5px}#_lc-body ._lc-msg.u .bbl{border-bottom-right-radius:5px}#_lc-body ._lc-msg .bbl img{max-width:180px;border-radius:10px;display:block;margin-top:6px}#_lc-body ._lc-msg{margin-bottom:14px}#_lc-body ._lc-msg .bbl{white-space:pre-line}',
       '#_lc-close svg{width:16px;height:16px;fill:currentColor}',
       /* body */
       '#_lc-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;',
@@ -614,6 +651,8 @@
     addBubble('u', text, visitor.init);
     chatHist.push({ r: 'user', t: text });
     logMsg('user', text);
+    pendingImg = aiImgAttach;
+    if (pendingImg) { var _bs = $b().querySelectorAll('._lc-msg.u .bbl'); var _lb = _bs[_bs.length-1]; if (_lb) _lb.insertAdjacentHTML('beforeend','<img src="' + pendingImg.dataUrl + '" alt="">'); }
     aiImgAttach = null;
     var prevDiv = document.getElementById('_lc-ai-prev');
     if (prevDiv) { prevDiv.style.display = 'none'; prevDiv.innerHTML = ''; }
@@ -630,6 +669,12 @@
       });
     }
 
+    var instant = pendingImg ? null : findInstantReply(text);
+    if (instant) {
+      showTyping();
+      setTimeout(function () { removeTyping(); chatHist.push({ r: 'model', t: instant }); logMsg('ai', instant); addBubble('b', instant, 'SH'); }, 450);
+      return;
+    }
     showTyping();
     askAI(text, function (reply) {
       removeTyping();
