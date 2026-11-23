@@ -54,10 +54,20 @@ a{color:var(--acc2)}
 .m.owner a{color:#fff}
 .m img{max-width:100%;width:240px;border-radius:10px;display:block;margin-top:6px;cursor:zoom-in}
 .m .t{display:block;font-size:10.5px;opacity:.6;margin-top:4px}
+.m{position:relative;padding-right:40px}
+.del{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.35);color:#fff;font-size:13px;display:none;align-items:center;justify-content:center}
+.m:hover .del,.m.sel .del{display:flex}
+.del:hover{background:#ef4444}
+.m.removing{opacity:.4}
+@media(hover:none){.m .del{display:flex;opacity:.7}}
 .empty{margin:auto;color:var(--mut);text-align:center;padding:20px}
 
 /* quick replies */
-#quick{display:flex;gap:8px;overflow-x:auto;padding:8px 12px 0;flex-shrink:0;scrollbar-width:none}
+#qwrap{display:flex;align-items:center;gap:6px;padding:8px 8px 0;flex-shrink:0;min-width:0}
+.qarr{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.08);color:var(--txt);font-size:18px;line-height:1;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.qarr:hover{background:rgba(139,92,246,.3)}
+.qarr[disabled]{opacity:.25;cursor:default}
+#quick{display:flex;gap:8px;overflow-x:auto;flex:1;min-width:0;scroll-behavior:smooth;scrollbar-width:none}
 #quick::-webkit-scrollbar{display:none}
 .q{flex-shrink:0;max-width:240px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3);color:#ddd6fe;border-radius:18px;padding:7px 12px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .q:hover{background:rgba(139,92,246,.25)}
@@ -129,7 +139,7 @@ a{color:var(--acc2)}
     </div>
     <div id="msgs"><p class="empty">Select a conversation to start replying</p></div>
     <div id="composer">
-      <div id="quick"></div>
+      <div id="qwrap"><button class="qarr" id="qleft" aria-label="Scroll left">&#8249;</button><div id="quick"></div><button class="qarr" id="qright" aria-label="Scroll right">&#8250;</button></div>
       <div id="prev"></div>
       <div id="box">
         <input type="file" id="file" hidden>
@@ -221,13 +231,30 @@ function loadMsgs(scroll){
     lastCount = msgs.length;
     box.innerHTML = msgs.map(function(m){
       var who = m.role==='ai'?'AI':m.role==='owner'?'You':'Visitor';
-      return '<div class="m ' + esc(m.role) + '">' + linkify(m.content) +
+      return '<div class="m ' + esc(m.role) + '" data-id="' + esc(m.id) + '"><button class="del" title="Remove for everyone" aria-label="Remove for everyone">&#128465;</button>' + linkify(m.content) +
         (m.image_url ? '<img src="' + esc(m.image_url) + '" alt="">' : '') +
         '<span class="t">' + who + ' · ' + new Date(m.created_at).toLocaleString() + '</span></div>';
     }).join('') || '<p class="empty">No messages</p>';
+    box.querySelectorAll('.del').forEach(function(b){ b.onclick = function(e){ e.stopPropagation(); removeMsg(b.parentNode); }; });
+    box.querySelectorAll('.m').forEach(function(el){ el.onclick = function(){ el.classList.toggle('sel'); }; });
     box.querySelectorAll('.m img').forEach(function(i){ i.onclick = function(){ $('zoom').querySelector('img').src = i.src; $('zoom').style.display='flex'; }; });
     if (atBottom) box.scrollTop = box.scrollHeight;
   });
+}
+
+/* remove for everyone */
+function removeMsg(el){
+  if (!confirm('Remove this message for everyone? The visitor will no longer see it.')) return;
+  el.classList.add('removing');
+  api('', { method:'POST', body:{ action:'delete', id: el.dataset.id } }).then(function(r){
+    if (r && r.error) throw new Error(r.error);
+    el.remove(); lastCount = -1; toast('Message removed for everyone');
+  }).catch(function(e){ el.classList.remove('removing'); toast('Could not remove: ' + e.message); });
+}
+function updArrows(){
+  var q = $('quick');
+  $('qleft').disabled = q.scrollLeft <= 2;
+  $('qright').disabled = q.scrollLeft + q.clientWidth >= q.scrollWidth - 2;
 }
 
 /* sending */
@@ -273,6 +300,7 @@ function renderQuick(){
     };
   });
   $('qopen').onclick = openQM;
+  setTimeout(updArrows, 50);
 }
 function openQM(){ renderQList(); $('qm').style.display='flex'; }
 function renderQList(){
@@ -305,6 +333,10 @@ $('back').onclick = function(){ $('app').classList.remove('open'); current = nul
 $('qclose').onclick = function(){ $('qm').style.display='none'; };
 $('qm').onclick = function(e){ if (e.target.id==='qm') $('qm').style.display='none'; };
 $('qadd').onclick = function(){ var v = $('qnew').value.trim(); if (!v) return; var q = getQuick(); q.push(v); setQuick(q); $('qnew').value=''; renderQList(); };
+$('qleft').onclick = function(){ $('quick').scrollBy({ left: -260 }); };
+$('qright').onclick = function(){ $('quick').scrollBy({ left: 260 }); };
+$('quick').addEventListener('scroll', updArrows);
+window.addEventListener('resize', updArrows);
 $('zoom').onclick = function(){ $('zoom').style.display='none'; };
 if (PASS) start();
 </script>
