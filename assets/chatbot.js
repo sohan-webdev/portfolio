@@ -197,7 +197,7 @@
         body: JSON.stringify({
           system_instruction: { parts: [{ text: buildSystemPrompt() }] },
           contents: contents,
-          generationConfig: { maxOutputTokens: 400, temperature: 0.7 }
+          generationConfig: { maxOutputTokens: 600, temperature: 0.7 }
         })
       }
     )
@@ -223,7 +223,15 @@
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
      EMAIL — Web3Forms
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-  function sendEmail(data) {
+  function sendEmail(data, attachFile) {
+    if (attachFile) {
+      var fd = new FormData();
+      fd.append('access_key', CFG.W3F_KEY);
+      fd.append('botcheck', '');
+      Object.keys(data).forEach(function(k){ fd.append(k, data[k]); });
+      fd.append('attachment', attachFile);
+      return fetch('https://api.web3forms.com/submit', { method: 'POST', body: fd }).catch(function(){});
+    }
     return fetch('https://api.web3forms.com/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -319,7 +327,7 @@
       'transition:all .15s;white-space:nowrap;font-family:inherit}',
       '._lc-chip:hover{background:rgba(139,92,246,.22);color:#fff;border-color:rgba(139,92,246,.5)}',
       /* messages */
-      '._lc-msg{display:flex;gap:8px;align-items:flex-end}._lc-msg.u{flex-direction:row-reverse}',
+      '._lc-msg{display:flex;gap:8px;align-items:flex-end;margin-bottom:10px}._lc-msg.u{flex-direction:row-reverse}',
       '._lc-msg .bbl{max-width:80%;padding:10px 14px;border-radius:18px;font-size:14px;line-height:1.6;word-break:break-word}',
       '._lc-msg.b .bbl{background:rgba(255,255,255,.07);color:rgba(255,255,255,.88);border-bottom-left-radius:5px}',
       '._lc-msg.u .bbl{background:' + A + ';color:#fff;border-bottom-right-radius:5px}',
@@ -354,6 +362,10 @@
       'cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;',
       'transition:opacity .2s;padding:0}',
       '#_lc-send:hover{opacity:.85}#_lc-send svg{width:18px;height:18px;fill:#fff}',
+      '#_lc-imgbtn{width:36px;height:36px;background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;padding:0;color:rgba(255,255,255,.45)}',
+      '#_lc-imgbtn:hover,#_lc-imgbtn.has-img{border-color:' + A + ';color:' + A + '}',
+      '#_lc-ai-prev img{height:52px;border-radius:8px;border:1px solid rgba(255,255,255,.15)}',
+      '#_lc-ai-prev .rm2{background:rgba(0,0,0,.5);border:none;color:#fff;border-radius:50%;width:18px;height:18px;cursor:pointer;font-size:12px;line-height:1;padding:0}',
       /* brand footer */
       '#_lc-brand{text-align:center;font-size:11px;color:rgba(139,92,246,.55);padding:5px 0 9px;letter-spacing:.3px}',
       /* image attach */
@@ -402,7 +414,10 @@
           '</button>' +
         '</div>' +
         '<div id="_lc-body"></div>' +
+        '<div id="_lc-ai-prev" style="display:none;padding:6px 14px 0;gap:6px;align-items:center;flex-shrink:0"></div>' +
         '<div id="_lc-ft">' +
+          '<button id="_lc-imgbtn" title="Attach image"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>' +
+          '<input id="_lc-aifile" type="file" accept="image/*" style="display:none">' +
           '<textarea id="_lc-in" rows="1" placeholder="Type a message…"></textarea>' +
           '<button id="_lc-send"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>' +
         '</div>' +
@@ -552,12 +567,11 @@
           '<p><strong>Email:</strong> ' + em + '</p>' +
           '<p><strong>Page:</strong> ' + location.href + '</p>' +
           '<p><strong>Message:</strong></p><p>' + msg.replace(/\n/g,'<br>') + '</p>';
-        if (imgAttach && imgAttach.dataUrl) {
-          emailHtml += '<p><strong>Attachment:</strong></p><img src="' + imgAttach.dataUrl + '" style="max-width:500px;border-radius:8px;border:1px solid #ddd">';
-        } else if (imgUrl) {
+        if (imgUrl) {
           emailHtml += '<p><strong>Attachment:</strong> <a href="' + imgUrl + '">' + imgUrl + '</a></p>';
         }
-        return sendEmail({ subject: 'Direct message from ' + nm + ' on your portfolio', from_name: nm, email: em, message: emailHtml, is_html: true });
+        var attachFile = (imgAttach && imgAttach.file && !imgUrl) ? imgAttach.file : null;
+        return sendEmail({ subject: 'Direct message from ' + nm + ' on your portfolio', from_name: nm, email: em, message: emailHtml, is_html: true }, attachFile);
       }).then(function () {
         imgAttach = null;
         try{var _inbox=JSON.parse(localStorage.getItem('_lc_inbox')||'[]');_inbox.unshift({id:genUUID(),name:nm,email:em,message:msg,time:new Date().toISOString(),read:false});localStorage.setItem('_lc_inbox',JSON.stringify(_inbox));localStorage.setItem('_lc_unread',String(_inbox.filter(function(x){return!x.read;}).length));}catch(_e){}
