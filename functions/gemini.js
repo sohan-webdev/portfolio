@@ -1,12 +1,3 @@
-export async function onRequestGet(context) {
-  const GEMINI_KEY = context.env.GEMINI_KEY;
-  const resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + GEMINI_KEY);
-  const data = await resp.json();
-  return new Response(JSON.stringify(data), {
-    status: resp.status,
-    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
-  });
-}
 export async function onRequestPost(context) {
   const GEMINI_KEY = context.env.GEMINI_KEY;
   if (!GEMINI_KEY) {
@@ -20,18 +11,15 @@ export async function onRequestPost(context) {
       status: 400, headers: { 'Content-Type': 'application/json' }
     });
   }
-  const MODEL = 'gemini-3.8-flash';
-  const URL = 'https://generativelanguage.googleapis.com/v1beta/models/' + MODEL + ':generateContent?key=' + GEMINI_KEY;
+  const models = ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
   let resp, data;
-  for (let i = 0; i < 3; i++) {
-    if (i > 0) await new Promise(r => setTimeout(r, 1500));
-    resp = await fetch(URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
+  for (const model of models) {
+    resp = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + GEMINI_KEY,
+      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+    );
     data = await resp.json();
-    if (!data.error || (data.error.code !== 503 && data.error.code !== 429)) break;
+    if (!data.error || (data.error.code !== 503 && data.error.code !== 404 && data.error.code !== 429)) break;
   }
   return new Response(JSON.stringify(data), {
     status: resp.status,
@@ -41,7 +29,7 @@ export async function onRequestPost(context) {
 export async function onRequestOptions() {
   return new Response(null, { headers: {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type'
   }});
 }
