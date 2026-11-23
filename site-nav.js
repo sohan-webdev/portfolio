@@ -80,4 +80,6 @@ addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key.toLowerC
     DS=mountSearch({wrap:document.getElementById('dsrch'),input:document.getElementById('dsIn'),panel:document.getElementById('dsPanel'),getIdx:function(){return IDX},go:go,icon:ico,mobile:true,onOpen:function(op){drw.classList.toggle('searching',op)}});
   }
 }).catch(function(){});
-})();
+
+// Load chatbot on sub-pages
+if(!document.getElementById('_lc-wrap')){var _lcs=document.createElement('script');_lcs.src='/assets/chatbot.js';document.body.appendChild(_lcs);}})();
