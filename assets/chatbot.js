@@ -55,7 +55,7 @@
   var imgAttach = null;         // {file, dataUrl}
 
   /* — Load /content.json — */
-  fetch('/content.json')
+  fetch('/content.json', {cache:'no-store'})
     .then(function (r) { return r.json(); })
     .then(function (d) {
       siteData = d;
@@ -164,7 +164,7 @@
       + 'INSTRUCTIONS:\n'
       + '- Give detailed, helpful replies. Explain fully what Sohan can do — no need to be brief.\n- Sohan is highly skilled and can handle almost any Shopify or web development task, so confidently say yes to most things.\n'
       + '- For pricing: say it depends on project scope and suggest contacting ' + name + ' directly.\n'
-      + '- Only use [ESCALATE] if the question is completely unrelated to web/Shopify development or if you truly cannot answer. For anything related to Shopify, web dev, or Sohan's work — answer confidently. If the question is outside your knowledge about ' + name + ', start your reply ONLY with [ESCALATE] then write a brief friendly note (e.g. "[ESCALATE] Great question! For this Sohan would be better placed to help.").\n'
+      + '- Only use [ESCALATE] if the question is completely unrelated to web/Shopify development or if you truly cannot answer. For anything related to Shopify, web dev, or Sohan\'s work — answer confidently. If the question is outside your knowledge about ' + name + ', start your reply ONLY with [ESCALATE] then write a brief friendly note (e.g. "[ESCALATE] Great question! For this Sohan would be better placed to help.").\n'
       + '- Match the visitor\'s language (Bangla → reply in Bangla, English → reply in English).\n'
       + '- Never invent information.';
   }
