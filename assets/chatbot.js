@@ -162,7 +162,7 @@
       + 'FAQ:\n' + faqs + '\n\n'
       + 'AVAILABILITY: ' + avail + '\n\n'
       + 'INSTRUCTIONS:\n'
-      + '- Keep replies SHORT and friendly — 2 to 3 sentences max.\n'
+      + '- Keep replies concise and friendly — answer fully but avoid unnecessary padding.\n'
       + '- For pricing: say it depends on project scope and suggest contacting ' + name + ' directly.\n'
       + '- If the question is outside your knowledge about ' + name + ', start your reply ONLY with [ESCALATE] then write a brief friendly note (e.g. "[ESCALATE] Great question! For this Sohan would be better placed to help.").\n'
       + '- Match the visitor\'s language (Bangla → reply in Bangla, English → reply in English).\n'
@@ -183,7 +183,7 @@
         body: JSON.stringify({
           system_instruction: { parts: [{ text: buildSystemPrompt() }] },
           contents: contents,
-          generationConfig: { maxOutputTokens: 220, temperature: 0.7 }
+          generationConfig: { maxOutputTokens: 600, temperature: 0.7 }
         })
       }
     )
