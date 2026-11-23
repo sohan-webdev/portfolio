@@ -22,8 +22,7 @@
      CONFIG  —  update these values
   ═══════════════════════════════════════════════════════════ */
   var CFG = {
-    // 🔑 NEW Gemini key — get at aistudio.google.com/app/apikey
-    GEMINI_KEY:  'AQ.Ab8RN6I3IfBylTUSjZg77aiXNm3Jl_A5gSjQOD_xMaQhO7EHvw',
+    GEMINI_KEY:  '',  // key stored in Cloudflare env, not here
 
     // 📧 Web3Forms — email notifications to owner
     W3F_KEY:     '4a36a48e-1581-4fb8-86f9-245c2769a4d6',
@@ -177,7 +176,7 @@
     contents.push({ role: 'user', parts: [{ text: text }] });
 
     fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + CFG.GEMINI_KEY,
+      '/gemini',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
