@@ -200,12 +200,21 @@
     )
       .then(function (r) { return r.json(); })
       .then(function (d) {
+        if (d.error) {
+          var code = d.error.code || 0;
+          if (code === 503 || code === 429) {
+            callback('[RETRY]');
+          } else {
+            callback('[RETRY]');
+          }
+          return;
+        }
         var reply = (d.candidates && d.candidates[0] &&
           d.candidates[0].content && d.candidates[0].content.parts &&
-          d.candidates[0].content.parts[0].text) || '[ESCALATE]';
+          d.candidates[0].content.parts[0].text) || '[RETRY]';
         callback(reply);
       })
-      .catch(function () { callback('[ESCALATE]'); });
+      .catch(function () { callback('[RETRY]'); });
   }
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -600,7 +609,9 @@
     showTyping();
     askAI(text, function (reply) {
       removeTyping();
-      if (reply.indexOf('[ESCALATE]') === 0) {
+      if (reply === '[RETRY]') {
+        addBubble('b', "AI is briefly unavailable — please try again in a moment.", 'SH');
+      } else if (reply.indexOf('[ESCALATE]') === 0) {
         var note = reply.replace('[ESCALATE]', '').trim();
         if (note) addBubble('b', note, 'SH');
         addEscCard();
